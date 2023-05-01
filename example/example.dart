@@ -239,7 +239,7 @@ void main() {
     [3, 4]
   ]);
 
-  Matrix b = Matrix([
+  Matrix bb = Matrix([
     [5, 6],
     [7, 8]
   ]);
@@ -266,8 +266,8 @@ void main() {
     [9, 9, 8, 6],
     [1, 1, 2, 9]
   ]);
-  var result = Matrix.compare(m, '>', 2);
-  print(result);
+  var cmp = Matrix.compare(m, '>', 2);
+  print(cmp);
 
   var m1 = Matrix([
     [1, 2],
@@ -278,8 +278,34 @@ void main() {
     [3, 4]
   ]);
   print(m1 == m2); // Output: true
+  print(m1.notEqual(m2)); // Output: false
 
-  print(m1.notEqual(m2)); // Output: true
+  // Transpose of a matrix
+  var transpose = matrix.transpose();
+  print(transpose);
+
+  // Inverse of Matrix
+  var inverse = matrix.inverse();
+  print(inverse);
+
+  //Solve Matrix
+  var A = Matrix([
+    [2, 1, 1],
+    [1, 3, 2],
+    [1, 0, 0]
+  ]);
+  var b = Matrix([
+    [4],
+    [5],
+    [6]
+  ]);
+  //var result = A.gaussianElimination(b);
+  var result = A.solve(b, method: 'lu');
+  print(result);
+
+// Find the normalized matrix
+  var normalize = matrix.normalize();
+  print(normalize);
 
   // // Eigen values and EigenVectors
   // Matrix A = Matrix.fromList([

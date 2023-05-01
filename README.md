@@ -5,7 +5,7 @@
 [![Last Commits](https://img.shields.io/github/last-commit/gameticharles/matrix_utils?ogo=github&logoColor=white)](https://github.com/gameticharles/matrix_utils/commits/master)
 [![Pull Requests](https://img.shields.io/github/issues-pr/gameticharles/matrix_utils?ogo=github&logoColor=white)](https://github.com/gameticharles/matrix_utils/pulls)
 [![Code size](https://img.shields.io/github/languages/code-size/gameticharles/matrix_utils?ogo=github&logoColor=white)](https://github.com/gameticharles/matrix_utils)
-[![License](https://img.shields.io/github/license/gameticharles/matrix?ogo=github&logoColor=white)](https://github.com/gameticharles/matrix_utils/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/gameticharles/matrix_utils?ogo=github&logoColor=white)](https://github.com/gameticharles/matrix_utils/blob/main/LICENSE)
 
 [![CI](https://img.shields.io/github/workflow/status/gameticharles/matrix_utils/Dart%20CI/master?logo=github-actions&logoColor=white)](https://github.com/gameticharles/matrix/actions)
 [![New Commits](https://img.shields.io/github/commits-since/gameticharles/matrix_utils/latest?logo=github&logoColor=white)](https://github.com/gameticharles/matrix_utils/network)
@@ -259,28 +259,31 @@ print(result);
 
 // Determinant of a matrix
 var determinant = matrix.determinant();
-print(determinant); // Output: -2
+print(determinant); // Output: -2.0
 
 // Inverse of Matrix
 var inverse = matrix.inverse();
 print(inverse);
 // Output:
-// -2.0 1.0
-// 1.5 -0.5
+// Matrix: 2x2
+// ┌ -0.5  1.5 ┐
+// └  1.0 -2.0 ┘
 
 // Transpose of a matrix
 var transpose = matrix.transpose();
 print(transpose);
 // Output:
-// 1 3
-// 2 4
+// Matrix: 2x2
+// ┌ 4.0 2.0 ┐
+// └ 3.0 1.0 ┘
 
 // Find the normalized matrix
 var normalize = matrix.normalize();
 print(normalize);
 // Output:
-// 0.25 0.5
-// 0.75 1.0
+// Matrix: 2x2
+// ┌ 1.0 0.75 ┐
+// └ 0.5 0.25 ┘
 
 // Norm of a matrix
 var norm = matrix.norm();
