@@ -451,16 +451,15 @@ extension MatrixOperationExtension on Matrix {
     if (n != columnCount) {
       throw Exception('Matrix must be square to calculate determinant');
     }
+    _data = _Utils.toDoubleMatrix(_data);
 
     if (n == 1) {
       return this[0][0];
     }
 
     if (n == 2) {
-      return this[0][0] * this[1][1] - this[0][1] * this[1][0];
+      return (_data[0][0] * _data[1][1]) - (_data[0][1] * _data[1][0]);
     }
-
-    _data = _Utils.toDoubleMatrix(_data as List<List<num>>);
 
     double det = 0;
     for (int p = 0; p < n; p++) {
@@ -468,11 +467,11 @@ extension MatrixOperationExtension on Matrix {
         for (int i = 1; i < n; i++)
           [
             for (int j = 0; j < n; j++)
-              if (j != p) this[i][j]
+              if (j != p) _data[i][j]
           ]
       ]);
 
-      det += this[0][p] * (p % 2 == 0 ? 1 : -1) * subMatrix.determinant();
+      det += _data[0][p] * (p % 2 == 0 ? 1 : -1) * subMatrix.determinant();
     }
 
     return det;
@@ -545,9 +544,7 @@ extension MatrixOperationExtension on Matrix {
       throw Exception('Matrix is singular and cannot be inverted');
     }
 
-    Matrix adjugateMatrix = Matrix([
-      for (int i = 0; i < n; i++) [for (int j = 0; j < n; j++) 0]
-    ]);
+    Matrix adjugateMatrix = Matrix.fill(n, n, 0.0);
 
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {

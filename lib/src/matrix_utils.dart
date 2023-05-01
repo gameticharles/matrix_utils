@@ -359,7 +359,7 @@ class Matrix {
   ///
   /// Example:
   /// ```dart
-  /// var m = Matrix.range(6, 1, 2, isColumn: true);
+  /// var m = Matrix.range(6,  start: 1, step: 2, isColumn: true);
   /// print(m);
   /// // Output:
   /// // Matrix: 3x1
@@ -368,17 +368,17 @@ class Matrix {
   /// // └ 5 ┘
   /// ```
   factory Matrix.range(int end,
-      {int start = 1, int steps = 1, bool isColumn = false}) {
+      {int start = 1, int step = 1, bool isColumn = false}) {
     if (start >= end) {
       throw Exception('Start must be less than end');
     }
 
-    if (steps <= 0) {
+    if (step <= 0) {
       throw Exception('Step must be a positive integer');
     }
 
     List<dynamic> range = [];
-    for (int i = start; i < end; i += steps) {
+    for (int i = start; i < end; i += step) {
       range.add(i);
     }
 
@@ -391,8 +391,8 @@ class Matrix {
 
   /// Alias for Matrix.range.
   factory Matrix.arrange(int end,
-      {int start = 1, int steps = 1, bool isColumn = false}) {
-    return Matrix.range(end, start: start, steps: steps, isColumn: isColumn);
+      {int start = 1, int step = 1, bool isColumn = false}) {
+    return Matrix.range(end, start: start, step: step, isColumn: isColumn);
   }
 
   /// Compares each element of the matrix to the specified value using the given comparison operator.
@@ -613,7 +613,13 @@ class Matrix {
   /// // └ 3 4 ┘
   /// ```
   @override
-  String toString({String separator = ' ', String alignment = 'right'}) {
-    return _Utils.matString(this, separator: separator, alignment: alignment);
+  String toString(
+      {String separator = ' ',
+      bool isPrettyMatrix = true,
+      String alignment = 'right'}) {
+    return _Utils.matString(this,
+        separator: separator,
+        isPrettyMatrix: isPrettyMatrix,
+        alignment: alignment);
   }
 }

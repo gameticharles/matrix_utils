@@ -36,52 +36,83 @@ You can create a Matrix object in different ways:
 
 ```dart
 // Create a 2x2 Matrix from string 
-Matrix a Matrix("1 2 3; 4 5 6; 7 8 9");
-print(d);
+Matrix a = Matrix("1 2 3; 4 5 6; 7 8 9");
+print(a);
 // Output:
-// 1 2 3
-// 4 5 6
-// 7 8 9
+// Matrix: 3x3
+// ┌ 1 2 3 ┐
+// │ 4 5 6 │
+// └ 7 8 9 ┘
 
 // Create a matrix from a list of lists
 Matrix b = Matrix([
   [1, 2],
   [3, 4]
 ]);
+print(b);
+// Output:
+// Matrix: 2x2
+// ┌ 1 2 ┐
+// └ 3 4 ┘
 
 // Create a matrix from a list of diagonal objects
 Matrix d = Matrix.fromDiagonal([1, 2, 3]);
 print(d);
 // Output:
-// 1 0 0
-// 0 2 0
-// 0 0 3
+// Matrix: 3x3
+// ┌ 1 0 0 ┐
+// │ 0 2 0 │
+// └ 0 0 3 ┘
 
 // Create a from a list of lists
 Matrix c = [[1, '2', true],[3, '4', false]].toMatrix()
+print(c);
+// Output:
+// Matrix: 2x3
+// ┌ 1 2  true ┐
+// └ 3 4 false ┘
 
 // Create a 2x2 matrix with all zeros
 Matrix zeros = Matrix.zeros(2, 2);
+print(zeros)
+// Output:
+// Matrix: 2x2
+// ┌ 0 0 ┐
+// └ 0 0 ┘
 
 // Create a 2x3 matrix with all ones
 Matrix ones = Matrix.ones(2, 3);
+print(ones)
+// Output:
+// Matrix: 2x3
+// ┌ 1 1 1 ┐
+// └ 1 1 1 ┘
 
 // Create a 2x2 identity matrix
 Matrix identity = Matrix.eye(2);
+print(identity)
+// Output:
+// Matrix: 2x2
+// ┌ 1 0 ┐
+// └ 0 1 ┘
 
 // Create a matrix that is filled with same object
 Matrix e = Matrix.fill(2, 3, 7);
 print(e);
 // Output:
-// 7 7 7
-// 7 7 7
+// Matrix: 2x3
+// ┌ 7 7 7 ┐
+// └ 7 7 7 ┘
 
 // Create a matrix from linspace and create a diagonal matrix
-Matrix f = Matrix.linespace(0, 10, 3);
-print(Matrix.fromDiagonal(f.toList()));
+Matrix f = Matrix.linspace(0, 10, 3);
+print(f);
+// Output:
+// Matrix: 1x3
+// [ 0.0 5.0 10.0 ]
 
 // Create from a range or arrange at a step
-var m = Matrix.range(6, start: 1, step: 2);
+var m = Matrix.range(6, start: 1, step: 2, isColumn: false);
 print(m);
 // Output:
 // Matrix: 1x3
@@ -113,59 +144,118 @@ Matrix b = Matrix([
   [7, 8]
 ]);
 
-// Addition
+// Addition of two square matrices
 Matrix sum = a + b;
+print(sum);
+// Output:
+// Matrix: 2x2
+// ┌  6  8 ┐
+// └ 10 12 ┘
 
-// Subtraction
+// Addition of a matrix and a scalar
+print(a + 2);
+// Output:
+// Matrix: 2x2
+// ┌ 3 4 ┐
+// └ 5 6 ┘
+
+// Subtraction of two square matrices
 Matrix difference = a - b;
+print(difference);
+// Output:
+// Matrix: 2x2
+// ┌ -4 -4 ┐
+// └ -4 -4 ┘
 
 // Matrix Scaler multiplication
-Matrix product = a * 2;
+Matrix scaler = a * 2;
+print(scaler);
+// Output:
+// Matrix: 2x2
+// ┌ 2 4 ┐
+// └ 6 8 ┘
+
+// Matrix dot product
+Matrix product = a * Column([4,5]);
+print(product);
+// Output:
+// Matrix: 2x1
+// ┌ 14.0 ┐
+// └ 32.0 ┘
 
 // Matrix division
 Matrix division = b / 2;
+print(division);
+// Output:
+// Matrix: 2x2
+// ┌ 2.5 3.0 ┐
+// └ 3.5 4.0 ┘
+
+// NB: For element-wise division, use elementDivision()
+Matrix elementDivision = a.elementDivide(b);
+print(elementDivision);
+// Output:
+// Matrix: 2x2
+// ┌                 0.2 0.3333333333333333 ┐
+// └ 0.42857142857142855                0.5 ┘
+
 
 // Matrix exponent
 Matrix expo = b ^ 2;
+print(expo);
+// Output:
+// Matrix: 2x2
+// ┌ 67  78 ┐
+// └ 91 106 ┘
 
 // Negate Matrix
 Matrix negated = -a;
+print(negated);
+// Output:
+// Matrix: 2x2
+// ┌ -1 -2 ┐
+// └ -3 -4 ┘
 
 // Element-wise operation with function
 var result = a.elementWise(b, (x, y) => x * y);
 print(result);
 // Output:
-// 2  6
-// 12 20
+// Matrix: 2x2
+// ┌  5 12 ┐
+// └ 21 32 ┘
 
 var matrix = Matrix([[-1, 2], [3, -4]]);
 var abs = matrix.abs();
 print(abs);
 // Output:
-// 1 2
-// 3 4
+// Matrix: 2x2
+// ┌ 1 2 ┐
+// └ 3 4 ┘
 
-// Matrix Reciprocal
+// Matrix Reciprocal round to 2 decimal places
 var matrix = Matrix([[1, 2], [3, 4]]);
 var reciprocal = matrix.reciprocal();
-print(reciprocal);
+print(reciprocal.round(2));
 // Output:
-// 1.0 0.5
-// 0.3333333333333333 0.25
+// Matrix: 2x2
+// ┌                1.0  0.5 ┐
+// └ 0.3333333333333333 0.25 ┘
 
 // Round the elements to a decimal place
-print(reciprocal.round(2))
+print(reciprocal.round(2));
 // Output:
-// 1.0 0.5
-// 0.33 0.25
+// Matrix: 2x2
+// ┌  1.0  0.5 ┐
+// └ 0.33 0.25 ┘
 
 // Matrix dot product
 var matrixB = Matrix([[2, 0], [1, 2]]);
 var result = matrix.dot(matrixB);
 print(result);
 // Output:
-// 4 4
-// 10 8
+// Matrix: 2x2
+// ┌  4 4 ┐
+// └ 10 8 ┘
 
 // Determinant of a matrix
 var determinant = matrix.determinant();

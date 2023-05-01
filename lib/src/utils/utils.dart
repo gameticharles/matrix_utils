@@ -25,15 +25,16 @@ class _Utils {
   }
 
   ///Convert the integer matrix to double type
-  static List<List<num>> toDoubleMatrix(List<List<num>> input) {
+  static List<List<double>> toDoubleMatrix(List<List<dynamic>> input) {
     return input
-        .map((row) => row.map((value) => value.toDouble()).toList())
+        .map((row) => row.map((value) => (value as num).toDouble()).toList())
         .toList();
   }
 
-// Column norm helper function
+  // Column norm helper function
   static double columnNorm(List<dynamic> column) {
-    return sqrt(column.map((e) => e * e).reduce((sum, e) => sum + e));
+    return sqrt(
+        column.map((e) => e * e.toDouble()).reduce((sum, e) => sum + e));
   }
 
   /// Returns the column at the given [index] as a list of dynamic elements.
@@ -124,7 +125,7 @@ class _Utils {
   static List<Matrix> luDecomposition(Matrix a) {
     int rowCount = a.rowCount;
     Matrix l = Matrix.eye(rowCount);
-    Matrix u = Matrix(a.toList() as List<List<num>>);
+    Matrix u = _Utils.toDoubleMatrix(a._data).toMatrix();
 
     for (int k = 0; k < rowCount - 1; k++) {
       for (int i = k + 1; i < rowCount; i++) {
@@ -197,18 +198,21 @@ class _Utils {
   ///
   /// [separator]: A string used to separate matrix elements in a row. Default is a space character (' ').
   /// [alignment]: A string indicating the alignment of the elements in each column. Default is 'right'.
+  /// [isPrettyMatrix]: A boolean indicating whether the matrix is pretty or not (as lists). Default is true
   ///
   /// Example:
   /// ```dart
   /// var m = Matrix([[1, 2], [3, 4]]);
-  /// print(m.toString(separator: ' ', alignment: 'right'));
+  /// print(m.toString(separator: ' ', isPrettyMatrix = true alignment: 'right'));
   /// // Output:
   /// // Matrix: 2x2
   /// // ┌ 1 2 ┐
   /// // └ 3 4 ┘
   /// ```
   static String matString(Matrix m,
-      {String separator = ' ', String alignment = 'right'}) {
+      {String separator = ' ',
+      bool isPrettyMatrix = true,
+      String alignment = 'right'}) {
     List<int> columnWidths = List.generate(m.columnCount, (_) => 0);
     List<String> rows = [];
 
@@ -231,12 +235,21 @@ class _Utils {
       return 'Matrix: ${m.rowCount}x${m.columnCount}\n[ ${rows[0]} ]';
     }
 
-    String top = '┌ ${rows[0]} ┐';
-    String middle = m.rowCount > 2
-        ? rows.sublist(1, m.rowCount - 1).map((row) => '│ $row │').join('\n')
-        : '';
-    String bottom = '└ ${rows[m.rowCount - 1]} ┘';
+    String matToString = '';
 
-    return 'Matrix: ${m.rowCount}x${m.columnCount}\n${middle.isNotEmpty ? '$top\n$middle\n$bottom' : '$top\n$bottom'}';
+    if (isPrettyMatrix) {
+      String top = '┌ ${rows[0]} ┐';
+      String middle = m.rowCount > 2
+          ? rows.sublist(1, m.rowCount - 1).map((row) => '│ $row │').join('\n')
+          : '';
+      String bottom = '└ ${rows[m.rowCount - 1]} ┘';
+      matToString =
+          middle.isNotEmpty ? '$top\n$middle\n$bottom' : '$top\n$bottom';
+    } else {
+      String matrixRepresentation = rows.map((row) => ' [ $row ]').join('\n');
+      matToString = '[\n$matrixRepresentation\n]';
+    }
+
+    return 'Matrix: ${m.rowCount}x${m.columnCount}\n$matToString';
   }
 }

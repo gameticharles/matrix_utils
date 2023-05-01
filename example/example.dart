@@ -1,7 +1,7 @@
 import 'package:matrix_utils/matrix_utils.dart';
 
 void main() {
-  var mat = Matrix.random(2, 3);
+  var mat = Matrix.random(5, 4);
   print(mat.round(3));
 
   mat = Matrix.fromList([
@@ -146,7 +146,7 @@ void main() {
   print(zeros);
 
   //ones
-  var ones = Matrix.ones(3, 3);
+  var ones = Matrix.ones(2, 3);
   print(ones);
 
   //sum
@@ -234,21 +234,44 @@ void main() {
   print(numbers.min());
   print(numbers.max());
 
-  // Eigen values and EigenVectors
-  Matrix A = Matrix.fromList([
-    [2, 3, 3, 3],
-    [9, 9, 8, 6],
-    [1, 1, 2, 9],
-    [0, 1, 1, 1]
+  Matrix a = Matrix([
+    [1, 2],
+    [3, 4]
   ]);
 
-  List<dynamic> result = Matrix().qrAlgorithm(A, 100, 1e-10);
-  List<double> eigenvalues = result[0];
-  Matrix eigenvectors = result[1];
+  Matrix b = Matrix([
+    [5, 6],
+    [7, 8]
+  ]);
 
-  print("Eigenvalues:");
-  print(eigenvalues);
+  var matrix = Matrix([
+    [1, 2],
+    [3, 4]
+  ]);
 
-  print("Eigenvectors:");
-  print(eigenvectors);
+// Matrix dot product
+  var matrixB = Matrix([
+    [2, 0],
+    [1, 2]
+  ]);
+  var determinant = matrix.determinant();
+  print(determinant); // Output: -2
+
+  // // Eigen values and EigenVectors
+  // Matrix A = Matrix.fromList([
+  //   [2, 3, 3, 3],
+  //   [9, 9, 8, 6],
+  //   [1, 1, 2, 9],
+  //   [0, 1, 1, 1]
+  // ]);
+
+  // List<dynamic> result = Matrix().qrAlgorithm(A, 100, 1e-10);
+  // List<double> eigenvalues = result[0];
+  // Matrix eigenvectors = result[1];
+
+  // print("Eigenvalues:");
+  // print(eigenvalues);
+
+  // print("Eigenvectors:");
+  // print(eigenvectors);
 }
