@@ -487,19 +487,25 @@ var m1 = Matrix([[1, 2], [3, 4]]);
 var m2 = Matrix([[1, 2], [3, 4]]);
 print(m1 == m2); // Output: true
 
-print(m1.notEqual(m2)); // Output: true
+print(m1.notEqual(m2)); // Output: false
 
 ```
 
 Compare elements of Matrix
 
 ```dart
-var m = Matrix([[1, 2], [3, 4]]);
+var m = Matrix.fromList([
+    [2, 3, 3, 3],
+    [9, 9, 8, 6],
+    [1, 1, 2, 9]
+  ]);
 var result = Matrix.compare(m, '>', 2);
 print(result);
 // Output:
-// false false
-// true true
+// Matrix: 3x4
+// ┌ false  true  true true ┐
+// │  true  true  true true │
+// └ false false false true 
 
 ```
 
@@ -514,16 +520,18 @@ var matrix = Matrix([[1, 2], [3, 4]]);
 matrix.swapRows(0, 1);
 print(matrix);
 // Output:
-// 3 4
-// 1 2
+// Matrix: 2x2
+// ┌ 3 4 ┐
+// └ 1 2 ┘
 
 
 // Swap columns
 matrix.swapColumns(0, 1);
 print(matrix);
 // Output:
-// 2 1
-// 4 3
+// Matrix: 2x2
+// ┌ 4 3 ┐
+// └ 2 1 ┘
 
 // Index (row,column) of an element in the matrix 
 var index = m.indexOf(3);
@@ -540,8 +548,9 @@ print(diag);
 var doubled = m.map((x) => x * 2);
 print(doubled);
 // Output:
-// 2 4
-// 6 8
+// Matrix: 2x2
+// ┌ 2 4 ┐
+// └ 6 8 ┘
 
 // // Iterate through elements in the matrix using foreach method
 var m = Matrix([[1, 2], [3, 4]]);

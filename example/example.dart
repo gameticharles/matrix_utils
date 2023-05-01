@@ -244,18 +244,42 @@ void main() {
     [7, 8]
   ]);
 
+// Index (row,column) of an element in the matrix
+  var index = a.indexOf(3);
+  print(index);
+// Output: [1, 0]
+
+// Swap rows
   var matrix = Matrix([
     [1, 2],
     [3, 4]
   ]);
+  matrix.swapRows(0, 1);
+  print(matrix);
 
-// Matrix dot product
-  var matrixB = Matrix([
-    [2, 0],
-    [1, 2]
+// Swap columns
+  matrix.swapColumns(0, 1);
+  print(matrix);
+
+  m = Matrix.fromList([
+    [2, 3, 3, 3],
+    [9, 9, 8, 6],
+    [1, 1, 2, 9]
   ]);
-  var determinant = matrix.determinant();
-  print(determinant); // Output: -2
+  var result = Matrix.compare(m, '>', 2);
+  print(result);
+
+  var m1 = Matrix([
+    [1, 2],
+    [3, 4]
+  ]);
+  var m2 = Matrix([
+    [1, 2],
+    [3, 4]
+  ]);
+  print(m1 == m2); // Output: true
+
+  print(m1.notEqual(m2)); // Output: true
 
   // // Eigen values and EigenVectors
   // Matrix A = Matrix.fromList([

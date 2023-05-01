@@ -788,25 +788,25 @@ extension MatrixOperationExtension on Matrix {
   }
 
   // QR algorithm for eigenvalues and eigenvectors
-  List<dynamic> qrAlgorithm(Matrix A, int max_iterations, double tolerance) {
+  List<dynamic> qrAlgorithm(Matrix A, int maxIterations, double tolerance) {
     if (A.rowCount != A.columnCount) {
       throw Exception("Matrix must be square");
     }
 
     int n = A.rowCount;
-    Matrix Ak = A;
+    Matrix ak = A;
 
-    for (int k = 0; k < max_iterations; k++) {
-      List<Matrix> QR = _Utils.qrDecomposition(Ak);
-      Matrix Q = QR[0];
-      Matrix R = QR[1];
-      Ak = _Utils.multiply(R, Q);
+    for (int k = 0; k < maxIterations; k++) {
+      List<Matrix> qr = _Utils.qrDecomposition(ak);
+      Matrix q = qr[0];
+      Matrix r = qr[1];
+      ak = _Utils.multiply(r, q);
 
       // Check for convergence
       bool converged = true;
       for (int i = 1; i < n; i++) {
         for (int j = 0; j < i; j++) {
-          if (Ak[i][j].abs() > tolerance) {
+          if (ak[i][j].abs() > tolerance) {
             converged = false;
             break;
           }
@@ -823,7 +823,7 @@ extension MatrixOperationExtension on Matrix {
     // Extract eigenvalues
     List<double> eigenvalues = List.filled(n, 0.0);
     for (int i = 0; i < n; i++) {
-      eigenvalues[i] = Ak[i][i];
+      eigenvalues[i] = ak[i][i];
     }
 
     // Compute eigenvectors
@@ -833,11 +833,11 @@ extension MatrixOperationExtension on Matrix {
       eigenvectors[i][i] = 1.0;
     }
 
-    for (int k = 0; k < max_iterations; k++) {
-      List<Matrix> QR = _Utils.qrDecomposition(Matrix(eigenvectors));
-      Matrix Q = QR[0];
-      Matrix R = QR[1];
-      eigenvectors = _Utils.multiply(eigenvectors.toMatrix(), Q).toList()
+    for (int k = 0; k < maxIterations; k++) {
+      List<Matrix> qr = _Utils.qrDecomposition(Matrix(eigenvectors));
+      Matrix q = qr[0];
+      //Matrix r = qr[1];
+      eigenvectors = _Utils.multiply(eigenvectors.toMatrix(), q).toList()
           as List<List<double>>;
     }
 
