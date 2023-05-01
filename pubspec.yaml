@@ -1,0 +1,14 @@
+name: matrix_utils
+description: A Dart library that provides an easy-to-use Matrix class for performing various matrix operations.
+version: 0.0.3
+repository: https://github.com/gameticharles/matrix_utils
+
+environment:
+  sdk: '>=2.19.6 <3.0.0'
+
+# dependencies:
+#   path: ^1.8.0
+
+dev_dependencies:
+  lints: ^2.0.0
+  test: ^1.21.0
