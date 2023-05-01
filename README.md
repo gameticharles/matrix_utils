@@ -17,7 +17,7 @@ A Dart library that provides an easy-to-use Matrix class for performing various 
 - Matrix creation (zero, ones, eye, diagonal, from list, etc.)
 - Matrix operation (addition, subtraction, multiplication, etc.)
 - Matrix manipulation (concatenate, sort, removeRow, removeRows,removeCol,removeCols, reshape, etc. )
-- Statistics on matrix (min, max, sum, rank, etc)
+- Statistics on matrix (min, max, sum, rank, average, mean, median, skewness, etc)
 - Solving linear systems of equations (LU decomposition and Guassian elimination method)
 - Submatrix extraction
 - Swapping rows and columns
