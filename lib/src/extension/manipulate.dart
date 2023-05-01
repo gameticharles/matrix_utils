@@ -183,28 +183,46 @@ extension MatrixManipulationExtension on Matrix {
   /// // 3
   /// // 1
   /// ```
-  Matrix sort({bool ascending = true}) {
+  Matrix sort({List<int>? columnIndices, bool ascending = true}) {
     if (toList().isEmpty || this[0].isEmpty) {
       throw Exception('Matrix is empty');
     }
-    if (this[0].length != 1) {
-      throw Exception('Matrix has more than one column');
-    }
+
     Matrix sortedMatrix = Matrix([
       for (int i = 0; i < rowCount; i++)
         [for (int j = 0; j < columnCount; j++) this[i][j]]
     ]);
 
-    List<dynamic> elements =
-        sortedMatrix.toList().expand((row) => row).toList();
+    // Sort all elements in ascending or descending order
+    if (columnIndices == null || columnIndices.isEmpty) {
+      List<dynamic> elements =
+          sortedMatrix.toList().expand((row) => row).toList();
 
-    elements.sort((a, b) => ascending ? a.compareTo(b) : b.compareTo(a));
+      elements.sort((a, b) => ascending ? a.compareTo(b) : b.compareTo(a));
 
-    int k = 0;
-    for (int i = 0; i < rowCount; i++) {
-      for (int j = 0; j < columnCount; j++) {
-        sortedMatrix[i][j] = elements[k++];
+      int k = 0;
+      for (int i = 0; i < rowCount; i++) {
+        for (int j = 0; j < columnCount; j++) {
+          sortedMatrix[i][j] = elements[k++];
+        }
       }
+    } else {
+      // Validate column indices
+      for (int columnIndex in columnIndices) {
+        if (columnIndex < 0 || columnIndex >= columnCount) {
+          throw Exception('Invalid column index for sorting');
+        }
+      }
+
+      sortedMatrix._data.sort((a, b) {
+        for (int columnIndex in columnIndices) {
+          int comparison = a[columnIndex].compareTo(b[columnIndex]);
+          if (comparison != 0) {
+            return ascending ? comparison : -comparison;
+          }
+        }
+        return 0;
+      });
     }
 
     return sortedMatrix;

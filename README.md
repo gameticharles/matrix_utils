@@ -16,8 +16,8 @@ A Dart library that provides an easy-to-use Matrix class for performing various 
 
 - Matrix creation (zero, ones, eye, diagonal, from list, etc.)
 - Matrix operation (addition, subtraction, multiplication, etc.)
-- Matrix manipulation (removeRow, removeRows,removeCol,removeCols, reshape, etc. )
-- Statistics on matrix (min, max, sum, rank)
+- Matrix manipulation (concatenate, sort, removeRow, removeRows,removeCol,removeCols, reshape, etc. )
+- Statistics on matrix (min, max, sum, rank, etc)
 - Solving linear systems of equations (LU decomposition and Guassian elimination method)
 - Submatrix extraction
 - Swapping rows and columns
@@ -510,6 +510,63 @@ print(result);
 // │  true  true  true true │
 // └ false false false true 
 
+```
+
+## Sorting Matrix
+
+```dart
+Matrix x = Matrix.fromList([
+[2, 3, 3, 3],
+[9, 9, 8, 6],
+[1, 1, 2, 9],
+[0, 1, 1, 1]
+]);
+
+//Sorting all elements in ascending order (default behavior):
+var sortedMatrix = x.sort();
+print(sortedMatrix);
+// Matrix: 4x4
+// ┌ 0 1 1 1 ┐
+// │ 1 1 2 2 │
+// │ 3 3 3 6 │
+// └ 8 9 9 9 ┘
+
+// Sorting all elements in descending order:
+var sortedMatrix1 = x.sort(ascending: false);
+print(sortedMatrix1);
+// Matrix: 4x4
+// ┌ 9 9 9 8 ┐
+// │ 6 3 3 3 │
+// │ 2 2 1 1 │
+// └ 1 1 1 0 ┘
+
+// Sort by a single column in descending order
+var sortedMatrix2 = x.sort(columnIndices: [0]);
+print(sortedMatrix2);
+// Matrix: 4x4
+// ┌ 0 1 1 1 ┐
+// │ 1 1 2 9 │
+// │ 2 3 3 3 │
+// └ 9 9 8 6 ┘
+
+// Sort by multiple columns in specified orders
+var sortedMatrix3 = x.sort(columnIndices: [1, 0]);
+print(sortedMatrix3);
+// Matrix: 4x4
+// ┌ 0 1 1 1 ┐
+// │ 1 1 2 9 │
+// │ 2 3 3 3 │
+// └ 9 9 8 6 ┘
+
+// Sorting rows based on the values in column 2 (descending order):
+Matrix xSortedColumn2Descending =
+    x.sort(columnIndices: [2], ascending: false);
+print(xSortedColumn2Descending);
+// Matrix: 4x4
+// ┌ 9 9 8 6 ┐
+// │ 2 3 3 3 │
+// │ 1 1 2 9 │
+// └ 0 1 1 1 ┘
 ```
 
 ## Other Functions
