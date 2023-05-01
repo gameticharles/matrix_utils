@@ -300,22 +300,22 @@ void main() {
     [6]
   ]);
   //var result = A.gaussianElimination(b);
-  var result = A.solve(b, method: 'lu');
-  print(result);
+  var sol = A.solve(b, method: 'lu');
+  print(sol);
 
 // Find the normalized matrix
   var normalize = matrix.normalize();
   print(normalize);
 
   // // Eigen values and EigenVectors
-  // Matrix A = Matrix.fromList([
+  // Matrix x = Matrix.fromList([
   //   [2, 3, 3, 3],
   //   [9, 9, 8, 6],
   //   [1, 1, 2, 9],
   //   [0, 1, 1, 1]
   // ]);
 
-  // List<dynamic> result = Matrix().qrAlgorithm(A, 100, 1e-10);
+  // List<dynamic> result = Matrix().qrAlgorithm(x, 100, 1e-10);
   // List<double> eigenvalues = result[0];
   // Matrix eigenvectors = result[1];
 
