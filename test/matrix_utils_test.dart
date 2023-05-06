@@ -10,7 +10,7 @@ void main() {
   ]);
 
   test('test flatten', () {
-    expect(m.flatten(), Row([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 5, 7, 8, 9, 10]));
+    expect(m.flatten(), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 5, 7, 8, 9, 10]);
   });
 
   test('test transpose with double', () {
@@ -88,7 +88,7 @@ void main() {
 
   test('test #1 with 2 row and column indices', () {
     expect(
-        m.slice(0, 2, 1, 4),
+        m.subMatrix(0, 2, 1, 4),
         Matrix([
           [2, 3, 4],
           [7, 8, 9]
@@ -177,7 +177,7 @@ void main() {
 
   test('test #3 with 3 row and column indices', () {
     expect(
-        m.slice(0, 3, 2, 3),
+        m.subMatrix(0, 3, 2, 3),
         Matrix([
           [3],
           [8],
@@ -187,7 +187,7 @@ void main() {
 
   test('test #4', () {
     expect(
-        m.slice(0, 3, 3, 4),
+        m.subMatrix(0, 3, 3, 4),
         Matrix([
           [4],
           [9],
@@ -230,6 +230,20 @@ void main() {
     expect(row.toDiagonal(), Diagonal([1, 2, 3]));
   });
 
+  test('test Gram Schmidt', () {
+    var A = Matrix([
+      [1, 3, -2],
+      [4, 7, 1],
+      [3, -1, 12]
+    ]);
+    expect(
+        A.linear.gramSchmidtOrthogonalization(),
+        Matrix([
+          [0.2673, 0.8018, -0.5345],
+          [0.4438, 0.39, 0.8068],
+        ]));
+  });
+
   test('test solve matrix', () {
     var A = Matrix([
       [2, 1, 1],
@@ -242,7 +256,7 @@ void main() {
       [6]
     ]);
     //var result = A.gaussianElimination(b);
-    var result = A.solve(b, method: 'lu');
+    var result = A.linear.solve(b, method: 'gramSchmidt');
     expect(
         result.round(1),
         Matrix([

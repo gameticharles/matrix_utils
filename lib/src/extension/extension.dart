@@ -5,7 +5,7 @@ extension MatrixListExtension on List {
   List get shape => Matrix(this).shape;
 
   /// Used to get a copy of an given array collapsed into one dimension
-  Row get flatten => Matrix(this).flatten();
+  List<dynamic> get flatten => Matrix(this).flatten();
 
   /// Reverse the axes of an array and returns the modified array.
   Matrix get transpose => Matrix(this).transpose();

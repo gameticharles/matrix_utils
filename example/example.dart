@@ -1,5 +1,10 @@
 import 'package:matrix_utils/matrix_utils.dart';
 
+void printLine(String s) {
+  var l = '--- ' * 10;
+  print('\n$l$s $l\n');
+}
+
 void main() {
   var mat = Matrix.random(5, 4);
   print(mat.round(3));
@@ -10,24 +15,149 @@ void main() {
     [1, 1, 2, 9]
   ]);
 
-  // Rank
-  print(mat.rank()); // Output: 3
+  var matt = Matrix.fromList([
+    [1, 2, -1],
+    [3, 8, -1],
+    [-1, 1, 2]
+  ]);
+  var eMat = Matrix("1 2 3 4; 2 5 6 7; 3 6 8 9; 4 7 9 10");
+  var eMat1 = Matrix("-26 -32 -25; 31 42 23; -11 -15 -4");
+  var eMat2 = Matrix([
+    [1, 2, 3, 4],
+    [5, 6, 7, 8],
+    [9, 10, 11, 12],
+    [13, 14, 15, 16]
+  ]);
+
+  printLine('Matrix Properties');
+
+  print('Properties of the Matrix:\n$eMat\n');
+  eMat.matrixProperties().forEach((element) => print(' - $element'));
+
+  printLine('Eigen matrix');
+
+  var matr = Matrix.fromList([
+    [4, 1, 1],
+    [1, 4, 1],
+    [1, 1, 4]
+  ]);
+  eMat = Matrix("1 2 3 4; 2 5 6 7; 3 6 8 9; 4 7 9 10");
+
+  var eigen = matr.eigen1();
+  print('Eigen Values:\n${eigen.values}\n');
+  print('Eigenvectors:');
+  for (Matrix eigenvector in eigen.vectors) {
+    print(eigenvector.round(2));
+  }
+  print('Verification: ${eigen.verify(matr)}');
+  print('Reconstruct Original:\n ${eigen.check}');
+
+  List<Matrix> normalizedEigenvectors =
+      eigen.vectors.map((vector) => vector.normalize()).toList();
+  Eigen normalizedEigen = Eigen(eigen.values, normalizedEigenvectors);
+
+  print('Normalized eigenvectors:');
+  for (Matrix eigenvector in normalizedEigen.vectors) {
+    print(eigenvector);
+  }
+  print('Reconstruct Original:\n ${normalizedEigen.check}');
+
+  eigen = Eigen([
+    6,
+    3,
+    3
+  ], [
+    Matrix([
+      [1],
+      [1],
+      [1]
+    ]),
+    Matrix([
+      [-1],
+      [0],
+      [1]
+    ]),
+    Matrix([
+      [-1],
+      [1],
+      [0]
+    ]),
+  ]);
+  print('Check Matrix: ${eigen.check}');
+
+  // eigen = DivideAndConquer().divideAndConquer(eMat);
+  // print('Eigen Values:\n${eigen.values}\n');
+  // print('Eigen Values:\n${eigen.vectors}\n');
+  // print('Check: ${eigen.verify(eMat)}');
+
+  printLine('Element Search');
+  var y = mat.where(
+    (value) => value.contains(6),
+  );
+  print('Rows that contains 6:\n${y}');
+
+  printLine('Iterate through rows');
+  // Iterate through the rows of the matrix using the default iterator
+  for (List<dynamic> row in mat.rows) {
+    print(row);
+  }
+
+  printLine('Iterate through columns');
+  // Iterate through the columns of the matrix using the column iterator
+  for (List<dynamic> column in mat.columns) {
+    print(column);
+  }
+  printLine('Iterate through elements');
+  // Iterate through the elements of the matrix using the element iterator
+  for (dynamic element in mat.elements) {
+    print(element);
+  }
+
+  printLine('Matrix Statistics');
+
+  var A = Matrix("1 2 3 4; 2 5 6 7; 3 6 8 9; 4 7 9 10");
+  print(A);
+
+  print('Shape: ${A.shape}');
+  print('Sum: ${A.sum()}');
+  print('Absolute Sum: ${A.sum(absolute: true)}');
+  print('Determinant: ${A.determinant()}');
+  print('Rank: ${A.rank()}');
+  print('Trace: ${A.trace()}');
+  print('Skewness: ${A.skewness()}');
+  print('Kurtosis: ${A.kurtosis()}');
+  print('Norm(l1Norm): ${A.l1Norm()}'); // Output: 7.0
+  print('l2Norm: ${A.l2Norm()}'); // Output: 5.477225575051661
+  print('Infinity Norm: ${A.infinityNorm()}'); // Output: 5.0
+
+  print(A.ref());
+  print(A.rref());
+
+  var yy = Matrix([
+    [1, 2, 3],
+    [0, 1, 1],
+    [0, 0, 0]
+  ]);
+  print(yy.rref());
+  print(yy.rowSpace());
+
+  printLine('Access Row and Column');
+
+  print(mat);
 
   // Change element value
   mat[0][0] = 3;
 
   // Access item
-  print(mat[1][2]); // 8
+  print('\nmat[1][2]: ${mat[1][2]}'); // 8
 
   // Access row
+  print('Access row 0');
   print(mat[0]);
   print(mat.row(0));
 
   // Access column
   print(mat.column(0)); //TODO
-
-  // Row echelon form
-  //print(mat.rref());
 
   // update row method 1
   mat[0] = [1, 2, 3, 4];
@@ -83,50 +213,38 @@ void main() {
     [1, 2]
   ]);
 
-  // Shape
-  print(m.shape);
-
   // flatten
   print(m.flatten());
 
   // transpose
   print(m.transpose());
 
-  // addition
-  var add = Matrix([
-        [1, 1],
-        [1, 1]
-      ]) +
-      Matrix([
-        [2, 2],
-        [2, 2]
-      ]);
-  print(add);
+  printLine('Arithmetic operations');
 
-  // subtration
-  var sub = [
-        [1, 1],
-        [1, 1]
-      ].toMatrix() -
-      [
-        [2, 2],
-        [2, 2]
-      ].toMatrix();
-  print(sub);
-
-  // division
-
-  var div = Matrix([
+  var aa = Matrix([
     [1, 1],
     [1, 1]
-  ]).elementDivide(Matrix([
+  ]);
+
+  var bb = Matrix([
+    [2, 2],
+    [2, 2]
+  ]);
+  print('aa:\n $aa');
+  print('aa:\n $aa\n');
+
+  print('Addition:\n${aa + bb}\n');
+
+  print('Subtraction:\n${aa + bb}\n');
+
+  print('Division:');
+  var div = aa.elementDivide(Matrix([
     [2, 0],
     [2, 2]
   ]));
   print(div);
 
-  // dot operation
-
+  print('\nDot operation:');
   var dot = [
     [1, 2],
     [3, 4]
@@ -136,20 +254,21 @@ void main() {
       ].toMatrix());
   print(dot);
 
-  // arange
+  printLine('Creating Matrices');
 
+  print('Arrange 1 to 10');
   var arange = Matrix.range(10);
   print(arange);
 
-  // zeros
+  print('Create Zero 2x2 Matrix');
   var zeros = Matrix.zeros(2, 2);
   print(zeros);
 
-  //ones
+  print('Create Ones 2x3 Matrix');
   var ones = Matrix.ones(2, 3);
   print(ones);
 
-  //sum
+  print('Sum');
   var sum = Matrix([
     [2, 2],
     [2, 2]
@@ -222,7 +341,7 @@ void main() {
     [6, 7, 8, 9, 10]
   ]);
 
-  var newArray = sliceArray.slice(0, 2, 1, 4);
+  var newArray = sliceArray.subMatrix(0, 2, 1, 4);
   print(" sliced array: ${newArray}");
 
   // min max
@@ -239,7 +358,7 @@ void main() {
     [3, 4]
   ]);
 
-  Matrix bb = Matrix([
+  Matrix b = Matrix([
     [5, 6],
     [7, 8]
   ]);
@@ -289,18 +408,18 @@ void main() {
   print(inverse);
 
   //Solve Matrix
-  var A = Matrix([
+  var AA = Matrix([
     [2, 1, 1],
     [1, 3, 2],
     [1, 0, 0]
   ]);
-  var b = Matrix([
+  var bbb = Matrix([
     [4],
     [5],
     [6]
   ]);
   //var result = A.gaussianElimination(b);
-  var sol = A.solve(b, method: 'lu');
+  var sol = AA.linear.solve(bbb, method: 'lu');
   print(sol);
 
   // Find the normalized matrix
@@ -360,10 +479,10 @@ void main() {
   // │ 1 1 2 9 │
   // └ 0 1 1 1 ┘
 
-  // // Eigen values and EigenVectors
+  // Eigen values and EigenVectors
 
-  // List<dynamic> result = Matrix().qrAlgorithm(x, 100, 1e-10);
-  // List<double> eigenvalues = result[0];
+  // List<dynamic> res = Matrix().qrAlgorithm(x, 100, 1e-10);
+  // List<double> eigenvalues = res[0];
   // Matrix eigenvectors = result[1];
 
   // print("Eigenvalues:");

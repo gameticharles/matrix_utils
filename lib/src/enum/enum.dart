@@ -1,4 +1,3 @@
-
 part of matrix_utils;
 
 /// An enum representing the alignment options for matrix elements in a string representation.
@@ -21,19 +20,19 @@ part of matrix_utils;
 ///
 /// // Output:
 /// // Matrix: 4x3
-/// // ┌1    23 3  ┐
-/// // │456  5  67 │
-/// // │7    88 9  │
-/// // └10   111 12┘
+/// // ┌1   23  3  ┐
+/// // │456 5   67 │
+/// // │7   88  9  │
+/// // └10  111 12 ┘
 ///
 /// // Use MatrixAlign.right for right-aligned elements
 /// print(m.toString(separator: ' ', alignment: MatrixAlign.right));
 ///
 /// // Output:
 /// // Matrix: 4x3
-/// // ┌  1 23  3┐
-/// // │456  5 67│
-/// // │  7 88  9│
-/// // └ 10 11112┘
+/// // ┌  1  23  3┐
+/// // │456   5 67│
+/// // │  7  88  9│
+/// // └ 10 111 12┘
 /// ```
 enum MatrixAlign { left, right }

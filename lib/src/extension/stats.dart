@@ -30,6 +30,72 @@ extension MatrixStatsExtension on Matrix {
     return minValue;
   }
 
+  /// Finds the maximum absolute value in the matrix starting from the given row and column indices (inclusive).
+  ///
+  /// [startRow]: The starting row index for the search.
+  /// [startCol]: The starting column index for the search.
+  /// Returns a list containing the row and column indices of the maximum absolute value found in the matrix region.
+  /// Example:
+  /// ```dart
+  /// Matrix A = Matrix([
+  ///   [1, 2, 3],
+  ///   [4, 5, 6],
+  ///   [7, 8, 9]
+  /// ]);
+  /// List<int> maxIndices = A.findMaxInMatrixRegion(1, 1);
+  /// print(maxIndices); // Output: [2, 2] (since the maximum value is 9)
+  /// ```
+  List<int> findMaxInMatrixRegion(int startRow, int startCol) {
+    num maxValue = 0.0;
+    int maxRow = startRow;
+    int maxCol = startCol;
+
+    for (int i = startRow; i < rowCount; i++) {
+      for (int j = startCol; j < columnCount; j++) {
+        if (this[i][j].abs() > maxValue) {
+          maxValue = (this[i][j] as num).abs();
+          maxRow = i;
+          maxCol = j;
+        }
+      }
+    }
+
+    return [maxRow, maxCol];
+  }
+
+  /// Finds the minimum absolute value in the matrix starting from the given row and column indices (inclusive).
+  ///
+  /// [startRow]: The starting row index for the search.
+  /// [startCol]: The starting column index for the search.
+  /// Returns a list containing the row and column indices of the minimum absolute value found in the matrix region.
+  /// Example:
+  /// ```dart
+  /// Matrix A = Matrix([
+  ///   [1, 2, 3],
+  ///   [4, 5, 6],
+  ///   [7, 8, 9]
+  /// ]);
+  /// List<int> minIndices = A.findMinInMatrixRegion(1, 1);
+  /// print(minIndices); // Output: [1, 1] (since the minimum value is 5)
+  /// ```
+  List<int> findMinInMatrixRegion(int startRow, int startCol) {
+    num minValue = double.maxFinite;
+    int minRow = startRow;
+    int minCol = startCol;
+
+    for (int i = startRow; i < rowCount; i++) {
+      for (int j = startCol; j < columnCount; j++) {
+        if (this[i][j].abs() < minValue) {
+          minValue = (this[i][j] as num).abs();
+          minRow = i;
+          minCol = j;
+        }
+      }
+    }
+
+    return [minRow, minCol];
+  }
+
   /// Returns the largest value in the matrix.
   ///
   /// Throws an exception if the matrix is empty.
@@ -194,7 +260,7 @@ extension MatrixStatsExtension on Matrix {
   /// print(matrix.standardDeviation()); // Output: 1.118033988749895
   /// ```
   double standardDeviation() {
-    return sqrt(variance());
+    return math.sqrt(variance());
   }
 
   /// Returns the covariance matrix of the input matrix.
@@ -266,7 +332,7 @@ extension MatrixStatsExtension on Matrix {
     List<double> stdDevs = [];
 
     for (int i = 0; i < covMatrix.rowCount; i++) {
-      stdDevs.add(sqrt(covMatrix[i][i]));
+      stdDevs.add(math.sqrt(covMatrix[i][i]));
     }
 
     List<List<double>> correlationMatrix =
@@ -296,13 +362,13 @@ extension MatrixStatsExtension on Matrix {
     for (int i = 0; i < rowCount; i++) {
       for (int j = 0; j < columnCount; j++) {
         double diff = _data[i][j] - meanValue;
-        sum += pow(diff, 3);
+        sum += math.pow(diff, 3);
         count++;
       }
     }
 
     double skewness = sum / count;
-    double standardDeviationCubed = pow(standardDeviation(), 3) as double;
+    double standardDeviationCubed = math.pow(standardDeviation(), 3) as double;
     return skewness / standardDeviationCubed;
   }
 
@@ -321,13 +387,13 @@ extension MatrixStatsExtension on Matrix {
     for (int i = 0; i < rowCount; i++) {
       for (int j = 0; j < columnCount; j++) {
         double diff = _data[i][j] - meanValue;
-        sum += pow(diff, 4);
+        sum += math.pow(diff, 4);
         count++;
       }
     }
 
     double kurtosis = sum / count;
-    double standardDeviationFourth = pow(standardDeviation(), 4) as double;
+    double standardDeviationFourth = math.pow(standardDeviation(), 4) as double;
     return kurtosis / standardDeviationFourth - 3;
   }
 

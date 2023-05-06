@@ -19,6 +19,51 @@ class Column extends Matrix {
   /// ```
   Column(List<dynamic> data) : super(data.map((x) => [x]).toList());
 
+  // /// Assigns the value to the specified row index of the Row.
+  // operator []=(int index, dynamic value) {
+  //   if (_data.isNotEmpty && value.length != _data[0].length) {
+  //     throw Exception('Row has different length than the other rows');
+  //   }
+  //   if (index < 0 || index >= _data.length) {
+  //     throw Exception('Index is out of range');
+  //   }
+  //   _data[index][0] = value;
+  // }
+
+  // /// Retrieves the specified row from the matrix.
+  // List<dynamic> operator [](int index) {
+  //   if (index < 0 || index >= _data.length) {
+  //     throw Exception('Index is out of range');
+  //   }
+  //   return _data[index][0];
+  // }
+
+  /// Creates a new Column object with the specified number of rows filled with the specified value.
+  ///
+  /// [rows]: The number of rows in the new Column object.
+  /// [value]: The value used to fill each element in the new Column object.
+  ///
+  /// Throws [Exception] if the specified number of rows is less than 1.
+  ///
+  /// Returns a new Column object with the specified number of rows filled with the specified value.
+  ///```dart
+  /// Column filledRow = Column.fill(5, 3);
+  /// print(filledRow);
+  /// ```
+  ///
+  factory Column.fill(int rows, dynamic value) {
+    if (rows < 1) {
+      throw Exception("Rows must be greater than 0");
+    }
+
+    List<dynamic> row = List.generate(rows, (index) => value);
+
+    return Column(row);
+  }
+
+  /// Get the list of the elements that are in the matrix
+  List<dynamic> get asList => flatten();
+
   /// Returns the first element of the column.
   ///
   /// Example:
@@ -26,7 +71,7 @@ class Column extends Matrix {
   /// var column = Column([1, 2, 3]);
   /// print(column.first); // Output: 1
   /// ```
-  dynamic get first => _data[0][0];
+  dynamic get firstItem => _data[0][0];
 
   /// Returns the last element of the column.
   ///
@@ -35,7 +80,7 @@ class Column extends Matrix {
   /// var column = Column([1, 2, 3]);
   /// print(column.last); // Output: 3
   /// ```
-  dynamic get last => _data[_data.length - 1][0];
+  dynamic get lastItem => _data[_data.length - 1][0];
 
   /// Returns the sum of all elements in the column.
   ///

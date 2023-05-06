@@ -107,23 +107,24 @@ extension MatrixOperationExtension on Matrix {
 
       return Matrix(newData);
     } else if (other is num) {
-      int rows = rowCount;
-      int cols = columnCount;
-
-      List<List<dynamic>> newData = [];
-
-      for (int i = 0; i < rows; i++) {
-        List<dynamic> row = [];
-        for (int j = 0; j < cols; j++) {
-          row.add(this[i][j] * other);
-        }
-        newData.add(row);
-      }
-
-      return Matrix(newData);
+      return scale(other);
     } else {
       throw Exception('Invalid operand type');
     }
+  }
+
+  Matrix scale(num scaleFactor) {
+    List<List<dynamic>> newData = [];
+
+    for (int i = 0; i < rowCount; i++) {
+      List<dynamic> row = [];
+      for (int j = 0; j < columnCount; j++) {
+        row.add(this[i][j] * scaleFactor);
+      }
+      newData.add(row);
+    }
+
+    return Matrix(newData);
   }
 
   /// Divides this matrix by a scalar value.
@@ -215,6 +216,21 @@ extension MatrixOperationExtension on Matrix {
     return Matrix(newData);
   }
 
+  Matrix pow(num exponent) {
+    return Matrix(_data
+        .map((row) => row.map((cell) => math.pow(cell, exponent)).toList())
+        .toList());
+    // Matrix result = Matrix.zeros(rowCount, columnCount);
+
+    // for (int i = 0; i < rowCount; i++) {
+    //   for (int j = 0; j < columnCount; j++) {
+    //     result[i][j] = pow(_data[i][j], exponent);
+    //   }
+    // }
+
+    // return result;
+  }
+
   /// Multiplies the corresponding elements of this matrix and the given matrix.
   ///
   /// [other]: The matrix to element-wise multiply with this matrix.
@@ -299,23 +315,10 @@ extension MatrixOperationExtension on Matrix {
     if (toList().isEmpty) {
       throw Exception("Matrix is empty");
     }
-
     double sum = 0;
-
-    for (int i = 0; i < rowCount; i++) {
-      for (int j = 0; j < columnCount; j++) {
-        dynamic element = this[i][j];
-        if (element is! num) {
-          throw Exception("Matrix contains non-numeric elements");
-        }
-        if (absolute) {
-          sum += (element < 0 ? -element : element);
-        } else {
-          sum += element;
-        }
-      }
+    for (dynamic element in elements) {
+      sum += absolute ? (element as num).abs() : (element as num);
     }
-
     return sum;
   }
 
@@ -337,28 +340,116 @@ extension MatrixOperationExtension on Matrix {
     if (rowCount != columnCount) {
       throw Exception("Matrix must be square to calculate the trace");
     }
+    var diag = Matrix.fromDiagonal(diagonal());
 
-    return diagonal().sum;
+    return diag.sum();
   }
 
-  /// Calculates the Frobenius norm of the matrix.
+  /// Calculates the L1 norm of the matrix.
+  ///
+  /// The L1 norm, also known as the maximum absolute column sum norm, is
+  /// calculated by summing the absolute values of each element in each column
+  /// and taking the maximum of these sums.
+  ///
+  /// Example:
+  /// ```
+  /// var mat = Matrix.fromList([
+  ///   [2, -3],
+  ///   [-1, 4],
+  /// ]);
+  /// print(mat.l1Norm()); // Output: 7.0
+  /// ```
+  ///
+  /// Returns:
+  /// A double representing the L1 norm of the matrix.
+  double l1Norm() {
+    double maxSum = 0.0;
+
+    for (int j = 0; j < columnCount; j++) {
+      double colSum = 0.0;
+      for (int i = 0; i < rowCount; i++) {
+        colSum += this[i][j].abs();
+      }
+      maxSum = math.max(maxSum, colSum);
+    }
+
+    return maxSum;
+  }
+
+  /// Calculates the L2 (Euclidean) norm of the matrix.
+  ///
+  /// The L2 norm, also known as the Euclidean norm or Frobenius norm, is
+  /// calculated by summing the squares of each element and taking the square
+  /// root of the result.
+  ///
+  /// Example:
+  /// ```
+  /// var mat = Matrix.fromList([
+  ///   [2, -3],
+  ///   [-1, 4],
+  /// ]);
+  /// print(mat.l2Norm()); // Output: 5.477225575051661
+  /// ```
+  ///
+  /// Returns:
+  /// A double representing the L2 norm of the matrix.
+  double l2Norm() {
+    double sum = 0.0;
+
+    for (int i = 0; i < rowCount; i++) {
+      for (int j = 0; j < columnCount; j++) {
+        sum += this[i][j] * this[i][j];
+      }
+    }
+
+    return math.sqrt(sum);
+  }
+
+  /// Calculates the L2 norm or Frobenius norm of the matrix.
   ///
   /// Returns the Frobenius norm of the matrix.
   ///
-  /// Example:
-  /// ```dart
-  /// var matrix = Matrix([[1, 2], [3, 4]]);
-  /// var result = matrix.norm();
-  /// print(result); // Output: 5.477225575051661
-  /// ```
   double norm() {
-    double sum = 0;
-    for (var row in _data) {
-      for (var element in row) {
-        sum += element * element;
+    return l2Norm();
+  }
+
+  /// Calculates the L2 norm or Frobenius norm of the matrix.
+  ///
+  /// Returns the Frobenius norm of the matrix.
+  ///
+  double norm2() {
+    return l2Norm();
+  }
+
+  /// Calculates the Infinity norm of the matrix.
+  ///
+  /// The Infinity norm, also known as the maximum absolute row sum norm, is
+  /// calculated by summing the absolute values of each element in each row and
+  /// taking the maximum of these sums.
+  ///
+  /// Example:
+  /// ```
+  /// var mat = Matrix.fromList([
+  ///   [2, -3],
+  ///   [-1, 4],
+  /// ]);
+  /// print(mat.infinityNorm()); // Output: 5.0
+  /// ```
+  ///
+  /// Returns:
+  /// A double representing the Infinity norm of the matrix.
+  double infinityNorm() {
+    double maxSum = 0.0;
+
+    for (int i = 0; i < rowCount; i++) {
+      double rowSum = 0.0;
+      for (int j = 0; j < columnCount; j++) {
+        rowSum += this[i][j].abs();
       }
+      maxSum = math.max(maxSum, rowSum);
     }
-    return sqrt(sum);
+
+    return maxSum;
   }
 
   /// Normalizes the matrix by dividing each element by the maximum element value.
@@ -436,6 +527,97 @@ extension MatrixOperationExtension on Matrix {
     return Matrix(newData);
   }
 
+  /// Returns the conjugate transpose (also known as the Hermitian transpose) of the matrix.
+  /// The conjugate transpose is obtained by first computing the conjugate of the matrix
+  /// and then transposing it.
+  ///
+  /// If the matrix has complex elements, the conjugate transpose is computed by
+  /// taking the complex conjugate of each element and transposing the resulting matrix.
+  ///
+  /// Example:
+  /// ```
+  /// var A = Matrix('1+2i 3-4i; 5+6i 7-8i');
+  /// var B = A.conjugateTranspose();
+  /// ```
+  ///
+  /// Returns a new [Matrix] object containing the conjugate transpose.
+  Matrix conjugateTranspose() {
+    return conjugate().transpose();
+  }
+
+  /// Computes the matrix of cofactors for a square matrix.
+  /// Each element in the cofactor matrix is the determinant of the submatrix
+  /// formed by removing the corresponding row and column from the original matrix,
+  /// multiplied by the alternating sign pattern.
+  ///
+  /// Throws an [ArgumentError] if the matrix is not square.
+  ///
+  /// Example:
+  /// ```
+  /// var A = Matrix('1+2i 3-4i; 5+6i 7-8i');
+  /// var B = A.conjugate();
+  /// ```
+  ///
+  /// Returns a new [Matrix] object containing the cofactors.
+  Matrix conjugate() {
+    Matrix result = Matrix.zeros(rowCount, columnCount, isDouble: true);
+    for (int i = 0; i < rowCount; i++) {
+      for (int j = 0; j < columnCount; j++) {
+        if (this[i][j] is Complex) {
+          result[i][j] = (this[i][j] as Complex).conjugate();
+        } else {
+          result[i][j] = this[i][j];
+        }
+      }
+    }
+    return result;
+  }
+
+  /// Computes the matrix of cofactors for a square matrix.
+  /// Each element in the cofactor matrix is the determinant of the submatrix
+  /// formed by removing the corresponding row and column from the original matrix,
+  /// multiplied by the alternating sign pattern.
+  ///
+  /// Example:
+  /// ```
+  /// var A = Matrix('1 2 3; 4 5 6; 7 8 9');
+  /// var B = A.cofactors();
+  /// ```
+  ///
+  /// Throws an [ArgumentError] if the matrix is not square.
+  ///
+  /// Returns a new [Matrix] object containing the cofactors.
+  Matrix cofactors() {
+    if (!isSquareMatrix()) {
+      throw ArgumentError('Cofactors can only be computed for square matrices');
+    }
+
+    Matrix cofactorMatrix = Matrix.zeros(rowCount, columnCount, isDouble: true);
+    for (int i = 0; i < rowCount; i++) {
+      for (int j = 0; j < columnCount; j++) {
+        cofactorMatrix[i][j] =
+            math.pow(-1, i + j) * subMatrix(i, j).determinant();
+      }
+    }
+    return cofactorMatrix;
+  }
+
+  /// Computes the adjoint (also known as adjugate or adjunct) of a square matrix.
+  /// The adjoint is obtained by transposing the cofactor matrix.
+  ///
+  /// Example:
+  /// ```
+  /// var A = Matrix('1 2 3; 4 5 6; 7 8 9');
+  /// var B = A.adjoint();
+  /// ```
+  ///
+  /// Throws an [ArgumentError] if the matrix is not square.
+  ///
+  /// Returns a new [Matrix] object containing the adjoint.
+  Matrix adjoint() {
+    return cofactors().transpose();
+  }
+
   /// Calculates the determinant of a square matrix.
   ///
   /// Returns the determinant of the matrix.
@@ -451,7 +633,7 @@ extension MatrixOperationExtension on Matrix {
     if (n != columnCount) {
       throw Exception('Matrix must be square to calculate determinant');
     }
-    _data = _Utils.toDoubleMatrix(_data);
+    _data = _Utils.toDoubleList(_data);
 
     if (n == 1) {
       return this[0][0];
@@ -477,9 +659,8 @@ extension MatrixOperationExtension on Matrix {
     return det;
   }
 
-  Matrix rref() {
-    _data = _Utils.toDoubleMatrix(_data as List<List<num>>);
-    var result = Matrix(_data);
+  Matrix ref() {
+    Matrix result = _Utils.toDoubleMatrix(this);
     int lead = 0;
     int rowCount = result.rowCount;
     int columnCount = result.columnCount;
@@ -500,24 +681,231 @@ extension MatrixOperationExtension on Matrix {
         }
       }
       result.swapRows(i, r);
-
-      double lv = result[r][lead];
-      for (int j = 0; j < columnCount; j++) {
-        result[r][j] /= lv;
+      if (result[r][lead] != 0) {
+        result.scaleRow(r, 1 / result[r][lead]);
       }
-
-      for (i = 0; i < rowCount; i++) {
-        if (i != r) {
-          lv = result[i][lead];
-          for (int j = 0; j < columnCount; j++) {
-            result[i][j] -= lv * result[r][j];
-          }
-        }
+      for (i = r + 1; i < rowCount; i++) {
+        result.addRow(r, i, -result[i][lead]);
       }
       lead++;
     }
 
     return result;
+  }
+
+  Matrix rref() {
+    Matrix result = ref();
+    int rowCount = result.rowCount;
+    int columnCount = result.columnCount;
+
+    for (int r = rowCount - 1; r >= 0; r--) {
+      int nonZeroIndex = _getFirstNonZeroIndex(result[r]);
+
+      if (nonZeroIndex != -1) {
+        for (int i = r - 1; i >= 0; i--) {
+          result.addRow(r, i, -result[i][nonZeroIndex]);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /// Scales the elements of the specified row by a given factor.
+  ///
+  /// This function multiplies all the elements in the row with the specified
+  /// [rowIndex] by the given [scaleFactor].
+  ///
+  /// Example:
+  /// ```dart
+  /// Matrix A = Matrix.fromList([
+  ///   [1, 2, 3],
+  ///   [4, 5, 6],
+  ///   [7, 8, 9]
+  /// ]);
+  /// A.scaleRow(1, 2);
+  /// print(A);
+  /// ```
+  ///
+  /// Output:
+  /// ```
+  /// 1 2 3
+  /// 8 10 12
+  /// 7 8 9
+  /// ```
+  ///
+  /// Validation:
+  /// Throws [RangeError] if [rowIndex] is not a valid row index in the matrix.
+  void scaleRow(int rowIndex, double scaleFactor) {
+    RangeError.checkValidIndex(rowIndex, this, "rowIndex", rowCount);
+
+    for (int j = 0; j < columnCount; j++) {
+      this[rowIndex][j] *= scaleFactor;
+    }
+  }
+
+  /// Returns the row space of the matrix.
+  ///
+  /// The row space is the linear space formed by the linearly independent
+  /// rows of the matrix.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// Matrix A = Matrix.fromList([
+  ///   [1, 2, 3],
+  ///   [0, 1, 1],
+  ///   [0, 0, 0]
+  /// ]);
+  /// print(A.getRowSpace());
+  /// // Output:
+  /// // 1  2  3
+  /// // 0  1  1
+  /// ```
+  Matrix rowSpace() {
+    Matrix rref = this.rref();
+    List<List<dynamic>> rowSpace = [];
+
+    for (int i = 0; i < rref.rowCount; i++) {
+      bool isZeroRow = true;
+
+      for (int j = 0; j < rref.columnCount; j++) {
+        if (rref[i][j] != 0) {
+          isZeroRow = false;
+          break;
+        }
+      }
+
+      if (!isZeroRow) {
+        rowSpace.add(this[i]);
+      }
+    }
+
+    return Matrix.fromList(rowSpace);
+  }
+
+  /// Returns the column space of the matrix.
+  ///
+  /// The column space is the linear space formed by the linearly independent
+  /// columns of the matrix.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// Matrix A = Matrix.fromList([
+  ///   [1, 0, 0],
+  ///   [2, 1, 0],
+  ///   [3, 1, 0]
+  /// ]);
+  /// print(A.getColumnSpace());
+  /// // Output:
+  /// // 1  0
+  /// // 2  1
+  /// // 3  1
+  /// ```
+  Matrix getColumnSpace() {
+    Matrix transpose = this.transpose();
+    return transpose.rowSpace().transpose();
+  }
+
+  /// Returns the null space of the matrix.
+  ///
+  /// The null space is the linear space formed by all vectors that, when
+  /// multiplied by the matrix, result in the zero vector.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// Matrix A = Matrix.fromList([
+  ///   [1, 2, 3],
+  ///   [0, 1, 1],
+  ///   [0, 0, 0]
+  /// ]);
+  /// print(A.getNullSpace());
+  /// // Output:
+  /// // -2
+  /// //  3
+  /// //  0
+  /// ```
+  Matrix getNullSpace() {
+    Matrix rref = this.rref();
+    List<List<double>> nullSpace = [];
+
+    int freeVarCount = rref.columnCount - rref.rank();
+
+    for (int i = 0; i < freeVarCount; i++) {
+      List<double> nullSpaceVector = List.filled(this.columnCount, 0.0);
+      int freeVarIndex = rref.columnCount - freeVarCount + i;
+
+      for (int j = 0; j < rref.rowCount; j++) {
+        nullSpaceVector[j] = -rref[j][freeVarIndex];
+      }
+
+      nullSpaceVector[freeVarIndex] = 1;
+      nullSpace.add(nullSpaceVector);
+    }
+
+    return Matrix(nullSpace);
+  }
+
+  /// Returns the nullity of the matrix.
+  ///
+  /// The nullity is the dimension of the null space of the matrix.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// Matrix A = Matrix.fromList([
+  ///   [1, 2, 3],
+  ///   [0, 1, 1],
+  ///   [0, 0, 0]
+  /// ]);
+  int getNullity() {
+    return this.columnCount - this.rank();
+  }
+
+  /// Adds a multiple of one row to another row.
+  ///
+  /// This function multiplies the elements in the row with the specified
+  /// [sourceIndex] by the given [scaleFactor] and adds the result to the
+  /// elements in the row with the specified [targetIndex].
+  ///
+  /// Example:
+  /// ```dart
+  /// Matrix A = Matrix.fromList([
+  ///   [1, 2, 3],
+  ///   [4, 5, 6],
+  ///   [7, 8, 9]
+  /// ]);
+  /// A.addRow(0, 2, -3);
+  /// print(A);
+  /// ```
+  ///
+  /// Output:
+  /// ```
+  ///  1  2  3
+  ///  4  5  6
+  /// -4 -2  0
+  /// ```
+  ///
+  /// Validation:
+  /// Throws [RangeError] if [sourceIndex] or [targetIndex] is not a valid row index in the matrix.
+  void addRow(int sourceIndex, int targetIndex, double scaleFactor) {
+    RangeError.checkValidIndex(sourceIndex, this, "sourceIndex", rowCount);
+    RangeError.checkValidIndex(targetIndex, this, "targetIndex", rowCount);
+
+    for (int j = 0; j < columnCount; j++) {
+      this[targetIndex][j] += scaleFactor * this[sourceIndex][j];
+    }
+  }
+
+  int _getFirstNonZeroIndex(List<dynamic> row) {
+    for (int i = 0; i < row.length; i++) {
+      if (row[i] != 0) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   /// Calculates the inverse of a square matrix.
@@ -684,44 +1072,292 @@ extension MatrixOperationExtension on Matrix {
 
     for (int i = 0; i < rowCount; i++) {
       for (int j = 0; j < columnCount; j++) {
-        newData[i][j] = (_data[i][j] * pow(10, decimalPlaces)).round() /
-            pow(10, decimalPlaces);
+        newData[i][j] = (_data[i][j] * math.pow(10, decimalPlaces)).round() /
+            math.pow(10, decimalPlaces);
       }
     }
 
     return Matrix(newData);
   }
 
-  /// Checks if the current matrix is a submatrix of [parent].
+  /// Computes the eigenvalues of the matrix using the QR algorithm.
   ///
-  /// [parent]: The matrix in which to search for the current matrix.
+  /// This implementation assumes that the matrix is symmetric and may not converge for non-symmetric matrices.
   ///
-  /// Returns `true` if the current matrix is a submatrix of [parent], otherwise `false`.
+  /// * [maxIterations]: Maximum number of iterations for the QR algorithm (default: 1000).
+  /// * [tolerance]: Tolerance for checking the convergence of the QR algorithm (default: 1e-10).
+  ///
+  /// Returns a list of eigenvalues.
+  ///
+  /// Example:
+  /// ```
+  /// var matrix = Matrix([
+  ///   [1, 2, 3],
+  ///   [2, 1, 2],
+  ///   [3, 2, 1]
+  /// ]);
+  /// var eigenvalues = matrix.eigenvalues();
+  /// print(eigenvalues); // [5.372281323269014, -2.3722813232690143, -1.0000000000000002]
+  /// ```
+  List<double> eigenvalues(
+      {int maxIterations = 1000, double tolerance = 1e-10}) {
+    return eigen(maxIterations: maxIterations, tolerance: tolerance).values;
+  }
+
+  /// Computes the eigenvectors of the matrix using the QR algorithm.
+  ///
+  /// This implementation assumes that the matrix is symmetric and may not converge for non-symmetric matrices.
+  ///
+  /// * [maxIterations]: Maximum number of iterations for the QR algorithm (default: 1000).
+  /// * [tolerance]: Tolerance for checking the convergence of the QR algorithm (default: 1e-10).
+  ///
+  /// Returns a list of eigenvectors, each represented as a column matrix.
   ///
   /// Example:
   /// ```dart
-  /// var parentMatrix = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
-  /// var subMatrix = Matrix([[5, 6], [8, 9]]);
-  /// var result = subMatrix.isSubMatrix(parentMatrix);
-  /// print(result); // Output: true
+  /// var matrix = Matrix([
+  ///   [1, 2, 3],
+  ///   [2, 1, 2],
+  ///   [3, 2, 1]
+  /// ]);
+  /// var eigenvectors = matrix.eigenvectors();
+  /// print(eigenvectors[0]); // Matrix([[0.5773502691896258], [0.5773502691896257], [0.5773502691896257]])
   /// ```
-  bool isSubMatrix(Matrix parent) {
-    for (int i = 0; i <= parent.rowCount - rowCount; i++) {
-      for (int j = 0; j <= parent.columnCount - columnCount; j++) {
-        bool found = true;
-        for (int k = 0; k < rowCount && found; k++) {
-          for (int l = 0; l < columnCount && found; l++) {
-            if (parent[i + k][j + l] != this[k][l]) {
-              found = false;
-            }
-          }
-        }
-        if (found) {
-          return true;
-        }
+  List<Matrix> eigenvectors(
+      {int maxIterations = 1000, double tolerance = 1e-10}) {
+    return eigen(maxIterations: maxIterations, tolerance: tolerance).vectors;
+  }
+
+  /// Computes the eigenvalues and eigenvectors of the matrix using the QR algorithm.
+  ///
+  /// This implementation assumes that the matrix is symmetric and may not converge for non-symmetric matrices.
+  ///
+  /// * [maxIterations]: Maximum number of iterations for the QR algorithm (default: 1000).
+  /// * [tolerance]: Tolerance for checking the convergence of the QR algorithm (default: 1e-10).
+  ///
+  /// Returns an `Eigen` object containing eigenvalues and eigenvectors.
+  ///
+  /// Example:
+  /// ```dart
+  /// var matrix = Matrix([
+  ///   [1, 2, 3],
+  ///   [2, 1, 2],
+  ///   [3, 2, 1]
+  /// ]);
+  /// var eigen = matrix.eigen();
+  /// print(eigen.values); // [5.372281323269014, -2.3722813232690143, -1.0000000000000002]
+  /// print(eigen.vectors[0]); // Matrix([[0.5773502691896258], [0.5773502691896257], [0.5773502691896257]])
+  /// ```
+  Eigen eigen({int maxIterations = 1000, double tolerance = 1e-10}) {
+    if (!isSquareMatrix()) {
+      throw ArgumentError(
+          'Eigenvalues and eigenvectors can only be computed for square matrices');
+    }
+    if (!isSymmetricMatrix(tolerance: tolerance)) {
+      throw ArgumentError(
+          'This implementation only supports symmetric matrices');
+    }
+
+    int n = rowCount;
+    Matrix A = _Utils.toDoubleMatrix(this);
+    Matrix V = Matrix.eye(n, isDouble: true);
+    Matrix A_prev;
+
+    for (int i = 0; i < maxIterations; i++) {
+      A_prev = A.copy();
+      var qr = A.decomposition.qrDecompositionGramSchmidt();
+      Matrix Q = qr.Q;
+      Matrix R = qr.R;
+
+      A = R * Q;
+      V = V * Q;
+
+      Matrix diff = A - A_prev;
+      if (diff.infinityNorm() < tolerance) {
+        break;
+      }
+
+      if (A.isUpperTriangular(tolerance) && A.isLowerTriangular(tolerance)) {
+        break;
       }
     }
-    return false;
+
+    List<double> eigenvalues = List.generate(n, (i) => A[i][i]);
+    List<Matrix> eigenvectors = List.generate(n, (i) => V.column(i));
+
+    return Eigen(eigenvalues, eigenvectors);
+  }
+
+  Eigen eigen1({int maxIterations = 1000, double tolerance = 1e-10}) {
+    if (!isSquareMatrix()) {
+      throw ArgumentError(
+          'Eigenvalues and eigenvectors can only be computed for square matrices');
+    }
+    return _eigenJacobi(maxIterations, tolerance);
+
+    // // Check the properties of the input matrix
+    // if (isSymmetricMatrix(tolerance: tolerance)) {
+    //   // Use the Divide and Conquer algorithm for symmetric matrices
+    //   return _eigenDivideAndConquer(maxIterations, tolerance);
+    // } else if (isHermitianMatrix(tolerance: tolerance) && isSparse()) {
+    //   // Use the Lanczos algorithm for large Hermitian sparse matrices
+    //   return _eigenLanczos(maxIterations, tolerance);
+    // } else if (isDiagonalMatrix(tolerance: tolerance)) {
+    //   // Use the Jacobi method for diagonal matrices
+    //   return _eigenJacobi(maxIterations, tolerance);
+    // } else if (hasDominantEigenvalue(tolerance: tolerance)) {
+    //   // Use the Power Iteration method for matrices with a dominant eigenvalue
+    //   return _eigenPowerIteration(maxIterations, tolerance);
+    // } else {
+    //   // Use the QR algorithm for general dense matrices
+    //   return _eigenQR(maxIterations, tolerance);
+    // }
+  }
+
+// Implement the QR algorithm
+  Eigen _eigenQR(int maxIterations, double tolerance) {
+    return Eigen([], []);
+  }
+
+// Implement the Divide and Conquer algorithm
+  Eigen _eigenDivideAndConquer(int maxIterations, double tolerance) {
+    return Eigen([], []);
+  }
+
+// Implement the Lanczos algorithm
+  Eigen _eigenLanczos(int maxIterations, double tolerance) {
+    return Eigen([], []);
+  }
+
+  // Implement the Jacobi method
+  Eigen _eigenJacobi(int maxIterations, double tolerance) {
+    if (!isSquareMatrix()) {
+      throw ArgumentError(
+          'Eigenvalues and eigenvectors can only be computed for square matrices');
+    }
+
+    if (!isSymmetricMatrix(tolerance: tolerance)) {
+      throw ArgumentError('The Jacobi method only supports symmetric matrices');
+    }
+
+    int n = rowCount;
+    Matrix A = copy();
+    Matrix V = Matrix.eye(n, isDouble: true);
+
+    for (int k = 0; k < maxIterations; k++) {
+      // Find the largest off-diagonal element in A
+      double maxOffDiagonal = 0.0;
+      int p = 0, q = 0;
+      for (int i = 0; i < n - 1; i++) {
+        for (int j = i + 1; j < n; j++) {
+          if ((A[i][j] as num).abs() > maxOffDiagonal) {
+            maxOffDiagonal = (A[i][j] as num).toDouble().abs();
+            p = i;
+            q = j;
+          }
+        }
+      }
+
+      // Check for convergence
+      if (maxOffDiagonal < tolerance) {
+        break;
+      }
+
+      // Perform the Jacobi rotation
+      double Apq = (A[p][q] as num).toDouble();
+      double App = (A[p][p] as num).toDouble();
+      double Aqq = (A[q][q] as num).toDouble();
+      double phi = 0.5 * math.atan2(2 * Apq, Aqq - App);
+      double c = math.cos(phi);
+      double s = math.sin(phi);
+      A[p][p] = c * c * App - 2 * s * c * Apq + s * s * Aqq;
+      A[q][q] = s * s * App + 2 * s * c * Apq + c * c * Aqq;
+      A[p][q] = A[q][p] = 0.0;
+
+      for (int i = 0; i < n; i++) {
+        if (i != p && i != q) {
+          double Api = (A[p][i] as num).toDouble();
+          double Aqi = (A[q][i] as num).toDouble();
+          A[p][i] = A[i][p] = c * Api - s * Aqi;
+          A[q][i] = A[i][q] = s * Api + c * Aqi;
+        }
+        double Vpi = c * V[p][i] - s * V[q][i];
+        double Vqi = s * V[p][i] + c * V[q][i];
+        V[p][i] = Vpi;
+        V[q][i] = Vqi;
+      }
+    }
+
+    // Extract eigenvalues and eigenvectors
+    List<double> eigenvalues = List.generate(n, (i) => A[i][i]);
+    List<Matrix> eigenvectors = List.generate(n, (i) => V.column(i));
+
+    return Eigen(eigenvalues, eigenvectors);
+  }
+
+// Implement the Power Iteration method
+  Eigen _eigenPowerIteration(int maxIterations, double tolerance) {
+    return Eigen([], []);
+  }
+
+  // Performs a plane rotation (Givens rotation) on the matrix.
+  Matrix rotate(int p, int q, double c, double s) {
+    int n = rowCount;
+    Matrix result = _Utils.toDoubleMatrix(this);
+
+    for (int i = 0; i < n; i++) {
+      double a_pi = c * this[i][p] - s * this[i][q];
+      double a_qi = s * this[i][p] + c * this[i][q];
+      result[i][p] = a_pi;
+      result[i][q] = a_qi;
+    }
+
+    for (int i = 0; i < n; i++) {
+      double a_ip = c * this[p][i] - s * this[q][i];
+      double a_iq = s * this[p][i] + c * this[q][i];
+      result[p][i] = a_ip;
+      result[q][i] = a_iq;
+    }
+
+    return result;
+  }
+
+  /// Creates a tridiagonal matrix using the main diagonal, sub-diagonal, and
+  /// super-diagonal elements of the current matrix.
+  ///
+  /// This function does not perform any actual tridiagonalization of the matrix.
+  /// It just extracts the main diagonal, sub-diagonal, and super-diagonal elements
+  /// from the input matrix and creates a new matrix with those elements.
+  ///
+  /// Example:
+  /// ```dart
+  /// var A = Matrix.fromList([
+  ///   [1, 2, 3],
+  ///   [4, 5, 6],
+  ///   [7, 8, 9]
+  /// ]);
+  ///
+  /// var tridiagonalA = A.tridiagonalize();
+  /// tridiagonalA.prettyPrint();
+  /// ```
+  Matrix tridiagonalize() {
+    List<dynamic> mainDiagonal = diagonal();
+    List<dynamic> subDiagonal = diagonal(k: -1);
+    List<dynamic> superDiagonal = diagonal(k: 1);
+
+    Matrix tridiagonal = Matrix.zeros(rowCount, columnCount);
+
+    for (int i = 0; i < rowCount; i++) {
+      tridiagonal[i][i] = mainDiagonal[i];
+      if (i > 0) {
+        tridiagonal[i][i - 1] = subDiagonal[i - 1];
+      }
+      if (i < rowCount - 1) {
+        tridiagonal[i][i + 1] = superDiagonal[i];
+      }
+    }
+
+    return tridiagonal;
   }
 
   /// Checks if the current matrix is contained in or is a submatrix of any matrix in [matrices].
@@ -762,117 +1398,5 @@ extension MatrixOperationExtension on Matrix {
   /// ```
   bool notIn(List<Matrix> matrices) {
     return !containsIn(matrices);
-  }
-
-  // Gaussian elimination method.
-  Matrix gaussianElimination(Matrix b) {
-    Matrix a = Matrix(_data as List<List<num>>);
-    a = _Utils.forwardElimination(a, b);
-    return _Utils.backwardSubstitution(a, b);
-  }
-
-  // LU decomposition method.
-  Matrix luDecomposition(Matrix b) {
-    Matrix a = Matrix(_data as List<List<num>>);
-    List<Matrix> lu = _Utils.luDecomposition(a);
-    Matrix l = lu[0];
-    Matrix u = lu[1];
-
-    // Solve Ly = b
-    Matrix y = _Utils.forwardSubstitution(l, b);
-
-    // Solve Ux = y
-    Matrix x = _Utils.backwardSubstitution(u, y);
-
-    return x;
-  }
-
-  // QR algorithm for eigenvalues and eigenvectors
-  List<dynamic> qrAlgorithm(Matrix A, int maxIterations, double tolerance) {
-    if (A.rowCount != A.columnCount) {
-      throw Exception("Matrix must be square");
-    }
-
-    int n = A.rowCount;
-    Matrix ak = A;
-
-    for (int k = 0; k < maxIterations; k++) {
-      List<Matrix> qr = _Utils.qrDecomposition(ak);
-      Matrix q = qr[0];
-      Matrix r = qr[1];
-      ak = _Utils.multiply(r, q);
-
-      // Check for convergence
-      bool converged = true;
-      for (int i = 1; i < n; i++) {
-        for (int j = 0; j < i; j++) {
-          if (ak[i][j].abs() > tolerance) {
-            converged = false;
-            break;
-          }
-        }
-        if (converged) {
-          break;
-        }
-      }
-      if (converged) {
-        break;
-      }
-    }
-
-    // Extract eigenvalues
-    List<double> eigenvalues = List.filled(n, 0.0);
-    for (int i = 0; i < n; i++) {
-      eigenvalues[i] = ak[i][i];
-    }
-
-    // Compute eigenvectors
-    List<List<double>> eigenvectors =
-        List.generate(n, (_) => List.filled(n, 0.0));
-    for (int i = 0; i < n; i++) {
-      eigenvectors[i][i] = 1.0;
-    }
-
-    for (int k = 0; k < maxIterations; k++) {
-      List<Matrix> qr = _Utils.qrDecomposition(Matrix(eigenvectors));
-      Matrix q = qr[0];
-      //Matrix r = qr[1];
-      eigenvectors = _Utils.multiply(eigenvectors.toMatrix(), q).toList()
-          as List<List<double>>;
-    }
-
-    Matrix eigenvectorsMatrix = Matrix(eigenvectors);
-
-    return [eigenvalues, eigenvectorsMatrix];
-  }
-
-  /// Solves a linear system Ax = b using the specified [method].
-  ///
-  /// [b]: The right-hand side matrix.
-  /// [method]: The method to use for solving the system. Options are 'lu' (LU decomposition, default) or 'gaussian' (Gaussian elimination).
-  ///
-  /// Returns a matrix x that satisfies Ax = b.
-  ///
-  /// Throws an exception if the current matrix is not square, if the row counts of the current matrix and [b] do not match, or if an invalid [method] is specified.
-  ///
-  /// Example:
-  /// ```dart
-  /// var matrixA = Matrix([[2, 1, 1], [1, 3, 2], [1, 0, 0]]);
-  /// var matrixB = Matrix([[4], [5], [6]]);
-  /// var result = matrixA.solve(matrixB, method: 'lu');
-  /// print(result);
-  /// // Output:
-  /// // 6.0
-  /// // 15.0
-  /// // -23.0
-  /// ```
-  Matrix solve(Matrix b, {String method = 'gauss'}) {
-    if (method == 'gauss') {
-      return gaussianElimination(b);
-    } else if (method == 'lu') {
-      return luDecomposition(b);
-    } else {
-      throw Exception('Invalid method specified');
-    }
   }
 }

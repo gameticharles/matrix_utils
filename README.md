@@ -14,13 +14,25 @@ A Dart library that provides an easy-to-use Matrix class for performing various 
 
 ## Features
 
-- Matrix creation (zero, ones, eye, diagonal, from list, etc.)
-- Matrix operation (addition, subtraction, multiplication, etc.)
-- Matrix manipulation (concatenate, sort, removeRow, removeRows,removeCol,removeCols, reshape, etc. )
-- Statistics on matrix (min, max, sum, rank, average, mean, median, skewness, etc)
+- Matrix creation, filling and generation: Methods for filling the matrix with specific values or generating matrices with certain properties, such as zero, ones, identity, diagonal, list, or random matrices.
+- Import and export matrices to and from other formats (e.g., CSV, JSON, binary)
+- Matrix operations: Implement common matrix operations such as addition, subtraction, multiplication (element-wise and matrix-matrix), and division (element-wise) etc.
+- Matrix transformation methods: Add methods for matrix transformations, such as transpose, inverse, and rank.
+- Matrix manipulation (concatenate, sort, removeRow, removeRows,removeCol,removeCols, reshape,Swapping rows and columns etc. )
+- Statistical methods: Methods for calculating statistical properties of the matrix, such as min, max, sum, mean, median, mode, skewness, standard deviation, and variance.
+- Element-wise operations: Methods for performing element-wise operations on the matrix, such as applying a function to each element or filtering elements based on a condition.
 - Solving linear systems of equations (LU decomposition and Guassian elimination method)
-- Submatrix extraction
-- Swapping rows and columns
+- Matrix slicing and submtrices: Methods for extracting submatrices or slices from the matrix.
+- Matrix concatenation and stacking: Methods for concatenating or stacking matrices horizontally or vertically.
+- Matrix decomposition: Decomposition methods, such as LU, QR, singular value decomposition (SVD) etc.
+- Matrix norms: Methods for calculating matrix norms, such as L1, L2 (Euclidean), and infinity norms.
+- From the matrix, row and columns of the matrix are iterables and also iterate on every element.
+
+## TODO
+
+- linear algebra
+- Sparse matrix
+- advanced matrix operations
 
 ## Usage
 

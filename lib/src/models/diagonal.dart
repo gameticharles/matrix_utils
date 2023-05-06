@@ -30,6 +30,9 @@ class Diagonal extends Matrix {
     return diagonalMatrix;
   }
 
+  /// Get the list of the elements that are in the matrix
+  List<dynamic> get asList => diagonal();
+
   /// Returns the first element of the Diagonal.
   ///
   /// Example:
@@ -37,7 +40,7 @@ class Diagonal extends Matrix {
   /// var diag = Diagonal([1, 2, 3]);
   /// print(diag.first); // Output: 1
   /// ```
-  dynamic get first => _data[0][0];
+  dynamic get firstItem => _data[0][0];
 
   /// Returns the last element of the Diagonal.
   ///
@@ -46,7 +49,7 @@ class Diagonal extends Matrix {
   /// var diag = Diagonal([1, 2, 3]);
   /// print(diag.last); // Output: 3
   /// ```
-  dynamic get last => _data[_data.length - 1][_data.length - 1];
+  dynamic get lastItem => _data[_data.length - 1][_data.length - 1];
 
   /// Returns the sum of all elements in the Matrix.
   ///

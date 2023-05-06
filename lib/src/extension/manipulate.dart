@@ -39,9 +39,10 @@ extension MatrixManipulationExtension on Matrix {
         throw Exception("Incompatible matrices for concatenation");
       }
 
-      int maxRowCount = axis == 1 ? max(rowCount, other.rowCount) : rowCount;
+      int maxRowCount =
+          axis == 1 ? math.max(rowCount, other.rowCount) : rowCount;
       int maxColumnCount =
-          axis == 0 ? max(columnCount, other.columnCount) : columnCount;
+          axis == 0 ? math.max(columnCount, other.columnCount) : columnCount;
 
       List<List<dynamic>> resizedDataA = List.generate(
           maxRowCount, (i) => List<dynamic>.filled(maxColumnCount, 0));
@@ -605,12 +606,13 @@ extension MatrixManipulationExtension on Matrix {
   /// print(flattenedMatrix);
   /// // Output: 1  2  3  4  5  6
   /// ```
-  Row flatten() {
+  List<dynamic> flatten() {
+    //List<dynamic> list = rowIterable.expand((x) => x).toList();
     List<dynamic> newData = [
       for (int i = 0; i < rowCount; i++)
         for (int j = 0; j < columnCount; j++) this[i][j]
     ];
-    return Row(newData);
+    return newData;
   }
 
   /// Reverses the matrix along the specified axis.
@@ -701,8 +703,8 @@ extension MatrixManipulationExtension on Matrix {
           newRowCount, (i) => List<dynamic>.filled(newColumnCount, 0));
     }
 
-    int copyRowCount = min(rowCount, other.rowCount);
-    int copyColumnCount = min(columnCount, other.columnCount);
+    int copyRowCount = math.min(rowCount, other.rowCount);
+    int copyColumnCount = math.min(columnCount, other.columnCount);
 
     for (int i = 0; i < copyRowCount; i++) {
       for (int j = 0; j < copyColumnCount; j++) {
@@ -711,42 +713,10 @@ extension MatrixManipulationExtension on Matrix {
     }
   }
 
-  /// Extracts a submatrix from the given matrix using the specified row and column indices.
-  ///
-  /// This method has been superseded by the `submatrix` method.
-  //@Deprecated("Use the submatrix method instead.")
-  Matrix slice(int rowStart, int rowEnd, int colStart, int colEnd) {
-    if (rowStart < 0 || rowStart >= rowCount) {
-      throw Exception('Row start index is out of range');
-    }
-
-    if (colStart < 0 || colStart >= columnCount) {
-      throw Exception('Column start index is out of range');
-    }
-
-    if (rowEnd <= rowStart || rowEnd > rowCount) {
-      throw Exception('Row end index is out of range');
-    }
-
-    if (colEnd <= colStart || colEnd > columnCount) {
-      throw Exception('Column end index is out of range');
-    }
-
-    List<List<dynamic>> newData = [];
-
-    for (int i = rowStart; i < rowEnd; i++) {
-      List<dynamic> row = [];
-      for (int j = colStart; j < colEnd; j++) {
-        row.add(_data[i][j]);
-      }
-      newData.add(row);
-    }
-
-    return Matrix(newData);
-  }
-
   /// Extracts a submatrix from the given matrix using the specified row and column indices or ranges.
   ///
+  /// [rowList]: Optional list of integers representing the row indices to include in the submatrix.
+  /// [colList]: Optional list of integers representing the column indices to include in the submatrix.
   /// [rowRange]: Optional string representing the row range (e.g. "1:3").
   /// [colRange]: Optional string representing the column range (e.g. "1:3").
   /// [rowStart]: Optional start index of the row range.
@@ -759,48 +729,44 @@ extension MatrixManipulationExtension on Matrix {
   /// Example:
   /// ```dart
   /// var matrix = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
-  /// var subMatrix = matrix.submatrix(rowRange: '0:2', colRange: '1:3');
+  /// var subMatrix = matrix.submatrix(rowList: [0, 2], colList: [1, 2]);
   /// print(subMatrix);
   /// // Output:
   /// // 2  3
-  /// // 5  6
+  /// // 8  9
   /// ```
   Matrix submatrix(
-      {String rowRange = '',
+      {List<int>? rowList,
+      List<int>? colList,
+      String rowRange = '',
       String colRange = '',
       int? rowStart,
       int? rowEnd,
       int? colStart,
       int? colEnd}) {
-    final rowIndices = rowStart == null || rowEnd == null
-        ? _Utils.parseRange(rowRange, rowCount)
-        : [rowStart, rowEnd];
-    final colIndices = colStart == null || colEnd == null
-        ? _Utils.parseRange(colRange, columnCount)
-        : [colStart, colEnd];
+    final rowIndices = rowList ??
+        (rowStart == null || rowEnd == null
+            ? _Utils.parseRange(rowRange, rowCount)
+            : List.generate(rowEnd - rowStart, (i) => rowStart + i));
+    final colIndices = colList ??
+        (colStart == null || colEnd == null
+            ? _Utils.parseRange(colRange, columnCount)
+            : List.generate(colEnd - colStart, (i) => colStart + i));
 
-    if (rowIndices[0] < 0 || rowIndices[0] >= rowCount) {
-      throw Exception('Row start index is out of range');
+    if (rowIndices.any((i) => i < 0 || i >= rowCount)) {
+      throw Exception('Row indices are out of range');
     }
 
-    if (colIndices[0] < 0 || colIndices[0] >= columnCount) {
-      throw Exception('Column start index is out of range');
-    }
-
-    if (rowIndices[1] <= rowIndices[0] || rowIndices[1] > rowCount) {
-      throw Exception('Row end index is out of range');
-    }
-
-    if (colIndices[1] <= colIndices[0] || colIndices[1] > columnCount) {
-      throw Exception('Column end index is out of range');
+    if (colIndices.any((i) => i < 0 || i >= columnCount)) {
+      throw Exception('Column indices are out of range');
     }
 
     List<List<dynamic>> newData = [];
 
-    for (int i = rowIndices[0]; i < rowIndices[1]; i++) {
+    for (int i = 0; i < rowIndices.length; i++) {
       List<dynamic> row = [];
-      for (int j = colIndices[0]; j < colIndices[1]; j++) {
-        row.add(_data[i][j]);
+      for (int j = 0; j < colIndices.length; j++) {
+        row.add(_data[rowIndices[i]][colIndices[j]]);
       }
       newData.add(row);
     }
@@ -808,35 +774,87 @@ extension MatrixManipulationExtension on Matrix {
     return Matrix(newData);
   }
 
-  /// Creates a submatrix based on the provided row and column ranges.
-  /// Row and column ranges must be strings in the format "start:end", where
-  /// start and end are zero-based indices. If start is omitted, it defaults to 0.
-  /// If end is omitted, it defaults to the last index.
+  /// Returns a submatrix that is a portion of the original matrix.
+  ///
+  /// The parameters [startRow] and [endRow] specify the starting and ending row indices,
+  /// while the optional parameters [startCol] and [endCol] specify the starting and ending
+  /// column indices.
+  ///
+  /// Example:
+  ///
+  /// Matrix mat = Matrix.fromList([
+  ///   [4, 5, 6, 7],
+  ///   [9, 9, 8, 6],
+  ///   [1, 1, 2, 9]
+  /// ]);
+  ///
+  /// Matrix subMat = mat.subMatrix(1, 2, 1, 2);
+  /// print(mat);
+  ///
+  /// Output:
+  /// Matrix: 2x2
+  /// ┌ 9 8 ┐
+  /// └ 1 2 ┘
+  Matrix subMatrix(int startRow, int endRow, [int? startCol, int? endCol]) {
+    if (startRow < 0 ||
+        startRow >= rowCount ||
+        endRow < 0 ||
+        endRow >= rowCount) {
+      throw RangeError("Row indices are out of range.");
+    }
+
+    startCol ??= 0;
+    endCol ??= columnCount - 1;
+
+    if (startCol < 0 ||
+        startCol >= columnCount ||
+        endCol < 0 ||
+        endCol >= columnCount) {
+      throw RangeError("Column indices are out of range.");
+    }
+
+    List<List<dynamic>> subData = [];
+    for (int i = startRow; i <= endRow; i++) {
+      subData.add(_data[i].sublist(startCol, endCol + 1));
+    }
+    return Matrix.fromList(subData);
+  }
+
+  /// Sets the values of the submatrix at the specified position.
+  ///
+  /// The parameters [startRow] and [startCol] specify the starting row and column indices,
+  /// and [subMatrix] is the submatrix to be inserted.
   ///
   /// Example:
   /// ```dart
-  /// Matrix m = Matrix("1 2 3; 4 5 6; 7 8 9");
-  /// Matrix subm = m.subset("1:2", "0:1");
-  /// The submatrix will be:
-  /// 4 5
-  /// 7 8
+  /// Matrix mat = Matrix.fromList([
+  ///   [4, 5, 6, 7],
+  ///   [9, 9, 8, 6],
+  ///   [1, 1, 2, 9]
+  /// ]);
+  ///
+  /// Matrix subMat = Matrix.fromList([
+  ///   [3, 3],
+  ///   [3, 3]
+  /// ]);
+  ///
+  /// mat.setSubMatrix(1, 1, subMat);
+  /// print(mat);
+  ///
+  /// Output:
+  /// Matrix: 3x4
+  /// ┌ 4 5 6 7 ┐
+  /// │ 9 3 3 6 │
+  /// └ 1 3 3 9 ┘
   /// ```
-  //@Deprecated("Use the submatrix method instead.")
-  Matrix subset(String rowRange, String colRange) {
-    final rowIndices = _Utils.parseRange(rowRange, rowCount);
-    final colIndices = _Utils.parseRange(colRange, columnCount);
-
-    final List<List<dynamic>> newData = [];
-
-    for (int i = rowIndices[0]; i <= rowIndices[1]; i++) {
-      List<dynamic> newRow = [];
-      for (int j = colIndices[0]; j <= colIndices[1]; j++) {
-        newRow.add(this[i][j]);
+  void setSubMatrix(int startRow, int startCol, Matrix subMatrix) {
+    int rows = subMatrix.rowCount;
+    int cols = subMatrix.columnCount;
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        _data[startRow + i][startCol + j] = subMatrix[i][j];
       }
-      newData.add(newRow);
     }
-
-    return Matrix(newData);
   }
 
   /// Splits the matrix into smaller matrices along the specified axis.

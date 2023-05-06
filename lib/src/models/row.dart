@@ -16,6 +16,51 @@ class Row extends Matrix {
   /// ```
   Row(List<dynamic> data) : super([data]);
 
+  // /// Assigns the value to the specified column index of the Row.
+  // operator []=(int index, dynamic value) {
+  //   if (_data.isNotEmpty && value.length != _data[0].length) {
+  //     throw Exception('Row has different length than the other rows');
+  //   }
+  //   if (index < 0 || index >= _data[0].length) {
+  //     throw Exception('Index is out of range');
+  //   }
+  //   _data[0][index] = value;
+  // }
+
+  // /// Retrieves the specified column from the matrix.
+  // List<dynamic> operator [](int index) {
+  //   if (index < 0 || index >= _data[0].length) {
+  //     throw Exception('Index is out of range');
+  //   }
+  //   return _data[0][index];
+  // }
+
+  /// Creates a new Row object with the specified number of columns filled with the specified value.
+  ///
+  /// [cols]: The number of columns in the new Row object.
+  /// [value]: The value used to fill each element in the new Row object.
+  ///
+  /// Throws [Exception] if the specified number of columns is less than 1.
+  ///
+  /// Returns a new Row object with the specified number of columns filled with the specified value.
+  ///```dart
+  /// Row filledRow = Row.fill(5, 3);
+  /// print(filledRow);
+  /// ```
+  ///
+  factory Row.fill(int cols, dynamic value) {
+    if (cols < 1) {
+      throw Exception("Columns must be greater than 0");
+    }
+
+    List<dynamic> row = List.generate(cols, (index) => value);
+
+    return Row(row);
+  }
+
+  /// Get the list of the elements that are in the matrix
+  List<dynamic> get asList => _data;
+
   /// Returns the first element of the row.
   ///
   /// Example:
@@ -23,7 +68,7 @@ class Row extends Matrix {
   /// var row = Row([1, 2, 3]);
   /// print(row.first); // Output: 1
   /// ```
-  dynamic get first => _data[0][0];
+  dynamic get firstItem => _data[0][0];
 
   /// Returns the last element of the row.
   ///
@@ -32,7 +77,7 @@ class Row extends Matrix {
   /// var row = Row([1, 2, 3]);
   /// print(row.last); // Output: 3
   /// ```
-  dynamic get last => _data[0][_data[0].length - 1];
+  dynamic get lastItem => _data[0][_data[0].length - 1];
 
   /// Returns the sum of all elements in the row.
   ///
