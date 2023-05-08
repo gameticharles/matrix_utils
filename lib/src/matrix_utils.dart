@@ -1,6 +1,5 @@
 part of matrix_utils;
 
-//class Matrix implements Iterable<List<dynamic>> {
 class Matrix extends IterableMixin<List<dynamic>> {
   List<List<dynamic>> _data = const [];
 
@@ -14,9 +13,13 @@ class Matrix extends IterableMixin<List<dynamic>> {
     return MatrixDecomposition(this);
   }
 
+  //List<List<dynamic>> get data => _data;
+
   LinearAlgebra get linear {
     return LinearAlgebra(this);
   }
+
+  static MatrixFactory get factory => MatrixFactory();
 
   @override
   Iterator<List<dynamic>> get iterator => MatrixIterator(this);
@@ -61,38 +64,6 @@ class Matrix extends IterableMixin<List<dynamic>> {
     } else {
       throw Exception('Invalid input type');
     }
-  }
-
-  /// Converts the current Matrix object to an Array2D from SciDart library.
-  Array2d toArray2D() {
-    List<Array> array2DData = _data
-        .map((row) => Array(row.map((e) => (e as num).toDouble()).toList()))
-        .toList();
-    return Array2d(array2DData);
-  }
-
-  /// Creates a Matrix object from a SciDart Array2D.
-  ///
-  /// Example:
-  ///
-  /// Array2d array2d = Array2d([
-  ///   Array([4, 5, 6, 7]),
-  ///   Array([9, 9, 8, 6]),
-  ///   Array([1, 1, 2, 9])
-  /// ]);
-  ///
-  /// Matrix mat = Matrix.fromArray2D(array2d);
-  /// print(mat);
-  ///
-  /// Output:
-  /// Matrix: 3x4
-  /// ┌ 4 5 6 7 ┐
-  /// │ 9 9 8 6 │
-  /// └ 1 1 2 9 ┘
-  static Matrix fromArray2D(Array2d array2d) {
-    List<List<dynamic>> matrixData =
-        array2d.map((array) => array.toList()).toList();
-    return Matrix.fromList(matrixData);
   }
 
   /// Returns the number of rows in the matrix.
@@ -187,42 +158,6 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// ```
   factory Matrix.fromList(List<List<dynamic>> list) {
     return Matrix(list);
-  }
-
-  /// Creates a tridiagonal matrix with the given size and diagonal values.
-  ///
-  /// `n` is the size of the square matrix.
-  /// `a` is the value to fill the first (upper) diagonal.
-  /// `b` is the value to fill the second (main) diagonal.
-  /// `c` is the value to fill the third (lower) diagonal.
-  ///
-  /// Returns a [Matrix] with the specified tridiagonal structure.
-  ///
-  /// Example:
-  ///
-  /// ```dart
-  /// int n = 10;
-  /// double a = -4;
-  /// double b = 1;
-  /// double c = 2;
-  ///
-  /// Matrix A = Matrix.tridiagonal(n, a, b, c);
-  /// ```
-  factory Matrix.tridiagonal(int n, double a, double b, double c) {
-    List<List<double>> data =
-        List.generate(n, (_) => List<double>.filled(n, 0));
-
-    for (int i = 0; i < n; i++) {
-      if (i - 1 >= 0) {
-        data[i][i - 1] = a;
-      }
-      data[i][i] = b;
-      if (i + 1 < n) {
-        data[i][i + 1] = c;
-      }
-    }
-
-    return Matrix.fromList(data);
   }
 
   /// Creates a matrix with random elements of type double or int.
@@ -682,7 +617,7 @@ class Matrix extends IterableMixin<List<dynamic>> {
   String toString(
       {String separator = ' ',
       bool isPrettyMatrix = true,
-      String alignment = 'right'}) {
+      MatrixAlign alignment = MatrixAlign.right}) {
     return _Utils.matString(this,
         separator: separator,
         isPrettyMatrix: isPrettyMatrix,
@@ -706,61 +641,12 @@ class Matrix extends IterableMixin<List<dynamic>> {
   void prettyPrint(
       {String separator = ' ',
       bool isPrettyMatrix = true,
-      String alignment = 'right'}) {
+      MatrixAlign alignment = MatrixAlign.right}) {
     print(_Utils.matString(this,
         separator: separator,
         isPrettyMatrix: isPrettyMatrix,
         alignment: alignment));
   }
-
-  /// Returns a List<List<dynamic>> representation of the matrix.
-  @override
-  List<List> toList({bool growable = true}) {
-    return _data;
-  }
-
-  /// Returns a new Matrix where each element is the result of applying the provided function [f] to the corresponding element in the original matrix.
-  ///
-  /// [f]: A function that takes a single argument and returns a single value.
-  ///
-  /// Example:
-  /// ```dart
-  /// var m = Matrix([[1, 2], [3, 4]]);
-  /// var doubled = m.map((x) => x * 2);
-  /// print(doubled);
-  /// // Output:
-  /// // 2 4
-  /// // 6 8
-  /// ```
-  // @override
-  // Iterable<T> map<T>(T Function(List e) f) {
-  //   List<List<dynamic>> newData =
-  //       _data.map((row) => row.map((i) => f(i)).toList()).toList();
-  //   return Iterable.castFrom(newData);
-  // }
-
-  /// Executes the provided function [f] for each element in the matrix.
-  ///
-  /// [f]: A function that takes a single argument and performs an action.
-  ///
-  /// Example:
-  /// ```dart
-  /// var m = Matrix([[1, 2], [3, 4]]);
-  /// m.forEach((x) => print(x));
-  /// // Output:
-  /// // 1
-  /// // 2
-  /// // 3
-  /// // 4
-  /// ```
-//   @override
-//   void forEach(void Function(List element) action) {
-//     for (var row in _data) {
-//       for (var element in row) {
-//         action(element);
-//       }
-//     }
-//   }
 }
 
 class _MatrixIterable extends IterableBase<List<dynamic>> {

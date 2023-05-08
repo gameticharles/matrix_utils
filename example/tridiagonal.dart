@@ -8,8 +8,8 @@ void printLine(String s) {
 void main() {
   printLine('Tridiagonalize');
 
-  Matrix tri = Matrix.tridiagonal(10, -4, 1, 2);
-  print('Matrix tri = Matrix.tridiagonal(10, -4, 1, 2);\n${tri}\n');
+  Matrix tri = Matrix.factory.tridiagonal(10, -4, 1, 2);
+  print('Matrix tri = Matrix.tridiagonal(10, -4, 1, 2);\n$tri\n');
 
   // 2x2 simple symmetric matrix
   var a1 = Matrix([
@@ -58,25 +58,25 @@ void main() {
 
   var triA1 = a1.tridiagonalize();
   print("Is the triA1 tridiagonal? ${triA1.isTridiagonal()}");
-  print('triA1:\n${triA1}\n');
+  print('triA1:\n$triA1\n');
 
   var triA2 = a2.tridiagonalize();
   print("Is the triA2 tridiagonal? ${triA2.isTridiagonal()}");
-  print('triA2:\n${triA2}\n');
+  print('triA2:\n$triA2\n');
 
   var triA3 = a3.tridiagonalize();
   print("Is the triA3 tridiagonal? ${triA3.isTridiagonal()}");
-  print('triA3:\n${triA3}\n');
+  print('triA3:\n$triA3\n');
 
   var triA4 = a4.tridiagonalize();
   print("Is the triA4 tridiagonal? ${triA4.isTridiagonal()}");
-  print('triA4:\n${triA4}\n');
+  print('triA4:\n$triA4\n');
 
   var triA5 = a5.tridiagonalize();
   print("Is the triA5 tridiagonal? ${triA5.isTridiagonal()}");
-  print('triA5:\n${triA5}\n');
+  print('triA5:\n$triA5\n');
 
   var triA6 = a6.tridiagonalize();
   print("Is the triA6 tridiagonal? ${triA6.isTridiagonal()}");
-  print('triA6:\n${triA6}\n');
+  print('triA6:\n$triA6\n');
 }

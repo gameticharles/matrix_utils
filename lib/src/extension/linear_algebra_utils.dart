@@ -51,7 +51,7 @@ class LinearAlgebra {
   // LU decomposition method.
   Matrix luDecompositionSolve(Matrix b) {
     Matrix a = Matrix(_matrix._data as List<List<num>>);
-    var lu = a.decomposition.luDecomposition();
+    var lu = a.decomposition.luDecompositionDoolittle();
     Matrix l = lu.L;
     Matrix u = lu.U;
 
@@ -106,5 +106,43 @@ class LinearAlgebra {
     } else {
       throw Exception('Invalid method specified');
     }
+  }
+
+  /// Solves a linear equation system Ax = b with Ridge Regression (L2 regularization).
+  ///
+  /// Ridge Regression is used when the matrix A is ill-conditioned or close to singular.
+  /// It adds a regularization term alpha * I to the matrix A^T * A, where I is the identity matrix.
+  ///
+  /// [b] is the right-hand side matrix in the equation Ax = b.
+  /// [alpha] is the regularization parameter. It must be a non-negative scalar value.
+  ///
+  /// Returns the solution matrix x.
+  ///
+  /// Example:
+  /// ```dart
+  /// Matrix A = Matrix.fromList([
+  ///   [1, 2, 4],
+  ///   [4, 8, 20],
+  ///   [3, 6, 7]
+  /// ]);
+  /// Matrix b = Matrix.fromList([
+  ///   [15],
+  ///   [68],
+  ///   [27]
+  /// ]);
+  /// double alpha = 0.01;
+  ///
+  /// Matrix x = A.ridgeRegression(b, alpha);
+  /// x.prettyPrint();
+  /// ```
+  Matrix ridgeRegression(Matrix b, double alpha) {
+    Matrix A = _Utils.toDoubleMatrix(_matrix);
+    int n = A.columnCount;
+    Matrix I = Matrix.eye(n, isDouble: true);
+    Matrix aTrans = A.transpose();
+    Matrix atAplusAlphai = aTrans * A + I.scale(alpha);
+    Matrix atAplusAlphaIInv = atAplusAlphai.inverse();
+    Matrix x = atAplusAlphaIInv * aTrans * b;
+    return x;
   }
 }

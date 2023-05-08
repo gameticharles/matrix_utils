@@ -10,14 +10,13 @@ import 'dart:math' as math;
 import 'dart:io';
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:scidart/numdart.dart';
-//import 'package:scidart/scidart.dart';
 
 export 'matrix_utils.dart';
 
 part 'src/matrix_utils.dart';
 part 'src/utils/utils.dart';
-part 'src/enum/enum.dart';
+part 'src/enum/matrix_align.dart';
+part 'src/enum/matrix_types.dart';
 
 part 'src/models/row.dart';
 part 'src/models/column.dart';
@@ -40,6 +39,7 @@ part 'src/extension/structure.dart';
 part 'src/extension/hyperbolic_functions.dart';
 
 part 'src/extension/interoperability.dart';
+part 'src/extension/matrix_factory.dart';
 part 'src/extension/decomposition/decomposition.dart';
 part 'src/extension/decomposition/svd.dart';
 part 'src/extension/decomposition/lu.dart';

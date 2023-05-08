@@ -22,7 +22,7 @@ class LUs {
   /// LU Decomposition
   /// Structure to access L, U and piv.
   /// - [A] Rectangular matrix
-  LU(Matrix A) {
+  LUs(Matrix A) {
     // Use a "left-looking", dot-product, Crout/Doolittle algorithm.
     _LUMatrix = _Utils.toDoubleMatrix(A.copy());
     _m = A.rowCount;

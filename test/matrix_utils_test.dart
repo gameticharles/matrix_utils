@@ -88,7 +88,7 @@ void main() {
 
   test('test #1 with 2 row and column indices', () {
     expect(
-        m.subMatrix(0, 2, 1, 4),
+        m.subMatrix(0, 1, 1, 3),
         Matrix([
           [2, 3, 4],
           [7, 8, 9]
@@ -177,7 +177,7 @@ void main() {
 
   test('test #3 with 3 row and column indices', () {
     expect(
-        m.subMatrix(0, 3, 2, 3),
+        m.subMatrix(0, 2, 2, 2),
         Matrix([
           [3],
           [8],
@@ -187,7 +187,7 @@ void main() {
 
   test('test #4', () {
     expect(
-        m.subMatrix(0, 3, 3, 4),
+        m.subMatrix(0, 2, 3, 3),
         Matrix([
           [4],
           [9],
@@ -220,14 +220,29 @@ void main() {
     expect(column.toDiagonal(), Diagonal([1, 2, 3]));
   });
 
-  test('test #1 Row to Diagonal', () {
+  test('test #2 Column to Matrix', () {
+    var column = Column([1, 2, 3]);
+    expect(
+        column,
+        Matrix([
+          [1],
+          [2],
+          [3]
+        ]));
+  });
+
+  test('test #3 Row to Diagonal', () {
     var row = Row([1, 2, 3]);
     expect(row.toDiagonal(), Diagonal([1, 2, 3]));
   });
 
-  test('test #2 Row to Matrix', () {
+  test('test #4 Row to Matrix', () {
     var row = Row([1, 2, 3]);
-    expect(row.toDiagonal(), Diagonal([1, 2, 3]));
+    expect(
+        row,
+        Matrix([
+          [1, 2, 3]
+        ]));
   });
 
   test('test Gram Schmidt', () {

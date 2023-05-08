@@ -1,6 +1,6 @@
 part of matrix_utils;
 
-class QRDecomposition {
+class QRDecomposition extends Decomposition {
   final Matrix Q;
   final Matrix R;
 
@@ -18,6 +18,7 @@ class QRDecomposition {
 
   /// Solves a linear equation system Ax = b for the given matrix b.
   /// Returns the solution matrix x.
+  @override
   Matrix solve(Matrix b) {
     // Check if the matrix R is non-singular
     if (!R.isNonSingularMatrix()) {
@@ -34,7 +35,42 @@ class QRDecomposition {
   }
 }
 
-class EigenvalueDecomposition {
+class LQDecomposition extends Decomposition {
+  final Matrix Q;
+  final Matrix L;
+
+  LQDecomposition(this.Q, this.L);
+
+  /// Checks if Q is an orthogonal matrix.
+  bool get isOrthogonalMatrix => Q.isOrthogonalMatrix();
+
+  /// Checks if L is a lower triangular matrix.
+  bool get isLowerTriangular => L.isLowerTriangular();
+
+  /// Checks the decomposition by reconstructing the original matrix.
+  /// Returns the reconstructed matrix as L * Q.
+  Matrix get checkMatrix => L * Q;
+
+  /// Solves a linear equation system Ax = b for the given matrix b.
+  /// Returns the solution matrix x.
+  @override
+  Matrix solve(Matrix b) {
+    // Check if the matrix L is non-singular
+    if (!L.isNonSingularMatrix()) {
+      throw Exception("Matrix L is singular, cannot solve the linear system.");
+    }
+
+    // Solve Ly = b using forward substitution
+    Matrix y = _Utils.forwardSubstitution(L, b);
+
+    // Compute x = Q^T * y
+    Matrix x = Q.transpose() * y;
+
+    return x;
+  }
+}
+
+class EigenvalueDecomposition extends Decomposition {
   final Matrix D;
   final Matrix V;
 
@@ -61,73 +97,60 @@ class EigenvalueDecomposition {
     }
     return true;
   }
+
+  @override
+  Matrix solve(Matrix b) {
+    // TODO: implement solve
+    throw UnimplementedError();
+  }
 }
 
-class CholeskyDecomposition {
+class CholeskyDecomposition extends Decomposition {
   final Matrix L;
+  final Matrix _originalMatrix;
 
-  CholeskyDecomposition(this.L);
+  CholeskyDecomposition(this._originalMatrix, this.L);
 
   /// Checks if L is a lower triangular matrix.
   bool get isLowerTriangular => L.isLowerTriangular();
 
   /// Checks if the matrix is positive definite.
-  bool get isPositiveDefiniteMatrix => L.isPositiveDefiniteMatrix();
+  bool get isPositiveDefiniteMatrix =>
+      _originalMatrix.isPositiveDefiniteMatrix();
 
   /// Checks the decomposition by reconstructing the original matrix.
   /// Returns the reconstructed matrix as L * L.transpose().
   Matrix get checkMatrix => L * L.transpose();
 
+  /// Solves the linear system Ax = b using Cholesky decomposition, where A is the original matrix.
+  /// The method assumes that the original matrix A is positive definite.
+  ///
+  /// [b] is the right-hand side matrix of the linear system.
+  ///
+  /// Returns the solution matrix x, such that Ax = b.
+  ///
+  /// Throws an exception if the original matrix is not positive definite.
+  @override
   Matrix solve(Matrix b) {
-    // Check if the matrix is positive definite
+    // Check if the original matrix is positive definite
     if (!isPositiveDefiniteMatrix) {
       throw Exception(
-          "Matrix is not positive definite, cannot solve the linear system.");
+          "Original matrix is not positive definite, cannot solve the linear system.");
     }
 
     // Solve Ly = b using forward substitution
+    // L is the lower triangular matrix from Cholesky decomposition
     Matrix y = _Utils.forwardSubstitution(L, b);
 
     // Solve L^T * x = y using backward substitution
+    // L^T is the transpose of the lower triangular matrix L
     Matrix x = _Utils.backwardSubstitution(L.transpose(), y);
 
     return x;
   }
 }
 
-class LQDecomposition {
-  final Matrix Q;
-  final Matrix L;
-
-  LQDecomposition(this.Q, this.L);
-
-  /// Checks if Q is an orthogonal matrix.
-  bool get isOrthogonalMatrix => Q.isOrthogonalMatrix();
-
-  /// Checks if L is a lower triangular matrix.
-  bool get isLowerTriangular => L.isLowerTriangular();
-
-  /// Checks the decomposition by reconstructing the original matrix.
-  /// Returns the reconstructed matrix as L * Q.
-  Matrix get checkMatrix => L * Q;
-
-  Matrix solve(Matrix b) {
-    // Check if the matrix L is non-singular
-    if (!L.isNonSingularMatrix()) {
-      throw Exception("Matrix L is singular, cannot solve the linear system.");
-    }
-
-    // Solve Ly = b using forward substitution
-    Matrix y = _Utils.forwardSubstitution(L, b);
-
-    // Solve Qx = y using backward substitution
-    Matrix x = _Utils.backwardSubstitution(Q, y);
-
-    return x;
-  }
-}
-
-class SchurDecomposition {
+class SchurDecomposition extends Decomposition {
   final Matrix Q;
   final Matrix A;
 
@@ -139,9 +162,66 @@ class SchurDecomposition {
   /// Checks the decomposition by reconstructing the original matrix.
   /// Returns the reconstructed matrix as Q * A * Q.transpose().
   Matrix get checkMatrix => Q * A * Q.transpose();
+
+  /// Solves a linear equation system Ax = b using the Schur decomposition of A.
+  ///
+  /// This method assumes that the Schur decomposition A = Q * T * Q^T has been
+  /// computed, where T is a diagonal or nearly diagonal matrix. This approach
+  /// is not guaranteed to work for all matrices and might not provide accurate
+  /// results in certain cases.
+  ///
+  /// Note: It is generally preferable to use other decomposition methods, such
+  /// as LU or QR decomposition, to solve linear systems, as they are specifically
+  /// designed for this purpose.
+  ///
+  /// Throws an exception if the matrix A in the Schur decomposition is not diagonal.
+  ///
+  /// Returns the solution matrix x.
+  ///
+  /// Example:
+  /// ```dart
+  /// Matrix A = Matrix.fromList([
+  ///   [4, 1, -1],
+  ///   [1, 4, -1],
+  ///   [-1, -1, 4]
+  /// ]);
+  /// Matrix b = Matrix.fromList([
+  ///   [6],
+  ///   [25],
+  ///   [14]
+  /// ]);
+  ///
+  /// SchurDecomposition schur = A.decomposition.schurDecomposition();
+  /// Matrix x = schur.solve(b);
+  /// x.prettyPrint();
+  /// ```
+  @override
+  Matrix solve(Matrix b) {
+    // Check if A is diagonal
+    if (!A.isDiagonalMatrix()) {
+      throw Exception(
+          "Matrix A in Schur decomposition is not diagonal, cannot solve the linear system.");
+    }
+
+    // Compute the transformed right-hand side vector, y = Q.transpose() * b
+    Matrix y = Q.transpose() * b;
+
+    // Solve the diagonal system A * x = y
+    Matrix x = Matrix.zeros(y.rowCount, y.columnCount);
+    for (int i = 0; i < A.rowCount; i++) {
+      for (int j = 0; j < y.columnCount; j++) {
+        x[i][j] = y[i][j] / A[i][i];
+      }
+    }
+
+    // Transform the solution back to the original coordinate system, x_original = Q * x
+    Matrix xOriginal = Q * x;
+
+    return xOriginal;
+  }
 }
 
-class LUDecomposition {
+class LUDecomposition extends Decomposition {
   final Matrix L;
   final Matrix U;
   final Matrix? P;
@@ -166,6 +246,7 @@ class LUDecomposition {
     }
   }
 
+  @override
   Matrix solve(Matrix b) {
     // Check if the matrix is non-singular
     if (!isNonSingular) {
@@ -185,7 +266,7 @@ class LUDecomposition {
   }
 }
 
-class SingularValueDecomposition {
+class SingularValueDecomposition extends Decomposition {
   final Matrix U;
   final Matrix S;
   final Matrix V;

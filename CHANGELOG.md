@@ -1,5 +1,22 @@
 ## 0.0.4
 
+* Added function to compute matrix condition number with both SVD and norm2 approaches.
+* Added matrix decompositions
+* - LU decompositions
+  * - Crout's algorithm
+  * - Doolittle algorithm
+  * - Doolittle algorithm with Partial Pivoting
+  * - Doolittle algorithm with Complete Pivoting
+  * - Gauss Elimination Method
+* - QR decompositions
+  * - QR decomposition Gram Schmidt
+  * - QR decomposition Householder
+* - LQ decomposition
+* - Cholesky Decomposition
+* - Eigenvalue Decomposition
+* - Singular Value Decomposition
+* - Schur Decomposition
+* Added matrix condition
 * Added support for exponential, logarithmic, and trigonometric functions on matrices
 * Added more matrix operations like scale,norm, norm2, l2Norms,
 * Added support for checking matrix properties.

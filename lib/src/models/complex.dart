@@ -20,10 +20,10 @@ part of matrix_utils;
 /// ```
 class Complex {
   /// The real part of the complex number.
-  final double real;
+  final num real;
 
   /// The imaginary part of the complex number.
-  final double imaginary;
+  final num imaginary;
 
   /// Constructs a complex number with the given real and imaginary parts.
   Complex(this.real, this.imaginary);

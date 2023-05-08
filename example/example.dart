@@ -6,10 +6,7 @@ void printLine(String s) {
 }
 
 void main() {
-  var mat = Matrix.random(5, 4);
-  print(mat.round(3));
-
-  mat = Matrix.fromList([
+  var mat = Matrix.fromList([
     [2, 3, 3, 3],
     [9, 9, 8, 6],
     [1, 1, 2, 9]
@@ -28,6 +25,10 @@ void main() {
     [9, 10, 11, 12],
     [13, 14, 15, 16]
   ]);
+
+  printLine('Matrix Properties');
+  var randMat = Matrix.random(5, 4);
+  print(randMat.round(3));
 
   printLine('Matrix Properties');
 

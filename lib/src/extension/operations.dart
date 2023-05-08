@@ -405,7 +405,7 @@ extension MatrixOperationExtension on Matrix {
     return math.sqrt(sum);
   }
 
-  /// Calculates the L2 norm or Frobenius norm of the matrix.
+  /// Calculates the L2 norm Euclidean norm of the matrix.
   ///
   /// Returns the Frobenius norm of the matrix.
   ///
@@ -413,12 +413,12 @@ extension MatrixOperationExtension on Matrix {
     return l2Norm();
   }
 
-  /// Calculates the L2 norm or Frobenius norm of the matrix.
+  /// Calculates the L1 norm or Frobenius norm of the matrix.
   ///
   /// Returns the Frobenius norm of the matrix.
   ///
   double norm2() {
-    return l2Norm();
+    return l1Norm();
   }
 
   /// Calculates the Infinity norm of the matrix.
@@ -660,7 +660,7 @@ extension MatrixOperationExtension on Matrix {
   }
 
   Matrix ref() {
-    Matrix result = _Utils.toDoubleMatrix(this);
+    Matrix result = copy();
     int lead = 0;
     int rowCount = result.rowCount;
     int columnCount = result.columnCount;
@@ -696,10 +696,9 @@ extension MatrixOperationExtension on Matrix {
   Matrix rref() {
     Matrix result = ref();
     int rowCount = result.rowCount;
-    int columnCount = result.columnCount;
 
     for (int r = rowCount - 1; r >= 0; r--) {
-      int nonZeroIndex = _getFirstNonZeroIndex(result[r]);
+      int nonZeroIndex = _Utils.getFirstNonZeroIndex(result[r]);
 
       if (nonZeroIndex != -1) {
         for (int i = r - 1; i >= 0; i--) {
@@ -709,6 +708,55 @@ extension MatrixOperationExtension on Matrix {
     }
 
     return result;
+  }
+
+  Matrix rowEchelonForms() {
+    int i, j, k;
+    double temp;
+    List<List<double>> mat = _Utils.toDoubleList(copy()._data);
+
+    // r表示秩，d表示当前正在哪一行
+    int r = 0, d = 0;
+
+    for (i = 0; i < mat[0].length; i++) {
+      k = d; // mat[i][i] mat[i+1][i] ... mat[n][i]中绝对值最大的行位置
+      for (j = d + 1; j < mat.length; j++) {
+        if (mat[k][i].abs() < mat[j][i].abs()) {
+          k = j;
+        }
+      }
+      if (k != d) // 交换第i行和第k行，行列式该变号
+      {
+        for (j = i; j < mat[0].length; j++) {
+          temp = mat[d][j];
+          mat[d][j] = mat[k][j];
+          mat[k][j] = temp;
+        }
+      }
+      if (mat[d][i].abs() <= 0.00000001) // 当mat[i][i]为零是时，行列式为零
+      {
+        continue;
+      } else {
+        r = r + 1;
+        for (j = 0; j < mat.length; j++) {
+          if (j != d) {
+            temp = -1 * mat[j][i] / mat[d][i];
+            for (k = i; k < mat[0].length; k++) {
+              mat[j][k] = mat[j][k] + temp * mat[d][k];
+            }
+          }
+        }
+        temp = mat[d][i];
+        for (j = i; j < mat[0].length; j++) {
+          mat[d][j] = mat[d][j] / temp;
+        }
+      }
+      d = d + 1;
+      if (d >= mat.length) {
+        break;
+      }
+    }
+    return Matrix.fromList(mat);
   }
 
   /// Scales the elements of the specified row by a given factor.
@@ -861,7 +909,7 @@ extension MatrixOperationExtension on Matrix {
   ///   [0, 0, 0]
   /// ]);
   int getNullity() {
-    return this.columnCount - this.rank();
+    return columnCount - rank();
   }
 
   /// Adds a multiple of one row to another row.
@@ -897,15 +945,6 @@ extension MatrixOperationExtension on Matrix {
     for (int j = 0; j < columnCount; j++) {
       this[targetIndex][j] += scaleFactor * this[sourceIndex][j];
     }
-  }
-
-  int _getFirstNonZeroIndex(List<dynamic> row) {
-    for (int i = 0; i < row.length; i++) {
-      if (row[i] != 0) {
-        return i;
-      }
-    }
-    return -1;
   }
 
   /// Calculates the inverse of a square matrix.
@@ -1066,7 +1105,7 @@ extension MatrixOperationExtension on Matrix {
   /// // 1.235  2.346
   /// // 3.457  4.568
   /// ```
-  Matrix round(int decimalPlaces) {
+  Matrix round([int decimalPlaces = 0]) {
     List<List<double>> newData = List.generate(
         rowCount, (i) => List<double>.generate(columnCount, (j) => 0));
 
@@ -1214,19 +1253,58 @@ extension MatrixOperationExtension on Matrix {
     // }
   }
 
-// Implement the QR algorithm
-  Eigen _eigenQR(int maxIterations, double tolerance) {
-    return Eigen([], []);
-  }
+  /// Computes eigenvalues and eigenvectors for a symmetric matrix.
+  ///
+  /// This method uses the QR algorithm with QR decomposition.
+  /// Returns a tuple containing the eigenvalues as a List<double> and eigenvectors as a Matrix.
+  ///
+  /// Example:
+  ///
+  /// Matrix mat = Matrix.fromList([
+  ///   [4, 2, 1],
+  ///   [2, 5, 1],
+  ///   [1, 1, 6]
+  /// ]);
+  ///
+  /// var result = mat.eigenSymmetric();
+  /// print('Eigenvalues: ${result.item1}');
+  /// print('Eigenvectors: ${result.item2}');
+  Eigen eigenSymmetric({int maxIterations = 100, double tolerance = 1e-10}) {
+    if (!isSquareMatrix()) {
+      throw StateError('The matrix must be square.');
+    }
+    if (!isSymmetricMatrix()) {
+      throw StateError('The matrix must be symmetric.');
+    }
 
-// Implement the Divide and Conquer algorithm
-  Eigen _eigenDivideAndConquer(int maxIterations, double tolerance) {
-    return Eigen([], []);
-  }
+    Matrix A = copy();
+    Matrix Q = Matrix();
+    Matrix R = Matrix();
 
-// Implement the Lanczos algorithm
-  Eigen _eigenLanczos(int maxIterations, double tolerance) {
-    return Eigen([], []);
+    for (int i = 0; i < maxIterations; i++) {
+      var qrResult = A.decomposition.qrDecompositionHouseholder();
+      Q = qrResult.Q;
+      R = qrResult.R;
+
+      A = R * Q;
+
+      bool converged = true;
+      for (int r = 1; r < rowCount; r++) {
+        for (int c = 0; c < r; c++) {
+          if (A[r][c].abs() > tolerance) {
+            converged = false;
+            break;
+          }
+        }
+        if (!converged) break;
+      }
+      if (converged) break;
+    }
+
+    List<double> eigenvalues = List.generate(rowCount, (i) => A[i][i]);
+    Matrix eigenvectors = Q;
+
+    return Eigen(eigenvalues, eigenvectors.split(1, Q.columnCount));
   }
 
   // Implement the Jacobi method
@@ -1398,5 +1476,32 @@ extension MatrixOperationExtension on Matrix {
   /// ```
   bool notIn(List<Matrix> matrices) {
     return !containsIn(matrices);
+  }
+
+  /// Calculates the condition number of the matrix using the Frobenius norm.
+  ///
+  /// The condition number is a measure of how well-conditioned a matrix is. A matrix
+  /// with a high condition number is considered to be ill-conditioned, which can
+  /// result in loss of precision when solving linear systems or computing the inverse.
+  /// The condition number is calculated as the product of the Frobenius norms of the
+  /// matrix and its inverse.
+  ///
+  /// Returns the condition number as a double.
+  ///
+  /// Example:
+  /// ```dart
+  /// Matrix A = Matrix.fromList([
+  ///   [1, 2, 4],
+  ///   [4, 8, 20],
+  ///   [3, 6, 7]
+  /// ]);
+  ///
+  /// double condNumber = A.conditionNumber();
+  /// print(condNumber);
+  /// ```
+  double conditionNumber() {
+    double normA = l2Norm();
+    double normAinv = inverse().l2Norm();
+    return normA * normAinv;
   }
 }

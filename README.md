@@ -21,17 +21,18 @@ A Dart library that provides an easy-to-use Matrix class for performing various 
 - Matrix manipulation (concatenate, sort, removeRow, removeRows,removeCol,removeCols, reshape,Swapping rows and columns etc. )
 - Statistical methods: Methods for calculating statistical properties of the matrix, such as min, max, sum, mean, median, mode, skewness, standard deviation, and variance.
 - Element-wise operations: Methods for performing element-wise operations on the matrix, such as applying a function to each element or filtering elements based on a condition.
-- Solving linear systems of equations (LU decomposition and Guassian elimination method)
-- Matrix slicing and submtrices: Methods for extracting submatrices or slices from the matrix.
+- Solving linear systems of equations
+- Most matrix decompositions are implemented like LU decomposition, QR decomposition, LQ decomposition, Cholesky, Singular Value Decomposition (SVD)  with different algorithms Crout's, Doolittle, Gauss Elimination Method, Gram Schmidt, Householder, Partial and Complete Pivoting, etc.
+- Matrix slicing and partitioning: Methods for extracting sub-Matrices or slices from the matrix.
 - Matrix concatenation and stacking: Methods for concatenating or stacking matrices horizontally or vertically.
-- Matrix decomposition: Decomposition methods, such as LU, QR, singular value decomposition (SVD) etc.
 - Matrix norms: Methods for calculating matrix norms, such as L1, L2 (Euclidean), and infinity norms.
+- Determine the properties of a matrix.
 - From the matrix, row and columns of the matrix are iterables and also iterate on every element.
 
 ## TODO
 
-- linear algebra
-- Sparse matrix
+- Matrix decomposition and solve
+- Matrix Types
 - advanced matrix operations
 
 ## Usage

@@ -2,12 +2,12 @@ part of matrix_utils;
 
 class SVDs {
   //#region Class variables
-  /// Arrays for internal storage of U and V.
+  /// Matrix for internal storage of U and V.
   /// internal storage of [_U].
   /// internal storage of [_V].
   Matrix _U = Matrix(), _V = Matrix();
 
-  /// Array for internal storage of singular values.
+  /// Matrix for internal storage of singular values.
   /// internal storage of singular values.
   Matrix _s = Matrix();
 
@@ -22,7 +22,7 @@ class SVDs {
   /// Construct the singular value decomposition
   /// Structure to access U, S and V.
   /// - [Arg] Rectangular matrix
-  SVD(Matrix Arg) {
+  SVDs(Matrix Arg) {
     // Derived from LINPACK code.
     // Initialize.
     _m = Arg.rowCount;
@@ -40,12 +40,6 @@ class SVDs {
 
       A = Matrix.fill(_m, _n, 0.0);
       A.copyFrom(Arg);
-
-      // Arg.map().forEach((i, row) {
-      //   row.map().forEach((j, elem) {
-      //     A[i][j] = elem;
-      //   });
-      // });
     } else if (_m > _n) {
       specialCaseMoreRows = true;
       _m = Arg.rowCount;
@@ -53,12 +47,6 @@ class SVDs {
 
       A = Matrix.fill(_m, _n, 0.0);
       A.copyFrom(Arg);
-
-      // Arg.asMap().forEach((i, row) {
-      //   row.asMap().forEach((j, elem) {
-      //     A[i][j] = elem;
-      //   });
-      // });
     } else {
       A = Arg.copy();
     }
@@ -535,22 +523,10 @@ class SVDs {
     return _V.subMatrix(0, _n - 1, 0, _n - 1);
   }
 
-  /// Return the one-dimensional array of singular values
-  /// return diagonal of S.
-  List<dynamic> singularValues() {
-    return _s.flatten();
-  }
-
   /// Return the diagonal matrix of singular values
   /// return S
   Matrix S() {
     return Diagonal(_s.flatten());
-  }
-
-  /// Two norm
-  /// return  max(S)
-  double norm2() {
-    return _s[0][0];
   }
 
   /// Two norm condition number
@@ -559,18 +535,5 @@ class SVDs {
     return _s[0][0] / _s[0][math.min(_m, _n) - 1];
   }
 
-  /// Effective numerical matrix rank
-  /// return Number of nonnegligible singular values.
-  int rank() {
-    var eps = math.pow(2.0, -52.0).toDouble();
-    var tol = math.max(_m, _n) * _s[0][0] * eps;
-    var r = 0;
-    for (var i = 0; i < _s.length; i++) {
-      if (_s[0][i] > tol) {
-        r++;
-      }
-    }
-    return r;
-  }
 //#endregion
 }

@@ -122,6 +122,9 @@ class _Utils {
 
           // Update B, U, and V
           B.setSubMatrix(k, k, subR * subQ);
+          // multiplySubMatrix(U, k, m - 1, k, n - 1, subQ);
+          // multiplySubMatrix(V, k, n - 1, k, n - 1, subQ);
+
           U.setSubMatrix(k, k, U.subMatrix(k, m - 1, k, n - 1) * subQ);
           V.setSubMatrix(k, k, V.subMatrix(k, n - 1, k, n - 1) * subQ);
         }
@@ -134,10 +137,17 @@ class _Utils {
 
     // Extract singular values and singular vectors
     Matrix S = Diagonal(B.diagonal());
-    Matrix U_SVD = U.subMatrix(0, m - 1, 0, n - 1);
-    Matrix V_SVD = V;
+    Matrix uSvd = U.subMatrix(0, m - 1, 0, n - 1);
+    Matrix vSvd = V;
 
-    return SingularValueDecomposition(U_SVD, S, V_SVD);
+    return SingularValueDecomposition(uSvd, S, vSvd);
+  }
+
+  static void multiplySubMatrix(Matrix A, int rowStart, int rowEnd,
+      int colStart, int colEnd, Matrix other) {
+    Matrix subMatrix = A.subMatrix(rowStart, rowEnd, colStart, colEnd);
+    Matrix product = subMatrix * other;
+    A.setSubMatrix(rowStart, colStart, product);
   }
 
   // Helper method for solving a linear system using backward substitution.
@@ -261,12 +271,21 @@ class _Utils {
   }
 
   // Helper function to get the sum
-  static double sumLUk(Matrix L, Matrix U, int k) {
-    double sum = 0.0;
-    for (int s = 0; s < k; s++) {
-      sum += L[k][s] * U[s][k];
+  static double sumLUk(Matrix L, Matrix U, int k, int row, int col) {
+    double sum = 0;
+    for (int p = 0; p < k; p++) {
+      sum += L[row][p] * U[p][col];
     }
     return sum;
+  }
+
+  static int getFirstNonZeroIndex(List<dynamic> row) {
+    for (int i = 0; i < row.length; i++) {
+      if (row[i] != 0) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   // Project vector a onto vector b
@@ -390,7 +409,7 @@ class _Utils {
   static String matString(Matrix m,
       {String separator = ' ',
       bool isPrettyMatrix = true,
-      String alignment = 'right'}) {
+      MatrixAlign alignment = MatrixAlign.right}) {
     List<int> columnWidths = List.generate(m.columnCount, (_) => 0);
     List<String> rows = [];
 
