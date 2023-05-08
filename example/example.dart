@@ -42,7 +42,6 @@ void main() {
     [1, 4, 1],
     [1, 1, 4]
   ]);
-  eMat = Matrix("1 2 3 4; 2 5 6 7; 3 6 8 9; 4 7 9 10");
 
   var eigen = matr.eigen1();
   print('Eigen Values:\n${eigen.values}\n');
@@ -131,16 +130,16 @@ void main() {
   print('l2Norm: ${A.l2Norm()}'); // Output: 5.477225575051661
   print('Infinity Norm: ${A.infinityNorm()}'); // Output: 5.0
 
-  print(A.ref());
-  print(A.rref());
+  print(A.rowEchelonForm());
+  print(A.reducedRowEchelonForm());
 
-  var yy = Matrix([
-    [1, 2, 3],
-    [0, 1, 1],
-    [0, 0, 0]
-  ]);
-  print(yy.rref());
-  print(yy.rowSpace());
+  // var yy = Matrix([
+  //   [1, 2, 3],
+  //   [0, 1, 1],
+  //   [0, 0, 0]
+  // ]);
+  // print(yy.reducedRowEchelonForm());
+  // print(yy.rowSpace());
 
   printLine('Access Row and Column');
 

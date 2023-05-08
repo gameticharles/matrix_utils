@@ -142,6 +142,46 @@ print(randomMatrix);
 
 ```
 
+## Check Matrix Properties
+
+Easy much easier to query the properties of a matrix.
+
+```dart
+Matrix A = Matrix([
+    [4, 1, -1],
+    [1, 4, -1],
+    [-1, -1, 4]
+  ]);
+
+  print('\n\n$A\n');
+  print('l1Norm: ${A.l1Norm()}');
+  print('l2Norm: ${A.l2Norm()}');
+  print('Rank: ${A.rank()}');
+  print('Condition number: ${A.conditionNumber()}');
+  print('Decomposition Condition number: ${A.decomposition.conditionNumber()}');
+  A.matrixProperties().forEach((element) => print(' - $element'));
+
+  // Output:
+  // Matrix: 3x3
+  // ┌  4  1 -1 ┐
+  // │  1  4 -1 │
+  // └ -1 -1  4 ┘
+  // 
+  // l1Norm: 6.0
+  // l2Norm: 7.3484692283495345
+  // Rank: 3
+  // Condition number: 3.6742346141747673
+  // Decomposition Condition number: 1.9999999999999998
+  //  - Square Matrix
+  //  - Full Rank Matrix
+  //  - Symmetric Matrix
+  //  - Non-Singular Matrix
+  //  - Hermitian Matrix
+  //  - Positive Definite Matrix
+  //  - Diagonally Dominant Matrix
+  //  - Strictly Diagonally Dominant Matrix
+```
+
 ## Matrix Operations
 
 Perform matrix arithmetic operations:

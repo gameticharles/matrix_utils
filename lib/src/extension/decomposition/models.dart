@@ -153,8 +153,9 @@ class CholeskyDecomposition extends Decomposition {
 class SchurDecomposition extends Decomposition {
   final Matrix Q;
   final Matrix A;
+  final Matrix _originalMatrix;
 
-  SchurDecomposition(this.Q, this.A);
+  SchurDecomposition(this._originalMatrix, this.Q, this.A);
 
   /// Checks if Q is an orthogonal matrix.
   bool get isOrthogonalMatrix => Q.isOrthogonalMatrix();
@@ -165,7 +166,6 @@ class SchurDecomposition extends Decomposition {
 
   /// Solves a linear equation system Ax = b using the Schur decomposition of A.
   ///
-  /// This method assumes that the Schur decomposition A = Q * T * Q^T has been
   /// computed, where T is a diagonal or nearly diagonal matrix. This approach
   /// is not guaranteed to work for all matrices and might not provide accurate
   /// results in certain cases.

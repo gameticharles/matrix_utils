@@ -397,62 +397,96 @@ extension MatrixStatsExtension on Matrix {
     return kurtosis / standardDeviationFourth - 3;
   }
 
-  /// Returns the Row Echelon Form of the matrix.
+  /// Returns the row echelon form (REF) of the current matrix.
+  ///
+  /// Algorithm:
+  /// 1. Initialize the result matrix as a copy of the current matrix.
+  /// 2. Iterate through the rows of the matrix.
+  /// 3. If a pivot element is found, swap the rows and normalize the row.
+  /// 4. Eliminate the elements below the pivot.
   ///
   /// Example:
   /// ```dart
-  /// var m = Matrix([
+  /// final matrix = Matrix([
   ///   [1, 2, 3],
   ///   [4, 5, 6],
-  ///   [7, 8, 9],
+  ///   [7, 8, 9]
   /// ]);
-  /// print(m.rowEchelonForm());
-  /// // Output:
-  /// // Matrix: 3x3
-  /// // ┌ 1  2   3  ┐
-  /// // │ 0  -3  -6 │
-  /// // └ 0  0   0  ┘
+  /// final refMatrix = matrix.rowEchelonForm();
+  /// print(refMatrix);
+  /// ```
+  ///
+  /// Output:
+  /// ```dart
+  /// 1  2  3
+  /// 0 -3 -6
+  /// 0  0  0
   /// ```
   Matrix rowEchelonForm() {
-    Matrix result = Matrix(_data as List<List<num>>);
+    Matrix result = _Utils.toDoubleMatrix(copy());
     int lead = 0;
+    int rowCount = result.rowCount;
+    int columnCount = result.columnCount;
 
     for (int r = 0; r < rowCount; r++) {
-      if (columnCount <= lead) {
+      if (lead >= columnCount) {
         break;
       }
-
       int i = r;
       while (result[i][lead] == 0) {
         i++;
-        if (rowCount == i) {
+        if (i == rowCount) {
           i = r;
           lead++;
-          if (columnCount == lead) {
+          if (lead == columnCount) {
             break;
           }
         }
       }
-
       result.swapRows(i, r);
-
       if (result[r][lead] != 0) {
-        num div = result[r][lead];
-        for (int j = 0; j < columnCount; j++) {
-          result[r][j] /= div;
-        }
+        result.scaleRow(r, 1 / result[r][lead]);
       }
-
-      for (int j = 0; j < rowCount; j++) {
-        if (j != r) {
-          num sub = result[j][lead];
-          for (int k = 0; k < columnCount; k++) {
-            result[j][k] -= sub * result[r][k];
-          }
-        }
+      for (i = r + 1; i < rowCount; i++) {
+        result.addRow(r, i, -result[i][lead]);
       }
-
       lead++;
+    }
+
+    return result;
+  }
+
+  /// Returns the reduced row echelon form (RREF) of the current matrix.
+  ///
+  /// Example:
+  /// ```dart
+  /// final matrix = Matrix([
+  ///   [1, 2, 3],
+  ///   [4, 5, 6],
+  ///   [7, 8, 9]
+  /// ]);
+  /// final rrefMatrix = matrix.rref();
+  /// print(rrefMatrix);
+  /// ```
+  ///
+  /// Output:
+  /// ```dart
+  /// 1  0 -1
+  /// 0  1  2
+  /// 0  0  0
+  /// ```
+  Matrix reducedRowEchelonForm() {
+    Matrix result = rowEchelonForm();
+    int rowCount = result.rowCount;
+
+    for (int r = rowCount - 1; r >= 0; r--) {
+      int nonZeroIndex = _Utils.getFirstNonZeroIndex(result[r]);
+
+      if (nonZeroIndex != -1) {
+        for (int i = r - 1; i >= 0; i--) {
+          result.addRow(r, i, -result[i][nonZeroIndex]);
+        }
+      }
     }
 
     return result;

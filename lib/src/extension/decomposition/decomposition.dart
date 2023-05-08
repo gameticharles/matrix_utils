@@ -121,11 +121,13 @@ class MatrixDecomposition {
   /// ```
   double conditionNumber() {
     // Compute the singular value decomposition of the matrix
-    var svd = singularValueDecomposition();
+    var svd = _matrix.decomposition.singularValueDecomposition();
 
     // Find the largest and smallest singular values
-    double maxSingularValue = (svd.S.max() as num).toDouble();
-    double minSingularValue = (svd.S.min() as num).toDouble();
+    double maxSingularValue = (svd.S[0][0] as num).toDouble();
+    double minSingularValue =
+        (svd.S[_matrix.rowCount - 1][_matrix.columnCount - 1] as num)
+            .toDouble();
 
     // Calculate the condition number
     double conditionNumber = maxSingularValue / minSingularValue;
@@ -178,7 +180,7 @@ class MatrixDecomposition {
       }
     }
 
-    return SchurDecomposition(Q, A);
+    return SchurDecomposition(_matrix, Q, A);
   }
 
   /// Performs Cholesky decomposition of a symmetric positive definite matrix.
@@ -691,7 +693,6 @@ class MatrixDecomposition {
 
     // return SingularValueDecomposition(U, S, V);
     var svd = SVDs(_matrix);
-    print(svd.cond());
 
     return SingularValueDecomposition(svd.U(), svd.S(), svd.V());
 

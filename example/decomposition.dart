@@ -36,14 +36,13 @@ void main() {
   print('\n\n$A\n');
   print('l1Norm: ${A.l1Norm()}');
   print('l2Norm: ${A.l2Norm()}');
-  //print('Rank: ${A.rank()}');
+  print('Rank: ${A.rank()}');
   print('Condition number: ${A.conditionNumber()}');
-  //print('Decomposition Condition number: ${A.decomposition.conditionNumber()}');
+  print('Decomposition Condition number: ${A.decomposition.conditionNumber()}');
   A.matrixProperties().forEach((element) => print(' - $element'));
 
-  // print(A.ref());
-  // print(A.rowEchelonForm());
-  // print(A.rowEchelonForms());
+  print(A.rowEchelonForm());
+  print(A.reducedRowEchelonForm());
 
   printLine('Solve linear Equations');
 
@@ -106,10 +105,10 @@ void main() {
     [1, 4, 1],
     [1, 1, 4]
   ]);
-  // var egd = matr.decomposition.eigenvalueDecomposition();
+  // var egd = A.decomposition.eigenvalueDecomposition();
   // print("D:\n ${egd.D}");
   // print("V:\n ${egd.V}");
-  // print(egd.verify(B));
+  // print(egd.verify(b0));
   // print(egd.checkMatrix);
 
   // print(matr.eigen().vectors);
@@ -140,12 +139,12 @@ void main() {
   // Note: It is generally preferable to use other decomposition methods, such
   // as LU or QR decomposition, to solve linear systems, as they are specifically
   // designed for this purpose.
-  var shur = A.decomposition.schurDecomposition();
-  print("A:\n ${shur.A}");
-  print("Q:\n ${shur.Q}");
-  print("isOrthogonalMatrix: ${shur.isOrthogonalMatrix}");
-  print(shur.checkMatrix);
-  print(shur.solve(b0));
+  var schur = A.decomposition.schurDecomposition();
+  print("A:\n ${schur.A}");
+  print("Q:\n ${schur.Q}");
+  print("isOrthogonalMatrix: ${schur.isOrthogonalMatrix}");
+  print(schur.checkMatrix);
+  print(schur.solve(b0));
 
   printLine('LU Decomposition Doolittle\'s algorithm');
   mat = Matrix([

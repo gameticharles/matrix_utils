@@ -659,106 +659,6 @@ extension MatrixOperationExtension on Matrix {
     return det;
   }
 
-  Matrix ref() {
-    Matrix result = copy();
-    int lead = 0;
-    int rowCount = result.rowCount;
-    int columnCount = result.columnCount;
-
-    for (int r = 0; r < rowCount; r++) {
-      if (lead >= columnCount) {
-        break;
-      }
-      int i = r;
-      while (result[i][lead] == 0) {
-        i++;
-        if (i == rowCount) {
-          i = r;
-          lead++;
-          if (lead == columnCount) {
-            break;
-          }
-        }
-      }
-      result.swapRows(i, r);
-      if (result[r][lead] != 0) {
-        result.scaleRow(r, 1 / result[r][lead]);
-      }
-      for (i = r + 1; i < rowCount; i++) {
-        result.addRow(r, i, -result[i][lead]);
-      }
-      lead++;
-    }
-
-    return result;
-  }
-
-  Matrix rref() {
-    Matrix result = ref();
-    int rowCount = result.rowCount;
-
-    for (int r = rowCount - 1; r >= 0; r--) {
-      int nonZeroIndex = _Utils.getFirstNonZeroIndex(result[r]);
-
-      if (nonZeroIndex != -1) {
-        for (int i = r - 1; i >= 0; i--) {
-          result.addRow(r, i, -result[i][nonZeroIndex]);
-        }
-      }
-    }
-
-    return result;
-  }
-
-  Matrix rowEchelonForms() {
-    int i, j, k;
-    double temp;
-    List<List<double>> mat = _Utils.toDoubleList(copy()._data);
-
-    // r表示秩，d表示当前正在哪一行
-    int r = 0, d = 0;
-
-    for (i = 0; i < mat[0].length; i++) {
-      k = d; // mat[i][i] mat[i+1][i] ... mat[n][i]中绝对值最大的行位置
-      for (j = d + 1; j < mat.length; j++) {
-        if (mat[k][i].abs() < mat[j][i].abs()) {
-          k = j;
-        }
-      }
-      if (k != d) // 交换第i行和第k行，行列式该变号
-      {
-        for (j = i; j < mat[0].length; j++) {
-          temp = mat[d][j];
-          mat[d][j] = mat[k][j];
-          mat[k][j] = temp;
-        }
-      }
-      if (mat[d][i].abs() <= 0.00000001) // 当mat[i][i]为零是时，行列式为零
-      {
-        continue;
-      } else {
-        r = r + 1;
-        for (j = 0; j < mat.length; j++) {
-          if (j != d) {
-            temp = -1 * mat[j][i] / mat[d][i];
-            for (k = i; k < mat[0].length; k++) {
-              mat[j][k] = mat[j][k] + temp * mat[d][k];
-            }
-          }
-        }
-        temp = mat[d][i];
-        for (j = i; j < mat[0].length; j++) {
-          mat[d][j] = mat[d][j] / temp;
-        }
-      }
-      d = d + 1;
-      if (d >= mat.length) {
-        break;
-      }
-    }
-    return Matrix.fromList(mat);
-  }
-
   /// Scales the elements of the specified row by a given factor.
   ///
   /// This function multiplies all the elements in the row with the specified
@@ -811,7 +711,7 @@ extension MatrixOperationExtension on Matrix {
   /// // 0  1  1
   /// ```
   Matrix rowSpace() {
-    Matrix rref = this.rref();
+    Matrix rref = reducedRowEchelonForm();
     List<List<dynamic>> rowSpace = [];
 
     for (int i = 0; i < rref.rowCount; i++) {
@@ -876,7 +776,7 @@ extension MatrixOperationExtension on Matrix {
   /// //  0
   /// ```
   Matrix getNullSpace() {
-    Matrix rref = this.rref();
+    Matrix rref = reducedRowEchelonForm();
     List<List<double>> nullSpace = [];
 
     int freeVarCount = rref.columnCount - rref.rank();
