@@ -419,7 +419,7 @@ void main() {
     [6]
   ]);
   //var result = A.gaussianElimination(b);
-  var sol = AA.linear.solve(bbb, method: 'lu');
+  var sol = AA.linear.solve(bbb, method: LinearSystemMethod.leastSquares);
   print(sol);
 
   // Find the normalized matrix
@@ -478,16 +478,4 @@ void main() {
   // │ 2 3 3 3 │
   // │ 1 1 2 9 │
   // └ 0 1 1 1 ┘
-
-  // Eigen values and EigenVectors
-
-  // List<dynamic> res = Matrix().qrAlgorithm(x, 100, 1e-10);
-  // List<double> eigenvalues = res[0];
-  // Matrix eigenvectors = result[1];
-
-  // print("Eigenvalues:");
-  // print(eigenvalues);
-
-  // print("Eigenvectors:");
-  // print(eigenvectors);
 }

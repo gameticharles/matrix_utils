@@ -405,12 +405,12 @@ extension MatrixOperationExtension on Matrix {
     return math.sqrt(sum);
   }
 
-  /// Calculates the L2 norm Euclidean norm of the matrix.
+  /// Calculates the L1 norm of the matrix.
   ///
   /// Returns the Frobenius norm of the matrix.
   ///
   double norm() {
-    return l2Norm();
+    return l1Norm();
   }
 
   /// Calculates the L1 norm or Frobenius norm of the matrix.
@@ -418,7 +418,7 @@ extension MatrixOperationExtension on Matrix {
   /// Returns the Frobenius norm of the matrix.
   ///
   double norm2() {
-    return l1Norm();
+    return l2Norm();
   }
 
   /// Calculates the Infinity norm of the matrix.

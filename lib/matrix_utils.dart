@@ -17,6 +17,7 @@ part 'src/matrix_utils.dart';
 part 'src/utils/utils.dart';
 part 'src/enum/matrix_align.dart';
 part 'src/enum/matrix_types.dart';
+part 'src/enum/linear_methods.dart';
 
 part 'src/models/row.dart';
 part 'src/models/column.dart';

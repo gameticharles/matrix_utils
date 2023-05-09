@@ -387,7 +387,7 @@ extension MatrixManipulationExtension on Matrix {
   /// Example:
   /// ```dart
   /// var matrix = Matrix.fromList([[1, 2], [3, 4]]);
-  /// matrix.updateColumn(1, [5, 6]);
+  /// matrix.setColumn(1, [5, 6]);
   /// print(matrix);
   /// // Output:
   /// // Matrix: 2x2

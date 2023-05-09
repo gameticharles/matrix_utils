@@ -46,7 +46,7 @@ void main() {
 
   printLine('Solve linear Equations');
 
-  print('Solve Decomposition: ${mat.linear.solve(b)}\n');
+  print('Solve Decomposition: ${mat.decomposition.solve(b)}\n');
 
   printLine('QR decomposition Gram Schmidt');
   var qr1 = A.decomposition.qrDecompositionGramSchmidt();
@@ -113,12 +113,12 @@ void main() {
 
   // print(matr.eigen().vectors);
 
-  //var eig = matr.eigenSymmetric();
-  // print("D:\n ${eig.values}");
-  // print("V:\n");
-  // for (Matrix eigenvector in eig.vectors) {
-  //   print(eigenvector.round(1));
-  // }
+  var eig = matr.eigenSymmetric();
+  print("D:\n ${eig.values}");
+  print("V:\n");
+  for (Matrix eigenvector in eig.vectors) {
+    print(eigenvector.round(1));
+  }
   // // print(eig.verify(B));
 
   printLine('Singular Value Decomposition');
@@ -213,6 +213,4 @@ void main() {
   print("P:\n ${lud.P}");
   print(lud.checkMatrix);
   print(lud.solve(b));
-
-  printLine('LU Decomposition Partial Pivoting');
 }

@@ -95,6 +95,46 @@ class MatrixDecomposition {
     return A.isAlmostEqual(product);
   }
 
+  // Helper method for computing bidiagonalize.
+  Bidiagonalization bidiagonalize() {
+    var A = _matrix.copy();
+    int m = A.rowCount;
+    int n = A.columnCount;
+
+    Matrix U = Matrix.eye(m);
+    Matrix B = A.copy();
+    Matrix V = Matrix.eye(n);
+
+    for (int k = 0; k < math.min(m - 1, n); k++) {
+      // Compute Householder reflection for the k-th column of B
+      var columnVector = B.subMatrix(k, m - 1, k, k);
+
+      Matrix Pk = _Utils.householderReflection(columnVector);
+      Matrix P = Matrix.eye(m);
+      P.setSubMatrix(k, k, Pk);
+
+      // Update B and U
+      B = P * B;
+      U = U * P;
+
+      if (k < n - 1) {
+        // Compute Householder reflection for the k-th row of B
+        var rowVector = Column(B.subMatrix(k, k, k, n - 1).flatten());
+
+        Matrix Qk = _Utils.householderReflection(rowVector);
+        Matrix Q = Matrix.eye(n);
+
+        Q.setSubMatrix(k, k, Qk);
+
+        // Update B and V
+        B = B * Q;
+        V = V * Q;
+      }
+    }
+
+    return Bidiagonalization(U, B, V);
+  }
+
   /// Computes the condition number of the matrix using its singular value
   /// decomposition (SVD). The condition number is the ratio of the largest
   /// singular value to the smallest singular value. A high condition number
@@ -168,6 +208,7 @@ class MatrixDecomposition {
       A = R * qK;
       Q = Q * qK;
 
+      //checks for convergence by computing the off-diagonal Frobenius norm
       double offDiagonalFrobeniusNorm = 0.0;
       for (int row = 1; row < A.rowCount; row++) {
         for (int col = 0; col < row; col++) {
@@ -180,7 +221,7 @@ class MatrixDecomposition {
       }
     }
 
-    return SchurDecomposition(_matrix, Q, A);
+    return SchurDecomposition(Q, A);
   }
 
   /// Performs Cholesky decomposition of a symmetric positive definite matrix.
@@ -202,10 +243,11 @@ class MatrixDecomposition {
     if (_matrix.rowCount != _matrix.columnCount) {
       throw ArgumentError('Matrix must be square for Cholesky decomposition.');
     }
+    var A = _Utils.toDoubleMatrix(_matrix);
 
-    Matrix L = Matrix.zeros(_matrix.rowCount, _matrix.columnCount);
+    Matrix L = Matrix.zeros(A.rowCount, A.columnCount, isDouble: true);
 
-    for (int i = 0; i < _matrix.rowCount; i++) {
+    for (int i = 0; i < A.rowCount; i++) {
       for (int j = 0; j <= i; j++) {
         double sum = 0.0;
 
@@ -213,17 +255,17 @@ class MatrixDecomposition {
           for (int k = 0; k < j; k++) {
             sum += math.pow(L[j][k], 2);
           }
-          L[j][j] = math.sqrt(_matrix[j][j] - sum);
+          L[j][j] = math.sqrt(A[j][j] - sum);
         } else {
           for (int k = 0; k < j; k++) {
             sum += L[i][k] * L[j][k];
           }
-          L[i][j] = (1.0 / L[j][j]) * (_matrix[i][j] - sum);
+          L[i][j] = (1.0 / L[j][j]) * (A[i][j] - sum);
         }
       }
     }
 
-    return CholeskyDecomposition(_matrix, L);
+    return CholeskyDecomposition(A, L);
   }
 
   /// Performs QR Decomposition (Gram-Schmidt Method) decomposition of a matrix.
@@ -249,6 +291,8 @@ class MatrixDecomposition {
           'Matrix must have more rows than columns for QR decomposition.');
     }
 
+    var A = _Utils.toDoubleMatrix(_matrix);
+
     //  Matrix Q = _matrix.linear.gramSchmidtOrthogonalization();
     // Matrix R = Matrix.zeros(_matrix.columnCount, _matrix.columnCount);
 
@@ -260,13 +304,11 @@ class MatrixDecomposition {
     // }
     // return QRDecomposition(Q, R);
     //-------------------------------
-    Matrix Q =
-        Matrix.zeros(_matrix.rowCount, _matrix.columnCount, isDouble: true);
-    Matrix R =
-        Matrix.zeros(_matrix.columnCount, _matrix.columnCount, isDouble: true);
+    Matrix Q = Matrix.zeros(A.rowCount, A.columnCount, isDouble: true);
+    Matrix R = Matrix.zeros(A.columnCount, A.columnCount, isDouble: true);
 
-    for (int k = 0; k < _matrix.columnCount; k++) {
-      List<double> u = _Utils.toSDList(_matrix.column(k).asList);
+    for (int k = 0; k < A.columnCount; k++) {
+      List<double> u = _Utils.toSDList(A.column(k).asList);
 
       for (int i = 0; i < k; i++) {
         List<double> qI = _Utils.toSDList(Q.column(i).asList);
@@ -535,8 +577,8 @@ class MatrixDecomposition {
   /// lu.P.prettyPrint();
   /// ```
   LUDecomposition luDecompositionGauss() {
-    int n = _matrix.rowCount;
-    _matrix = _Utils.toDoubleMatrix(_matrix);
+    var A = _Utils.toDoubleMatrix(_matrix);
+    int n = A.rowCount;
 
     // Initialize L, U, and P
     Matrix L = Matrix.eye(n);
@@ -548,8 +590,8 @@ class MatrixDecomposition {
       double maxVal = 0.0;
       int maxIndex = k;
       for (int i = k; i < n; i++) {
-        if (_matrix[i][k].abs() > maxVal) {
-          maxVal = (_matrix[i][k] as num).toDouble().abs();
+        if (A[i][k].abs() > maxVal) {
+          maxVal = (A[i][k] as num).toDouble().abs();
           maxIndex = i;
         }
       }
@@ -557,17 +599,17 @@ class MatrixDecomposition {
       P.swapRows(k, maxIndex);
 
       // Swap the rows in the matrix itself
-      _matrix.swapRows(k, maxIndex);
+      A.swapRows(k, maxIndex);
 
       for (int i = k + 1; i < n; i++) {
-        double factor = _matrix[i][k] / _matrix[k][k];
+        double factor = A[i][k] / A[k][k];
         L[i][k] = factor;
 
         for (int j = k; j < n; j++) {
           if (j == k) {
-            U[k][j] = _matrix[k][j];
+            U[k][j] = A[k][j];
           }
-          _matrix[i][j] = _matrix[i][j] - factor * _matrix[k][j];
+          A[i][j] = A[i][j] - factor * A[k][j];
         }
       }
     }
@@ -575,7 +617,7 @@ class MatrixDecomposition {
     // Copy the resulting upper triangular matrix to U
     for (int i = 0; i < n; i++) {
       for (int j = i; j < n; j++) {
-        U[i][j] = _matrix[i][j];
+        U[i][j] = A[i][j];
       }
     }
 
@@ -602,7 +644,8 @@ class MatrixDecomposition {
   /// lu.Q.prettyPrint();
   /// ```
   LUDecomposition luDecompositionDoolittleCompletePivoting() {
-    int n = _matrix.rowCount;
+    var A = _Utils.toDoubleMatrix(_matrix);
+    int n = A.rowCount;
 
     // Initialize L, U, P, and Q
     Matrix L = Matrix.eye(n);
@@ -611,14 +654,14 @@ class MatrixDecomposition {
     Matrix Q = Matrix.eye(n);
 
     for (int k = 0; k < n; k++) {
-      // Find the largest pivot in the current submatrix
+      // Find the largest pivot in the current subMatrix
       double maxVal = 0.0;
       int maxRow = k;
       int maxCol = k;
       for (int i = k; i < n; i++) {
         for (int j = k; j < n; j++) {
-          if (_matrix[i][j].abs() > maxVal) {
-            maxVal = _matrix[i][j].abs();
+          if (A[i][j].abs() > maxVal) {
+            maxVal = A[i][j].abs();
             maxRow = i;
             maxCol = j;
           }
@@ -629,25 +672,25 @@ class MatrixDecomposition {
       P.swapRows(k, maxRow);
 
       // Swap the rows in the matrix itself
-      _matrix.swapRows(k, maxRow);
+      A.swapRows(k, maxRow);
 
       // Swap the columns in the permutation matrix Q
       Q.swapColumns(k, maxCol);
 
       // Swap the columns in the matrix itself
-      _matrix.swapColumns(k, maxCol);
+      A.swapColumns(k, maxCol);
 
       for (int i = k; i < n; i++) {
         if (i == k) {
           for (int j = k; j < n; j++) {
-            U[i][j] = _matrix[i][j];
+            U[i][j] = A[i][j];
           }
         } else {
-          double factor = _matrix[i][k] / U[k][k];
+          double factor = A[i][k] / U[k][k];
           L[i][k] = factor;
 
           for (int j = k; j < n; j++) {
-            _matrix[i][j] = _matrix[i][j] - factor * U[k][j];
+            A[i][j] = A[i][j] - factor * U[k][j];
           }
         }
       }
@@ -677,10 +720,18 @@ class MatrixDecomposition {
     // Matrix A = _matrix.copy();
 
     // // Perform bidiagonalization
-    // final bidiag = _Utils.bidiagonalize(A);
+    // final bidiag = A.decomposition.bidiagonalize();
     // Matrix U = bidiag.U;
     // Matrix B = bidiag.B;
     // Matrix Vt = bidiag.V;
+
+    // // Zero out tiny off-diagonal elements of B
+    // double eps = 1e-15;
+    // for (int i = 0; i < B.rowCount - 1; i++) {
+    //   if (B[i + 1][i].abs() < eps) {
+    //     B[i + 1][i] = 0.0;
+    //   }
+    // }
 
     // // Perform QR Iteration on bidiagonal matrix B
     // final svd = _Utils.qrIterationOnBidiagonal(B);
@@ -689,17 +740,13 @@ class MatrixDecomposition {
     // Matrix V = svd.V;
 
     // // Compute U by combining the bidiagonalization and QR iteration steps
-    // U = U * Ut.transpose();
+    // U = (U * Ut.transpose()).linear.gramSchmidtOrthogonalization();
 
     // return SingularValueDecomposition(U, S, V);
+
     var svd = SVDs(_matrix);
 
     return SingularValueDecomposition(svd.U(), svd.S(), svd.V());
-
-    // var svd = SVD(_matrix.toArray2D());
-
-    // return SingularValueDecomposition(
-    //     svd.U().toMatrix(), svd.S().toMatrix(), svd.V().toMatrix());
   }
 
   /// Performs Eigenvalue decomposition of a square matrix.
@@ -820,7 +867,7 @@ class MatrixDecomposition {
     }
 
     if (ridgeAlpha > 0.0) {
-      return _matrix.linear.ridgeRegression(b, ridgeAlpha);
+      return LinearSystemSolvers.ridgeRegression(_matrix, b, ridgeAlpha);
     } else {
       switch (method.toLowerCase()) {
         case "crout":

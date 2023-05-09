@@ -153,9 +153,8 @@ class CholeskyDecomposition extends Decomposition {
 class SchurDecomposition extends Decomposition {
   final Matrix Q;
   final Matrix A;
-  final Matrix _originalMatrix;
 
-  SchurDecomposition(this._originalMatrix, this.Q, this.A);
+  SchurDecomposition(this.Q, this.A);
 
   /// Checks if Q is an orthogonal matrix.
   bool get isOrthogonalMatrix => Q.isOrthogonalMatrix();

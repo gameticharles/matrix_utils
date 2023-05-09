@@ -15,8 +15,8 @@ class Matrix extends IterableMixin<List<dynamic>> {
 
   //List<List<dynamic>> get data => _data;
 
-  LinearAlgebra get linear {
-    return LinearAlgebra(this);
+  LinearSystemSolvers get linear {
+    return LinearSystemSolvers(this);
   }
 
   static MatrixFactory get factory => MatrixFactory();

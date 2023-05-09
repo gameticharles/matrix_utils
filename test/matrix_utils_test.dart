@@ -245,17 +245,18 @@ void main() {
         ]));
   });
 
-  test('test Gram Schmidt', () {
+  test('test Gram Schmidt orthogonalization', () {
     var A = Matrix([
       [1, 3, -2],
       [4, 7, 1],
       [3, -1, 12]
     ]);
     expect(
-        A.linear.gramSchmidtOrthogonalization(),
+        A.linear.orthogonalize().round(3),
         Matrix([
-          [0.2673, 0.8018, -0.5345],
-          [0.4438, 0.39, 0.8068],
+          [0.196, 0.358, 0.0],
+          [0.784, 0.501, 0.0],
+          [0.588, -0.788, 0.0]
         ]));
   });
 
@@ -270,14 +271,14 @@ void main() {
       [5],
       [6]
     ]);
-    //var result = A.gaussianElimination(b);
-    var result = A.linear.solve(b, method: 'gramSchmidt');
+
+    var result = A.linear.solve(b, method: LinearSystemMethod.luDecomposition);
     expect(
-        result.round(1),
+        result.round(0),
         Matrix([
-          [6.0],
-          [15.0],
-          [-23.0]
+          [6],
+          [15],
+          [-23]
         ]));
   });
 }

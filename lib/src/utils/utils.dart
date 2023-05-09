@@ -56,55 +56,14 @@ class _Utils {
     }).toList();
   }
 
-  // Helper method for computing bidiagonalize.
-  static Bidiagonalization bidiagonalize(Matrix A) {
-    int m = A.rowCount;
-    int n = A.columnCount;
-
-    Matrix U = Matrix.eye(m);
-    Matrix B = A.copy();
-    Matrix V = Matrix.eye(n);
-
-    for (int k = 0; k < math.min(m - 1, n); k++) {
-      // Compute Householder reflection for the k-th column of B
-      var columnVector = B.subMatrix(k, m - 1, k, k);
-
-      Matrix Pk = _Utils.householderReflection(columnVector);
-      Matrix P = Matrix.eye(m);
-      P.setSubMatrix(k, k, Pk);
-
-      // Update B and U
-      B = P * B;
-      U = U * P;
-
-      if (k < n - 1) {
-        // Compute Householder reflection for the k-th row of B
-        var rowVector = Column(B.subMatrix(k, k, k, n - 1).flatten());
-
-        Matrix Qk = _Utils.householderReflection(rowVector);
-        Matrix Q = Matrix.eye(n);
-
-        Q.setSubMatrix(k, k, Qk);
-
-        // Update B and V
-        B = B * Q;
-        V = V * Q;
-      }
-    }
-
-    return Bidiagonalization(U, B, V);
-  }
-
   // Helper method for QR Iteration on bidiagonal matrix B.
-  static SingularValueDecomposition qrIterationOnBidiagonal(Matrix B) {
+  static SingularValueDecomposition qrIterationOnBidiagonal(Matrix B,
+      {double eps = 1e-10, int maxIterations = 1000}) {
     int m = B.rowCount;
     int n = B.columnCount;
 
     Matrix U = Matrix.eye(m);
     Matrix V = Matrix.eye(n);
-
-    double eps = 1e-10;
-    int maxIterations = 1000;
 
     for (int iteration = 0; iteration < maxIterations; iteration++) {
       bool converged = true;
@@ -122,11 +81,13 @@ class _Utils {
 
           // Update B, U, and V
           B.setSubMatrix(k, k, subR * subQ);
-          // multiplySubMatrix(U, k, m - 1, k, n - 1, subQ);
-          // multiplySubMatrix(V, k, n - 1, k, n - 1, subQ);
-
           U.setSubMatrix(k, k, U.subMatrix(k, m - 1, k, n - 1) * subQ);
           V.setSubMatrix(k, k, V.subMatrix(k, n - 1, k, n - 1) * subQ);
+
+          if (B[k + 1][k].abs() <=
+              eps * (B[k][k].abs() + B[k + 1][k + 1].abs())) {
+            converged = true;
+          }
         }
       }
 
@@ -143,18 +104,11 @@ class _Utils {
     return SingularValueDecomposition(uSvd, S, vSvd);
   }
 
-  static void multiplySubMatrix(Matrix A, int rowStart, int rowEnd,
-      int colStart, int colEnd, Matrix other) {
-    Matrix subMatrix = A.subMatrix(rowStart, rowEnd, colStart, colEnd);
-    Matrix product = subMatrix * other;
-    A.setSubMatrix(rowStart, colStart, product);
-  }
-
   // Helper method for solving a linear system using backward substitution.
   static Matrix backwardSubstitution(Matrix upper, Matrix y) {
     int rowCount = upper.rowCount;
     int colCount = y.columnCount;
-    Matrix x = Matrix.zeros(rowCount, colCount);
+    Matrix x = Matrix.zeros(rowCount, colCount, isDouble: true);
 
     for (int i = rowCount - 1; i >= 0; i--) {
       for (int j = 0; j < colCount; j++) {
@@ -211,14 +165,6 @@ class _Utils {
     return a;
   }
 
-  // Column norm helper function
-  static double columnNorm(List<dynamic> column) {
-    return math.sqrt(column.map((e) {
-      var r = (e as num).toDouble();
-      return r * r;
-    }).reduce((sum, e) => sum + e));
-  }
-
   /// Returns the column at the given [index] as a list of dynamic elements.
   ///
   /// This is a private helper function used internally in the Matrix class.
@@ -240,34 +186,6 @@ class _Utils {
     }
 
     return column;
-  }
-
-// Helper function for matrix multiplication
-  static Matrix multiply(Matrix A, Matrix B) {
-    int rowsA = A.rowCount;
-    int colsA = A.columnCount;
-    int rowsB = B.rowCount;
-    int colsB = B.columnCount;
-
-    if (colsA != rowsB) {
-      throw Exception(
-          "Matrix dimensions are not compatible for multiplication");
-    }
-
-    List<List<dynamic>> result =
-        List.generate(rowsA, (_) => List.filled(colsB, 0.0));
-
-    for (int i = 0; i < rowsA; i++) {
-      for (int j = 0; j < colsB; j++) {
-        double sum = 0.0;
-        for (int k = 0; k < colsA; k++) {
-          sum += A[i][k] * B[k][j];
-        }
-        result[i][j] = sum;
-      }
-    }
-
-    return Matrix(result);
   }
 
   // Helper function to get the sum
@@ -304,7 +222,7 @@ class _Utils {
     return a.map((e) => e * b).toList();
   }
 
-  // 2. Compute the Householder reflection of a matrix
+  // Compute the Householder reflection of a matrix
   // static Matrix householderReflection(List<double> v) {
   //   int n = v.length;
   //   Matrix I = Matrix.eye(n);
@@ -313,27 +231,7 @@ class _Utils {
   //   Matrix P = I - (vvT * (2.0 / vectorDotProduct(v, v)));
   //   return P;
   // }
-  // Calculate the Householder reflection matrix for a given vector
-  static Matrix householderReflection1(Matrix columnVector) {
-    int n = columnVector.rowCount;
-    Matrix e1 = Matrix.zeros(n, 1);
-    e1[0][0] = 1;
-
-    // Check if the matrix is filled with zeros and return the identity matrix if true
-    if (columnVector.infinityNorm() == 0.0) {
-      return Matrix.eye(n);
-    }
-
-    Matrix u =
-        (columnVector + e1) * columnVector.norm2() * columnVector[0][0].sign;
-
-    Matrix P =
-        Matrix.eye(n) - ((u * u.transpose()) * (2 / math.pow(u.norm2(), 2)));
-
-    return P;
-  }
-
-// Calculate the Householder reflection matrix for a given vector
+  /// Calculate the Householder reflection matrix for a given vector
   static Matrix householderReflection(Matrix columnVector) {
     int n = columnVector.rowCount;
     Matrix e1 = Matrix.zeros(n, 1);
@@ -353,7 +251,7 @@ class _Utils {
     return P;
   }
 
-  // 3. Compute the Givens rotation of a matrix
+  /// Compute the Givens rotation of a matrix
   static List<double> givensRotation(double a, double b) {
     double r = math.sqrt(a * a + b * b);
     double c = a / r;
@@ -362,7 +260,7 @@ class _Utils {
     return [c, s];
   }
 
-  // 4. Apply Givens rotation to a matrix
+  /// Apply Givens rotation to a matrix
   static void applyGivensRotation(
       Matrix m, int row1, int row2, List<double> cS) {
     double c = cS[0];
