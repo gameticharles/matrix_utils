@@ -1,6 +1,6 @@
 part of matrix_utils;
 
-class DivideAndConquer {
+class _DivideAndConquer {
   // Helper function: Tridiagonalization
   Matrix tridiagonalize(Matrix A) {
     return A.tridiagonalize();

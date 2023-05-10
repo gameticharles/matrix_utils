@@ -108,18 +108,6 @@ void main() {
   //print(egd.verify(b0));
   print(egd.checkMatrix);
 
-  Matrix lambda = egd.D;
-  Matrix q = egd.V;
-
-  Matrix reconstructedA = q * lambda * q.conjugateTranspose();
-  print(reconstructedA);
-
-  printLine('Singular Value Decomposition');
-  mat = Matrix([
-    [4.0, 2.0, 1.0],
-    [16.0, 4.0, 1.0],
-    [64.0, 8.0, 1.0]
-  ]);
   var svd = A.decomposition.singularValueDecomposition();
   print("U:\n ${svd.U}");
   print("S:\n ${svd.S}");

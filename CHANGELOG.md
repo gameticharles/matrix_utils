@@ -1,4 +1,8 @@
-## 0.0.4
+## 0.0.6
+
+* Fixed bugs
+
+## 0.0.5
 
 * Added linear equation solver (cramersRule, ridgeRegression, bareissAlgorithm, inverseMatrix, gaussElimination, gaussJordanElimination, leastSquares, etc.)
 * Added function to compute matrix condition number with both SVD and norm2 approaches.

@@ -503,12 +503,44 @@ Matrix a = Matrix([[2, 1, 1], [1, 3, 2], [1, 0, 0]]);;
 Matrix b = Matrix([[4], [5], [6]]);
 
 // Solve the linear system Ax = b
-Matrix x = a.solve(b, method: 'lu');
+Matrix x = a.linear.solve(b, method: LinearSystemMethod.gaussElimination);
 print(x);
 // Output:
 // 6.0
 // 15.0
 // -23.0
+
+```
+
+You can also use the the decompositions to solve a linear system of equations
+
+```dart
+Matrix A = Matrix([
+  [4, 1, -1],
+  [1, 4, -1],
+  [-1, -1, 4]
+]);
+Matrix b = Matrix([
+  [6],
+  [25],
+  [14]
+]);
+
+//Solve using the Schur Decomposition
+SchurDecomposition schur = A.decomposition.schurDecomposition();
+
+//Solve using the QR Decomposition Householder
+QRDecomposition qr = A.decomposition.qrDecompositionHouseholder();
+
+// Solve for x using the object
+var x = qr.solve(b).round();
+print(x);
+
+// Output:
+// Matrix: 3x1
+// ┌ 1 ┐
+// │ 7 │
+// └ 6 ┘
 
 ```
 
