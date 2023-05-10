@@ -687,6 +687,7 @@ class LinearSystemSolvers {
       {LinearSystemMethod method = LinearSystemMethod.gaussElimination}) {
     var a = _Utils.toDoubleMatrix(_matrix);
     b = _Utils.toDoubleMatrix(b);
+
     switch (method) {
       case LinearSystemMethod.cramersRule:
         return cramersRule(a, b);

@@ -96,30 +96,23 @@ void main() {
     [64.0, 8.0, 1.0]
   ]);
 
-  var B = Matrix([
-    [2, 1],
-    [1, 2]
-  ]);
-  var matr = Matrix.fromList([
-    [4, 1, 1],
-    [1, 4, 1],
-    [1, 1, 4]
-  ]);
-  // var egd = A.decomposition.eigenvalueDecomposition();
-  // print("D:\n ${egd.D}");
-  // print("V:\n ${egd.V}");
-  // print(egd.verify(b0));
-  // print(egd.checkMatrix);
+  var egd = A.decomposition.eigenvalueDecomposition();
+  print("D:\n ${egd.D}");
+  print("V:\n ${egd.V}");
+  //print(egd.verify(b0));
+  print(egd.checkMatrix);
 
-  // print(matr.eigen().vectors);
+  egd = EigenvalueDecompositions.decompose(mat);
+  print("\n\nD:\n ${egd.D}");
+  print("V:\n ${egd.V}");
+  //print(egd.verify(b0));
+  print(egd.checkMatrix);
 
-  var eig = matr.eigenSymmetric();
-  print("D:\n ${eig.values}");
-  print("V:\n");
-  for (Matrix eigenvector in eig.vectors) {
-    print(eigenvector.round(1));
-  }
-  // // print(eig.verify(B));
+  Matrix lambda = egd.D;
+  Matrix q = egd.V;
+
+  Matrix reconstructedA = q * lambda * q.conjugateTranspose();
+  print(reconstructedA);
 
   printLine('Singular Value Decomposition');
   mat = Matrix([
@@ -140,7 +133,7 @@ void main() {
   // as LU or QR decomposition, to solve linear systems, as they are specifically
   // designed for this purpose.
   var schur = A.decomposition.schurDecomposition();
-  print("A:\n ${schur.A}");
+  print("T:\n ${schur.T}");
   print("Q:\n ${schur.Q}");
   print("isOrthogonalMatrix: ${schur.isOrthogonalMatrix}");
   print(schur.checkMatrix);

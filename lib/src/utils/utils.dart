@@ -206,12 +206,6 @@ class _Utils {
     return -1;
   }
 
-  // Project vector a onto vector b
-  static List<double> project(List<double> a, List<double> b) {
-    double scaleFactor = vectorDotProduct(a, b) / vectorDotProduct(b, b);
-    return vectorScale(b, scaleFactor);
-  }
-
   // Subtract vector b from vector a
   static List<double> vectorSubtract(List<double> a, List<double> b) {
     return List.generate(a.length, (i) => a[i] - b[i]);
@@ -222,15 +216,6 @@ class _Utils {
     return a.map((e) => e * b).toList();
   }
 
-  // Compute the Householder reflection of a matrix
-  // static Matrix householderReflection(List<double> v) {
-  //   int n = v.length;
-  //   Matrix I = Matrix.eye(n);
-  //   Matrix vvT =
-  //       Matrix.fromList(v.map((e) => [e]).toList()) * Matrix.fromList([v]);
-  //   Matrix P = I - (vvT * (2.0 / vectorDotProduct(v, v)));
-  //   return P;
-  // }
   /// Calculate the Householder reflection matrix for a given vector
   static Matrix householderReflection(Matrix columnVector) {
     int n = columnVector.rowCount;
@@ -251,31 +236,7 @@ class _Utils {
     return P;
   }
 
-  /// Compute the Givens rotation of a matrix
-  static List<double> givensRotation(double a, double b) {
-    double r = math.sqrt(a * a + b * b);
-    double c = a / r;
-    double s = -b / r;
-
-    return [c, s];
-  }
-
-  /// Apply Givens rotation to a matrix
-  static void applyGivensRotation(
-      Matrix m, int row1, int row2, List<double> cS) {
-    double c = cS[0];
-    double s = cS[1];
-
-    for (int j = 0; j < m.columnCount; j++) {
-      double temp1 = m[row1][j];
-      double temp2 = m[row2][j];
-
-      m[row1][j] = c * temp1 - s * temp2;
-      m[row2][j] = s * temp1 + c * temp2;
-    }
-  }
-
-  // 5. Compute the dot product of two vectors
+  // Compute the dot product of two vectors
   static double vectorDotProduct(List<double> v1, List<double> v2) {
     return v1
         .asMap()
@@ -284,7 +245,7 @@ class _Utils {
         .reduce((a, b) => a + b);
   }
 
-  // 6. Compute the norm of a vector
+  // Compute the norm of a vector
   static double vectorNorm(List<double> v) {
     return math.sqrt(v.map((value) => value * value).reduce((a, b) => a + b));
   }
@@ -320,7 +281,7 @@ class _Utils {
         .map((row) => row
             .asMap()
             .entries
-            .map((entry) => alignment == 'left'
+            .map((entry) => alignment == MatrixAlign.left
                 ? entry.value.toString().padRight(columnWidths[entry.key])
                 : entry.value.toString().padLeft(columnWidths[entry.key]))
             .join(separator))

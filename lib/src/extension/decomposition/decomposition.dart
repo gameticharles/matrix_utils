@@ -6,7 +6,7 @@ abstract class Decomposition {
 
 /// Provides matrix decomposition functions as an extension on Matrix.
 class MatrixDecomposition {
-  Matrix _matrix;
+  final Matrix _matrix;
 
   /// Constructor for MatrixDecomposition. Takes a Matrix as an argument.
   MatrixDecomposition(this._matrix);
@@ -74,7 +74,7 @@ class MatrixDecomposition {
   /// Returns `true` if the decomposition is accurate, `false` otherwise.
   static bool checkSchurDecomposition(Matrix A, SchurDecomposition schur) {
     Matrix Q = schur.Q;
-    Matrix T = schur.A;
+    Matrix T = schur.T;
     Matrix qInv = Q.inverse();
     Matrix product = Q * T * qInv;
     return A.isAlmostEqual(product);
@@ -109,9 +109,9 @@ class MatrixDecomposition {
       // Compute Householder reflection for the k-th column of B
       var columnVector = B.subMatrix(k, m - 1, k, k);
 
-      Matrix Pk = _Utils.householderReflection(columnVector);
+      Matrix pk = _Utils.householderReflection(columnVector);
       Matrix P = Matrix.eye(m);
-      P.setSubMatrix(k, k, Pk);
+      P.setSubMatrix(k, k, pk);
 
       // Update B and U
       B = P * B;
@@ -121,10 +121,10 @@ class MatrixDecomposition {
         // Compute Householder reflection for the k-th row of B
         var rowVector = Column(B.subMatrix(k, k, k, n - 1).flatten());
 
-        Matrix Qk = _Utils.householderReflection(rowVector);
+        Matrix qk = _Utils.householderReflection(rowVector);
         Matrix Q = Matrix.eye(n);
 
-        Q.setSubMatrix(k, k, Qk);
+        Q.setSubMatrix(k, k, qk);
 
         // Update B and V
         B = B * Q;
@@ -293,17 +293,6 @@ class MatrixDecomposition {
 
     var A = _Utils.toDoubleMatrix(_matrix);
 
-    //  Matrix Q = _matrix.linear.gramSchmidtOrthogonalization();
-    // Matrix R = Matrix.zeros(_matrix.columnCount, _matrix.columnCount);
-
-    // for (int i = 0; i < _matrix.columnCount; i++) {
-    //   for (int j = i; j < _matrix.columnCount; j++) {
-    //     R[i][j] = _Utils.vectorDotProduct(_Utils.toSDList(Q.column(i).asList),
-    //         _Utils.toSDList(_matrix.column(j).asList));
-    //   }
-    // }
-    // return QRDecomposition(Q, R);
-    //-------------------------------
     Matrix Q = Matrix.zeros(A.rowCount, A.columnCount, isDouble: true);
     Matrix R = Matrix.zeros(A.columnCount, A.columnCount, isDouble: true);
 
@@ -744,7 +733,7 @@ class MatrixDecomposition {
 
     // return SingularValueDecomposition(U, S, V);
 
-    var svd = SVDs(_matrix);
+    var svd = SVD(_matrix);
 
     return SingularValueDecomposition(svd.U(), svd.S(), svd.V());
   }
@@ -765,7 +754,8 @@ class MatrixDecomposition {
   /// eig.V.prettyPrint();
   /// eig.D.prettyPrint();
   /// ```
-  EigenvalueDecomposition eigenvalueDecomposition() {
+  EigenvalueDecomposition eigenvalueDecomposition(
+      {int maxIterations = 1000, double tolerance = 1e-10}) {
     if (!_matrix.isSquareMatrix()) {
       throw ArgumentError(
           'Matrix must be square for eigenvalue decomposition.');
@@ -775,47 +765,37 @@ class MatrixDecomposition {
       throw ArgumentError(
           'Matrix must be symmetric for this eigenvalue decomposition implementation.');
     }
-
-    int maxIterations = 1000;
-    double tolerance = 1e-10;
-
-    Matrix A = _matrix.copy();
-    Matrix V = Matrix.eye(_matrix.rowCount);
+    var a = _Utils.toDoubleMatrix(_matrix);
+    int n = a.rowCount;
+    Matrix ak = a.copy();
+    Matrix q = Matrix.eye(n);
 
     for (int k = 0; k < maxIterations; k++) {
-      // Find the largest off-diagonal element in A
-      int p = 0, q = 1;
-      double maxOffDiagonal = (A[p][q] as num).toDouble().abs();
-      for (int i = 0; i < A.rowCount; i++) {
-        for (int j = i + 1; j < A.columnCount; j++) {
-          if (A[i][j].abs() > maxOffDiagonal) {
-            maxOffDiagonal = A[i][j].abs();
-            p = i;
-            q = j;
+      // QR decomposition using Householder
+      final qr = ak.decomposition.qrDecompositionHouseholder();
+      Matrix qk = qr.Q;
+      Matrix rk = qr.R;
+
+// Update ak and vk
+      ak = rk * qk;
+      q = q * qk;
+
+      // Check for convergence
+      bool converged = true;
+      for (int i = 0; i < n && converged; i++) {
+        for (int j = 0; j < n && converged; j++) {
+          if (i != j && ak[i][j].abs() > tolerance) {
+            converged = false;
+            break;
           }
         }
       }
-
-      // Check for convergence
-      if (maxOffDiagonal < tolerance) {
-        return EigenvalueDecomposition(Diagonal(A.diagonal()), V);
-      }
-
-      // Compute the Jacobi rotation matrix
-      double theta = 0.5 * math.atan2(2 * A[p][q], A[q][q] - A[p][p]);
-      Matrix J = Matrix.eye(A.rowCount);
-      J[p][p] = math.cos(theta);
-      J[p][q] = -math.sin(theta);
-      J[q][p] = math.sin(theta);
-      J[q][q] = math.cos(theta);
-
-      // Update A and V
-      A = J.transpose() * A * J;
-      V = V * J;
+      if (converged) break;
     }
 
-    throw StateError(
-        'Eigenvalue decomposition did not converge within the maximum number of iterations.');
+    // Extract eigenvalues
+    Matrix lambda = Diagonal(ak.diagonal());
+    return EigenvalueDecomposition(lambda, q);
   }
 
   /// Solves a linear equation system Ax = b using various decomposition methods.

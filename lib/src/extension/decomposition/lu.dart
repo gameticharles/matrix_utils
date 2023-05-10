@@ -1,10 +1,25 @@
 part of matrix_utils;
 
-class LUs {
+/*
+ * In this implementation, the code for Singular Value Decomposition (SVD)
+ * and LU Decomposition has been borrowed from the SciDart library.
+ * SciDart is an open-source library for scientific computing in Dart,
+ * which provides various mathematical and statistical functions.
+ *
+ * Please find the reference to the SciDart library and its source code below:
+ *
+ * SciDart: https://scidart.org/
+ * GitHub repository: https://github.com/scidart/scidart
+ *
+ * We would like to express our gratitude to the authors and contributors of
+ * the SciDart library for their valuable work in providing these efficient
+ * and well-tested algorithms for the Dart community.
+ */
+class LU {
   //#region class variables
   /// Array for internal storage of decomposition.
   /// internal array storage.
-  Matrix _LUMatrix = Matrix();
+  Matrix luMatrix = Matrix();
 
   /// Row and column dimensions, and pivot sign.
   /// - [_m] column dimension.
@@ -22,9 +37,9 @@ class LUs {
   /// LU Decomposition
   /// Structure to access L, U and piv.
   /// - [A] Rectangular matrix
-  LUs(Matrix A) {
+  LU(Matrix A) {
     // Use a "left-looking", dot-product, Crout/Doolittle algorithm.
-    _LUMatrix = _Utils.toDoubleMatrix(A.copy());
+    luMatrix = _Utils.toDoubleMatrix(A.copy());
     _m = A.rowCount;
     _n = A.columnCount;
     _piv = Matrix.fill(1, _m, 0.0);
@@ -32,8 +47,8 @@ class LUs {
       _piv[0][i] = i.toDouble();
     }
     _pivsign = 1;
-    Matrix LUrowi = Matrix();
-    var LUcolj = Matrix.fill(_m, 1, 0.0);
+    Matrix luRowI = Matrix();
+    var luColJ = Matrix.fill(_m, 1, 0.0);
 
     // Outer loop.
 
@@ -41,38 +56,38 @@ class LUs {
       // Make a copy of the j-th column to localize references.
 
       for (var i = 0; i < _m; i++) {
-        LUcolj[i][0] = _LUMatrix[i][j];
+        luColJ[i][0] = luMatrix[i][j];
       }
 
       // Apply previous transformations.
 
       for (var i = 0; i < _m; i++) {
-        LUrowi = _Utils.toDoubleMatrix(_LUMatrix.row(i));
+        luRowI = _Utils.toDoubleMatrix(luMatrix.row(i));
 
         // Most of the time is spent in the following dot product.
 
         var kmax = math.min(i, j);
         var s = 0.0;
         for (var k = 0; k < kmax; k++) {
-          s += LUrowi[0][k] * LUcolj[k][0];
+          s += luRowI[0][k] * luColJ[k][0];
         }
 
-        LUrowi[0][j] = LUcolj[i][0] -= s;
+        luRowI[0][j] = luColJ[i][0] -= s;
       }
 
       // Find pivot and exchange if necessary.
 
       var p = j;
       for (var i = j + 1; i < _m; i++) {
-        if ((LUcolj[i][0] as num).abs() > (LUcolj[p][0] as num).abs()) {
+        if ((luColJ[i][0] as num).abs() > (luColJ[p][0] as num).abs()) {
           p = i;
         }
       }
       if (p != j) {
         for (var k = 0; k < _n; k++) {
-          var t = _LUMatrix[p][k];
-          _LUMatrix[p][k] = _LUMatrix[j][k];
-          _LUMatrix[j][k] = t;
+          var t = luMatrix[p][k];
+          luMatrix[p][k] = luMatrix[j][k];
+          luMatrix[j][k] = t;
         }
         var k = (_piv[0][p] as num).toDouble();
         _piv[0][p] = _piv[0][j];
@@ -81,9 +96,9 @@ class LUs {
       }
 
       // Compute multipliers.
-      if (j < _m && _LUMatrix[j][j] != 0.0) {
+      if (j < _m && luMatrix[j][j] != 0.0) {
         for (var i = j + 1; i < _m; i++) {
-          _LUMatrix[i][j] /= _LUMatrix[j][j];
+          luMatrix[i][j] /= luMatrix[j][j];
         }
       }
     }
@@ -149,7 +164,7 @@ class LUs {
   /// return true if U, and hence A, is nonsingular.
   bool isNonsingular() {
     for (var j = 0; j < _n; j++) {
-      if (_LUMatrix[j][j] == 0) {
+      if (luMatrix[j][j] == 0) {
         return false;
       }
     }
@@ -163,7 +178,7 @@ class LUs {
     for (var i = 0; i < _m; i++) {
       for (var j = 0; j < _n; j++) {
         if (i > j) {
-          L[i][j] = _LUMatrix[i][j];
+          L[i][j] = luMatrix[i][j];
         } else if (i == j) {
           L[i][j] = 1.0;
         } else {
@@ -181,7 +196,7 @@ class LUs {
     for (var i = 0; i < _n; i++) {
       for (var j = 0; j < _n; j++) {
         if (i <= j) {
-          U[i][j] = _LUMatrix[i][j];
+          U[i][j] = luMatrix[i][j];
         } else {
           U[i][j] = 0.0;
         }
@@ -219,7 +234,7 @@ class LUs {
     }
     var d = _pivsign.toDouble();
     for (var j = 0; j < _n; j++) {
-      d *= _LUMatrix[j][j];
+      d *= luMatrix[j][j];
     }
     return d;
   }
@@ -247,18 +262,18 @@ class LUs {
     for (var k = 0; k < _n; k++) {
       for (var i = k + 1; i < _n; i++) {
         for (var j = 0; j < nx; j++) {
-          X[i][j] -= X[k][j] * _LUMatrix[i][k];
+          X[i][j] -= X[k][j] * luMatrix[i][k];
         }
       }
     }
     // Solve U*X = Y;
     for (var k = _n - 1; k >= 0; k--) {
       for (var j = 0; j < nx; j++) {
-        X[k][j] /= _LUMatrix[k][k];
+        X[k][j] /= luMatrix[k][k];
       }
       for (var i = 0; i < k; i++) {
         for (var j = 0; j < nx; j++) {
-          X[i][j] -= X[k][j] * _LUMatrix[i][k];
+          X[i][j] -= X[k][j] * luMatrix[i][k];
         }
       }
     }

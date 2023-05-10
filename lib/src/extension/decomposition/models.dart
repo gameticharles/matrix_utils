@@ -86,11 +86,11 @@ class EigenvalueDecomposition extends Decomposition {
   bool verify(Matrix A, {double tolerance = 1e-6}) {
     for (int i = 0; i < V.columnCount; i++) {
       Matrix eigenvector = V.column(i);
-      Matrix Ax = A * eigenvector;
+      Matrix ax = A * eigenvector;
       Matrix lambdaX = eigenvector * D[i][i];
 
-      for (int j = 0; j < Ax.rowCount; j++) {
-        if ((Ax[j][0] - lambdaX[j][0]).abs() > tolerance) {
+      for (int j = 0; j < ax.rowCount; j++) {
+        if ((ax[j][0] - lambdaX[j][0]).abs() > tolerance) {
           return false;
         }
       }
@@ -102,6 +102,33 @@ class EigenvalueDecomposition extends Decomposition {
   Matrix solve(Matrix b) {
     // TODO: implement solve
     throw UnimplementedError();
+  }
+}
+
+class EigenvalueDecompositions {
+  final Matrix eigenvalues;
+  final Matrix eigenvectors;
+
+  EigenvalueDecompositions(this.eigenvalues, this.eigenvectors);
+
+  static EigenvalueDecomposition decompose(Matrix a,
+      {int maxIterations = 100, double tolerance = 1e-10}) {
+    if (a.rowCount != a.columnCount) {
+      throw Exception("Matrix A must be a square matrix.");
+    }
+
+    // Compute the Real Schur Decomposition
+    final schurDecomposition = a.decomposition.schurDecomposition();
+    Matrix q = schurDecomposition.Q;
+    Matrix t = schurDecomposition.T;
+
+    // Extract eigenvalues
+    Matrix lambda = Diagonal(t.diagonal());
+
+    // Compute eigenvectors
+    // Extract eigenvalues from the diagonal of the upper-triangular matrix T
+
+    return EigenvalueDecomposition(lambda, q);
   }
 }
 
@@ -152,16 +179,16 @@ class CholeskyDecomposition extends Decomposition {
 
 class SchurDecomposition extends Decomposition {
   final Matrix Q;
-  final Matrix A;
+  final Matrix T;
 
-  SchurDecomposition(this.Q, this.A);
+  SchurDecomposition(this.Q, this.T);
 
   /// Checks if Q is an orthogonal matrix.
   bool get isOrthogonalMatrix => Q.isOrthogonalMatrix();
 
   /// Checks the decomposition by reconstructing the original matrix.
   /// Returns the reconstructed matrix as Q * A * Q.transpose().
-  Matrix get checkMatrix => Q * A * Q.transpose();
+  Matrix get checkMatrix => Q * T * Q.transpose();
 
   /// Solves a linear equation system Ax = b using the Schur decomposition of A.
   ///
@@ -197,7 +224,7 @@ class SchurDecomposition extends Decomposition {
   @override
   Matrix solve(Matrix b) {
     // Check if A is diagonal
-    if (!A.isDiagonalMatrix()) {
+    if (!T.isDiagonalMatrix()) {
       throw Exception(
           "Matrix A in Schur decomposition is not diagonal, cannot solve the linear system.");
     }
@@ -207,9 +234,9 @@ class SchurDecomposition extends Decomposition {
 
     // Solve the diagonal system A * x = y
     Matrix x = Matrix.zeros(y.rowCount, y.columnCount);
-    for (int i = 0; i < A.rowCount; i++) {
+    for (int i = 0; i < T.rowCount; i++) {
       for (int j = 0; j < y.columnCount; j++) {
-        x[i][j] = y[i][j] / A[i][i];
+        x[i][j] = y[i][j] / T[i][i];
       }
     }
 
@@ -284,6 +311,7 @@ class SingularValueDecomposition extends Decomposition {
 
   /// Solves a linear equation system Ax = b for the given matrix b.
   /// Returns the solution matrix x.
+  @override
   Matrix solve(Matrix b) {
     // Compute the pseudo-inverse of S
     Matrix sPseudoInverse = S.copy();

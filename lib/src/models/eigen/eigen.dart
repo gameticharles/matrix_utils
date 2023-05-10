@@ -32,27 +32,12 @@ class Eigen {
   /// Verifies the eigenvalues and eigenvectors by checking if A * x = λ * x
   /// for all eigenvalue-eigenvector pairs. Returns true if the verification
   /// is successful within the specified tolerance.
-  // bool verify(Matrix A, {double tolerance = 1e-6}) {
-  //   for (int i = 0; i < vectors.length; i++) {
-  //     Matrix eigenvector = vectors[i].normalize();
-  //     Matrix Ax = A * eigenvector;
-  //     Matrix lambdaX = eigenvector * values[i];
-
-  //     for (int j = 0; j < Ax.rowCount; j++) {
-  //       if (((Ax[j][0] as num) - (lambdaX[j][0] as num)).abs() > tolerance) {
-  //         return false;
-  //       }
-  //     }
-  //   }
-
-  //   return true;
-  // }
   bool verify(Matrix A, {double tolerance = 1e-6}) {
     for (int i = 0; i < vectors.length; i++) {
       Matrix eigenvector = vectors[i];
-      Matrix Ax = A * eigenvector;
+      Matrix ax = A * eigenvector;
       Matrix lambdaX = eigenvector * values[i];
-      Matrix residual = Ax - lambdaX;
+      Matrix residual = ax - lambdaX;
 
       if (residual.infinityNorm() > tolerance) {
         return false;

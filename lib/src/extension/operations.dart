@@ -271,7 +271,7 @@ extension MatrixOperationExtension on Matrix {
     return elementWise(other, (a, b) => a / b);
   }
 
-  /// Applies the given binary function element-wise on this matrix and the given matrix.
+  /// applies the given binary function element-wise on this matrix and the given matrix.
   ///
   /// [other]: The matrix to element-wise apply the function with this matrix.
   /// [f]: The binary function to apply element-wise on the matrices.
@@ -782,7 +782,7 @@ extension MatrixOperationExtension on Matrix {
     int freeVarCount = rref.columnCount - rref.rank();
 
     for (int i = 0; i < freeVarCount; i++) {
-      List<double> nullSpaceVector = List.filled(this.columnCount, 0.0);
+      List<double> nullSpaceVector = List.filled(columnCount, 0.0);
       int freeVarIndex = rref.columnCount - freeVarCount + i;
 
       for (int j = 0; j < rref.rowCount; j++) {
@@ -1100,10 +1100,10 @@ extension MatrixOperationExtension on Matrix {
     int n = rowCount;
     Matrix A = _Utils.toDoubleMatrix(this);
     Matrix V = Matrix.eye(n, isDouble: true);
-    Matrix A_prev;
+    Matrix aPrev;
 
     for (int i = 0; i < maxIterations; i++) {
-      A_prev = A.copy();
+      aPrev = A.copy();
       var qr = A.decomposition.qrDecompositionGramSchmidt();
       Matrix Q = qr.Q;
       Matrix R = qr.R;
@@ -1111,7 +1111,7 @@ extension MatrixOperationExtension on Matrix {
       A = R * Q;
       V = V * Q;
 
-      Matrix diff = A - A_prev;
+      Matrix diff = A - aPrev;
       if (diff.infinityNorm() < tolerance) {
         break;
       }
@@ -1153,60 +1153,6 @@ extension MatrixOperationExtension on Matrix {
     // }
   }
 
-  /// Computes eigenvalues and eigenvectors for a symmetric matrix.
-  ///
-  /// This method uses the QR algorithm with QR decomposition.
-  /// Returns a tuple containing the eigenvalues as a List<double> and eigenvectors as a Matrix.
-  ///
-  /// Example:
-  ///
-  /// Matrix mat = Matrix.fromList([
-  ///   [4, 2, 1],
-  ///   [2, 5, 1],
-  ///   [1, 1, 6]
-  /// ]);
-  ///
-  /// var result = mat.eigenSymmetric();
-  /// print('Eigenvalues: ${result.item1}');
-  /// print('Eigenvectors: ${result.item2}');
-  Eigen eigenSymmetric({int maxIterations = 100, double tolerance = 1e-10}) {
-    if (!isSquareMatrix()) {
-      throw StateError('The matrix must be square.');
-    }
-    if (!isSymmetricMatrix()) {
-      throw StateError('The matrix must be symmetric.');
-    }
-
-    Matrix A = copy();
-    Matrix Q = Matrix();
-    Matrix R = Matrix();
-
-    for (int i = 0; i < maxIterations; i++) {
-      var qrResult = A.decomposition.qrDecompositionHouseholder();
-      Q = qrResult.Q;
-      R = qrResult.R;
-
-      A = R * Q;
-
-      bool converged = true;
-      for (int r = 1; r < rowCount; r++) {
-        for (int c = 0; c < r; c++) {
-          if (A[r][c].abs() > tolerance) {
-            converged = false;
-            break;
-          }
-        }
-        if (!converged) break;
-      }
-      if (converged) break;
-    }
-
-    List<double> eigenvalues = List.generate(rowCount, (i) => A[i][i]);
-    Matrix eigenvectors = Q;
-
-    return Eigen(eigenvalues, eigenvectors.split(1, Q.columnCount));
-  }
-
   // Implement the Jacobi method
   Eigen _eigenJacobi(int maxIterations, double tolerance) {
     if (!isSquareMatrix()) {
@@ -1242,27 +1188,27 @@ extension MatrixOperationExtension on Matrix {
       }
 
       // Perform the Jacobi rotation
-      double Apq = (A[p][q] as num).toDouble();
-      double App = (A[p][p] as num).toDouble();
-      double Aqq = (A[q][q] as num).toDouble();
-      double phi = 0.5 * math.atan2(2 * Apq, Aqq - App);
+      double apq = (A[p][q] as num).toDouble();
+      double app = (A[p][p] as num).toDouble();
+      double aqq = (A[q][q] as num).toDouble();
+      double phi = 0.5 * math.atan2(2 * apq, aqq - app);
       double c = math.cos(phi);
       double s = math.sin(phi);
-      A[p][p] = c * c * App - 2 * s * c * Apq + s * s * Aqq;
-      A[q][q] = s * s * App + 2 * s * c * Apq + c * c * Aqq;
+      A[p][p] = c * c * app - 2 * s * c * apq + s * s * aqq;
+      A[q][q] = s * s * app + 2 * s * c * apq + c * c * aqq;
       A[p][q] = A[q][p] = 0.0;
 
       for (int i = 0; i < n; i++) {
         if (i != p && i != q) {
-          double Api = (A[p][i] as num).toDouble();
-          double Aqi = (A[q][i] as num).toDouble();
-          A[p][i] = A[i][p] = c * Api - s * Aqi;
-          A[q][i] = A[i][q] = s * Api + c * Aqi;
+          double api = (A[p][i] as num).toDouble();
+          double aqi = (A[q][i] as num).toDouble();
+          A[p][i] = A[i][p] = c * api - s * aqi;
+          A[q][i] = A[i][q] = s * api + c * aqi;
         }
-        double Vpi = c * V[p][i] - s * V[q][i];
-        double Vqi = s * V[p][i] + c * V[q][i];
-        V[p][i] = Vpi;
-        V[q][i] = Vqi;
+        double vpi = c * V[p][i] - s * V[q][i];
+        double vqi = s * V[p][i] + c * V[q][i];
+        V[p][i] = vpi;
+        V[q][i] = vqi;
       }
     }
 
@@ -1273,28 +1219,23 @@ extension MatrixOperationExtension on Matrix {
     return Eigen(eigenvalues, eigenvectors);
   }
 
-// Implement the Power Iteration method
-  Eigen _eigenPowerIteration(int maxIterations, double tolerance) {
-    return Eigen([], []);
-  }
-
   // Performs a plane rotation (Givens rotation) on the matrix.
   Matrix rotate(int p, int q, double c, double s) {
     int n = rowCount;
     Matrix result = _Utils.toDoubleMatrix(this);
 
     for (int i = 0; i < n; i++) {
-      double a_pi = c * this[i][p] - s * this[i][q];
-      double a_qi = s * this[i][p] + c * this[i][q];
-      result[i][p] = a_pi;
-      result[i][q] = a_qi;
+      double api = c * this[i][p] - s * this[i][q];
+      double aqi = s * this[i][p] + c * this[i][q];
+      result[i][p] = api;
+      result[i][q] = aqi;
     }
 
     for (int i = 0; i < n; i++) {
-      double a_ip = c * this[p][i] - s * this[q][i];
-      double a_iq = s * this[p][i] + c * this[q][i];
-      result[p][i] = a_ip;
-      result[q][i] = a_iq;
+      double aip = c * this[p][i] - s * this[q][i];
+      double aiq = s * this[p][i] + c * this[q][i];
+      result[p][i] = aip;
+      result[q][i] = aiq;
     }
 
     return result;

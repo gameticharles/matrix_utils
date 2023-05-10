@@ -31,9 +31,7 @@ A Dart library that provides an easy-to-use Matrix class for performing various 
 
 ## TODO
 
-- Matrix decomposition and solve
-- Matrix Types
-- advanced matrix operations
+- Improve speed and performance
 
 ## Usage
 
@@ -409,25 +407,24 @@ print(n); // [1,4,1]
   ]);
 
 // Extract a submatrix with rows 1 to 2 and columns 1 to 2
-Matrix submatrix = m.submatrix(rowRange: "1:2", colRange: "0:1");
+Matrix sub = m.submatrix(rowRange: "1:2", colRange: "0:1");
 
-Matrix submatrix = m.submatrix(rowStart: 1, rowEnd: 2, colStart: 0, colEnd: 1);
+Matrix sub = m.submatrix(rowStart: 1, rowEnd: 2, colStart: 0, colEnd: 1);
 
 // submatrix will be:
 // [
 //   [6]
 // ]
 
-var sub = m.slice(0, 3, 2, 3);
-// submatrix will be:
+var sub = m.submatrix(rowList: [0, 2], colList: [0, 2, 4]);
+// sub will be:
 // [
-//   [3],
-//   [8],
-//   [8]
+//   [1, 3, 5],
+//   [5, 8, 10]
 // ]  
 
 // Get a submatrix
-Matrix subMatrix = m.subset("1:2", "1:2");
+Matrix subMatrix = m.subMatrix(0, 1, 1, 3);
 
 ```
 

@@ -1,11 +1,27 @@
 part of matrix_utils;
 
-class SVDs {
+/*
+ * In this implementation, the code for Singular Value Decomposition (SVD)
+ * and LU Decomposition has been borrowed from the SciDart library.
+ * SciDart is an open-source library for scientific computing in Dart,
+ * which provides various mathematical and statistical functions.
+ *
+ * Please find the reference to the SciDart library and its source code below:
+ *
+ * SciDart: https://scidart.org/
+ * GitHub repository: https://github.com/scidart/scidart
+ *
+ * We would like to express our gratitude to the authors and contributors of
+ * the SciDart library for their valuable work in providing these efficient
+ * and well-tested algorithms for the Dart community.
+ */
+
+class SVD {
   //#region Class variables
   /// Matrix for internal storage of U and V.
-  /// internal storage of [_U].
-  /// internal storage of [_V].
-  Matrix _U = Matrix(), _V = Matrix();
+  /// internal storage of [_u].
+  /// internal storage of [_v].
+  Matrix _u = Matrix(), _v = Matrix();
 
   /// Matrix for internal storage of singular values.
   /// internal storage of singular values.
@@ -21,12 +37,12 @@ class SVDs {
   //#region Constructor
   /// Construct the singular value decomposition
   /// Structure to access U, S and V.
-  /// - [Arg] Rectangular matrix
-  SVDs(Matrix Arg) {
+  /// - [mat] Rectangular matrix
+  SVD(Matrix mat) {
     // Derived from LINPACK code.
     // Initialize.
-    _m = Arg.rowCount;
-    _n = Arg.columnCount;
+    _m = mat.rowCount;
+    _n = mat.columnCount;
 
     // Apparently the failing cases are only a proper subset of (m<n),
     // so let's not throw error.  Correct fix to come later?
@@ -35,28 +51,28 @@ class SVDs {
     var specialCaseMoreRows = false;
     if (_m < _n) {
       specialCaseMoreColumns = true;
-      _m = Arg.columnCount;
-      _n = Arg.columnCount;
+      _m = mat.columnCount;
+      _n = mat.columnCount;
 
       A = Matrix.fill(_m, _n, 0.0);
-      A.copyFrom(Arg);
+      A.copyFrom(mat);
     } else if (_m > _n) {
       specialCaseMoreRows = true;
-      _m = Arg.rowCount;
-      _n = Arg.rowCount;
+      _m = mat.rowCount;
+      _n = mat.rowCount;
 
       A = Matrix.fill(_m, _n, 0.0);
-      A.copyFrom(Arg);
+      A.copyFrom(mat);
     } else {
-      A = Arg.copy();
+      A = mat.copy();
     }
 
     A = _Utils.toDoubleMatrix(A);
 
     var nu = math.min(_m, _n).toInt();
     _s = Matrix.fill(1, math.min(_m + 1, _n), 0.0);
-    _U = Matrix.fill(_m, nu, 0.0);
-    _V = Matrix.fill(_n, _n, 0.0);
+    _u = Matrix.fill(_m, nu, 0.0);
+    _v = Matrix.fill(_n, _n, 0.0);
     var e = Matrix.fill(1, _n, 0.0);
     var work = Matrix.fill(1, _m, 0.0);
     var wantu = true;
@@ -111,7 +127,7 @@ class SVDs {
         // multiplication.
 
         for (var i = k; i < _m; i++) {
-          _U[i][k] = A[i][k];
+          _u[i][k] = A[i][k];
         }
       }
       if (k < nrt) {
@@ -155,7 +171,7 @@ class SVDs {
           // back multiplication.
 
           for (var i = k + 1; i < _n; i++) {
-            _V[i][k] = e[0][i];
+            _v[i][k] = e[0][i];
           }
         }
       }
@@ -180,34 +196,34 @@ class SVDs {
     if (wantu) {
       for (var j = nct; j < nu; j++) {
         for (var i = 0; i < _m; i++) {
-          _U[i][j] = 0.0;
+          _u[i][j] = 0.0;
         }
-        _U[j][j] = 1.0;
+        _u[j][j] = 1.0;
       }
       for (var k = nct - 1; k >= 0; k--) {
         if (_s[0][k] != 0.0) {
           for (var j = k + 1; j < nu; j++) {
             var t = 0.0;
             for (var i = k; i < _m; i++) {
-              t += _U[i][k] * _U[i][j];
+              t += _u[i][k] * _u[i][j];
             }
-            t = -t / _U[k][k];
+            t = -t / _u[k][k];
             for (var i = k; i < _m; i++) {
-              _U[i][j] += t * _U[i][k];
+              _u[i][j] += t * _u[i][k];
             }
           }
           for (var i = k; i < _m; i++) {
-            _U[i][k] = -_U[i][k];
+            _u[i][k] = -_u[i][k];
           }
-          _U[k][k] = 1.0 + _U[k][k];
+          _u[k][k] = 1.0 + _u[k][k];
           for (var i = 0; i < k - 1; i++) {
-            _U[i][k] = 0.0;
+            _u[i][k] = 0.0;
           }
         } else {
           for (var i = 0; i < _m; i++) {
-            _U[i][k] = 0.0;
+            _u[i][k] = 0.0;
           }
-          _U[k][k] = 1.0;
+          _u[k][k] = 1.0;
         }
       }
     }
@@ -220,18 +236,18 @@ class SVDs {
           for (var j = k + 1; j < nu; j++) {
             var t = 0.0;
             for (var i = k + 1; i < _n; i++) {
-              t += _V[i][k] * _V[i][j];
+              t += _v[i][k] * _v[i][j];
             }
-            t = -t / _V[k + 1][k];
+            t = -t / _v[k + 1][k];
             for (var i = k + 1; i < _n; i++) {
-              _V[i][j] += t * _V[i][k];
+              _v[i][j] += t * _v[i][k];
             }
           }
         }
         for (var i = 0; i < _n; i++) {
-          _V[i][k] = 0.0;
+          _v[i][k] = 0.0;
         }
-        _V[k][k] = 1.0;
+        _v[k][k] = 1.0;
       }
     }
 
@@ -313,9 +329,9 @@ class SVDs {
               }
               if (wantv) {
                 for (var i = 0; i < _n; i++) {
-                  t = (cs * _V[i][j]) + (sn * _V[i][p - 1]);
-                  _V[i][p - 1] = (-sn * _V[i][j]) + (cs * _V[i][p - 1]);
-                  _V[i][j] = t;
+                  t = (cs * _v[i][j]) + (sn * _v[i][p - 1]);
+                  _v[i][p - 1] = (-sn * _v[i][j]) + (cs * _v[i][p - 1]);
+                  _v[i][j] = t;
                 }
               }
             }
@@ -337,9 +353,9 @@ class SVDs {
               e[0][j] = cs * e[0][j];
               if (wantu) {
                 for (var i = 0; i < _m; i++) {
-                  t = (cs * _U[i][j]) + (sn * _U[i][k - 1]);
-                  _U[i][k - 1] = (-sn * _U[i][j]) + (cs * _U[i][k - 1]);
-                  _U[i][j] = t;
+                  t = (cs * _u[i][j]) + (sn * _u[i][k - 1]);
+                  _u[i][k - 1] = (-sn * _u[i][j]) + (cs * _u[i][k - 1]);
+                  _u[i][j] = t;
                 }
               }
             }
@@ -393,9 +409,9 @@ class SVDs {
               _s[0][j + 1] = cs * _s[0][j + 1];
               if (wantv) {
                 for (var i = 0; i < _n; i++) {
-                  t = (cs * _V[i][j]) + (sn * _V[i][j + 1]);
-                  _V[i][j + 1] = (-sn * _V[i][j]) + (cs * _V[i][j + 1]);
-                  _V[i][j] = t;
+                  t = (cs * _v[i][j]) + (sn * _v[i][j + 1]);
+                  _v[i][j + 1] = (-sn * _v[i][j]) + (cs * _v[i][j + 1]);
+                  _v[i][j] = t;
                 }
               }
               t = hypotenuse(f, g);
@@ -408,9 +424,9 @@ class SVDs {
               e[0][j + 1] = cs * e[0][j + 1];
               if (wantu && (j < _m - 1)) {
                 for (var i = 0; i < _m; i++) {
-                  t = (cs * _U[i][j]) + (sn * _U[i][j + 1]);
-                  _U[i][j + 1] = (-sn * _U[i][j]) + (cs * _U[i][j + 1]);
-                  _U[i][j] = t;
+                  t = (cs * _u[i][j]) + (sn * _u[i][j + 1]);
+                  _u[i][j + 1] = (-sn * _u[i][j]) + (cs * _u[i][j + 1]);
+                  _u[i][j] = t;
                 }
               }
             }
@@ -428,7 +444,7 @@ class SVDs {
               _s[0][k] = (_s[0][k] < 0.0 ? -_s[0][k] : 0.0);
               if (wantv) {
                 for (var i = 0; i <= pp; i++) {
-                  _V[i][k] = -_V[i][k];
+                  _v[i][k] = -_v[i][k];
                 }
               }
             }
@@ -444,16 +460,16 @@ class SVDs {
               _s[0][k + 1] = t;
               if (wantv && (k < _n - 1)) {
                 for (var i = 0; i < _n; i++) {
-                  t = _V[i][k + 1];
-                  _V[i][k + 1] = _V[i][k];
-                  _V[i][k] = t;
+                  t = _v[i][k + 1];
+                  _v[i][k + 1] = _v[i][k];
+                  _v[i][k] = t;
                 }
               }
               if (wantu && (k < _m - 1)) {
                 for (var i = 0; i < _m; i++) {
-                  t = _U[i][k + 1];
-                  _U[i][k + 1] = _U[i][k];
-                  _U[i][k] = t;
+                  t = _u[i][k + 1];
+                  _u[i][k + 1] = _u[i][k];
+                  _u[i][k] = t;
                 }
               }
               k++;
@@ -466,26 +482,26 @@ class SVDs {
     }
 
     if (specialCaseMoreColumns) {
-      _m = Arg.rowCount;
-      _n = Arg.columnCount;
-      _U = _U * -1;
-      _V = _V * -1;
+      _m = mat.rowCount;
+      _n = mat.columnCount;
+      _u = _u * -1;
+      _v = _v * -1;
     } else if (specialCaseMoreRows) {
-      _m = Arg.rowCount;
-      _n = Arg.columnCount;
+      _m = mat.rowCount;
+      _n = mat.columnCount;
 
-      for (var i = 0; i < _U.rowCount; i++) {
-        for (var j = 0; j < _U.columnCount; j++) {
+      for (var i = 0; i < _u.rowCount; i++) {
+        for (var j = 0; j < _u.columnCount; j++) {
           if (isOdd(j)) {
-            _U[i][j] *= -1;
+            _u[i][j] *= -1;
           }
         }
       }
 
-      for (var i = 0; i < _V.rowCount; i++) {
-        for (var j = 0; j < _V.columnCount; j++) {
+      for (var i = 0; i < _v.rowCount; i++) {
+        for (var j = 0; j < _v.columnCount; j++) {
           if (isOdd(j)) {
-            _V[i][j] *= -1;
+            _v[i][j] *= -1;
           }
         }
       }
@@ -507,20 +523,20 @@ class SVDs {
   Matrix U() {
     if (_m > _n) {
       var dim = math.max(_m, _n) - 1;
-      return _U.subMatrix(0, dim, 0, dim);
+      return _u.subMatrix(0, dim, 0, dim);
     }
     if (_m < _n) {
       var dim = math.min(_m, _n) - 1;
-      return _U.subMatrix(0, dim, 0, dim);
+      return _u.subMatrix(0, dim, 0, dim);
     } else {
-      return _U.subMatrix(0, _m - 1, 0, math.min(_m + 1, _n) - 1);
+      return _u.subMatrix(0, _m - 1, 0, math.min(_m + 1, _n) - 1);
     }
   }
 
   /// Return the right singular vectors
   /// return V
   Matrix V() {
-    return _V.subMatrix(0, _n - 1, 0, _n - 1);
+    return _v.subMatrix(0, _n - 1, 0, _n - 1);
   }
 
   /// Return the diagonal matrix of singular values

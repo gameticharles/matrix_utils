@@ -14,7 +14,7 @@
   * - QR decomposition Householder
 * - LQ decomposition
 * - Cholesky Decomposition
-* - Eigenvalue Decomposition
+* - Eigenvalue Decomposition (incomplete)
 * - Singular Value Decomposition
 * - Schur Decomposition
 * Added matrix condition

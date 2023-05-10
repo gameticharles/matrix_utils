@@ -322,7 +322,7 @@ extension MatrixStructure on Matrix {
     int n = rowCount;
     for (int i = 0; i < n; i++) {
       for (int j = i; j < n; j++) {
-        var conjugateValue;
+        Complex conjugateValue;
         if (this[j][i] is Complex) {
           conjugateValue = (this[j][i] as Complex).conjugate();
         } else {
