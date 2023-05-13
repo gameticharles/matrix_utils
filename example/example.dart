@@ -26,11 +26,14 @@ void main() {
     [13, 14, 15, 16]
   ]);
 
-  printLine('Broadcast Matrix');
-  var res = mat.broadcast(Matrix("1;2;3"));
-  for (var mat in res) {
-    print(mat);
+  printLine('Broadcast and Replicate Matrix');
+  var newMats = mat.broadcast(Matrix("1;2;3"));
+  for (var newMat in newMats) {
+    print(newMat);
   }
+
+  //Replicate the matrix
+  print('\n\n${Matrix("1;2;3").replicateMatrix(6, 3)}');
 
   printLine('Random Matrix');
   var randMat = Matrix.random(5, 4);
