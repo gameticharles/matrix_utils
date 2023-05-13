@@ -847,6 +847,36 @@ extension MatrixOperationExtension on Matrix {
     }
   }
 
+  /// Computes the pseudoinverse of a given matrix [a] using the transpose and inverse.
+  ///
+  /// This method is suitable only for full column rank matrices. For a more
+  /// general approach, consider using the Singular Value Decomposition (SVD) method.
+  ///
+  /// Example:
+  /// ```
+  /// Matrix a = Matrix([
+  ///   [1, 2],
+  ///   [3, 4],
+  ///   [5, 6]
+  /// ]);
+  ///
+  /// Matrix aPseudoInverse = pseudoInverse(a);
+  /// print(aPseudoInverse);
+  /// ```
+  ///
+  /// Output:
+  /// ```
+  /// -1.333333333333333   1.083333333333333
+  ///  1.083333333333333  -0.333333333333333
+  /// ```
+  ///
+  /// [a] The input matrix.
+  /// Returns the pseudoinverse of the input matrix.
+  Matrix pseudoInverse(Matrix a) {
+    Matrix aTranspose = a.transpose();
+    return (aTranspose * a).inverse() * aTranspose;
+  }
+
   /// Calculates the inverse of a square matrix.
   ///
   /// Returns the inverse matrix.

@@ -967,6 +967,126 @@ extension MatrixManipulationExtension on Matrix {
     }
   }
 
+  /// Replicates the current matrix to create a new matrix with the desired dimensions.
+  ///
+  /// The function copies the elements of the current matrix to fill the new matrix of size
+  /// `numRows` x `numCols`. The new matrix is created by repeating the input matrix along
+  /// the rows and columns.
+  ///
+  /// [numRows] The desired number of rows in the output matrix.
+  /// [numCols] The desired number of columns in the output matrix.
+  ///
+  /// Returns a new matrix of size `numRows` x `numCols` with the replicated elements of the current matrix.
+  ///
+  /// Example:
+  /// ```dart
+  /// Matrix a = Matrix([
+  ///   [1, 2],
+  ///   [3, 4],
+  /// ]);
+  ///
+  /// Matrix replicated = a.replicateMatrix(4, 6);
+  /// print(replicated);
+  /// ```
+  ///
+  /// Output:
+  /// ```
+  /// Matrix: 4x6
+  /// ┌ 1  2  1  2  1  2 ┐
+  /// │ 3  4  3  4  3  4 │
+  /// │ 1  2  1  2  1  2 │
+  /// └ 3  4  3  4  3  4 ┘
+  /// ```
+  Matrix replicateMatrix(int numRows, int numCols) {
+    // Create a new matrix with the desired dimensions
+    Matrix result = Matrix.zeros(numRows, numCols);
+
+    // Replicate the elements of the input matrix along the required dimensions
+    for (int i = 0; i < numRows; i++) {
+      for (int j = 0; j < numCols; j++) {
+        result[i][j] = this[i % rowCount][j % columnCount];
+      }
+    }
+
+    return result;
+  }
+
+  /// Determines whether the current matrix and matrix [b] are compatible for broadcasting.
+  ///
+  /// Two matrices are compatible for broadcasting if, for each dimension, the dimension
+  /// sizes are either equal or one of them is 1.
+  ///
+  /// [b] The matrix to be checked for compatibility with the current matrix.
+  ///
+  /// Returns `true` if the matrices are compatible for broadcasting, and `false` otherwise.
+  bool isCompatibleForBroadcastWith(Matrix b) {
+    return (rowCount == b.rowCount || rowCount == 1 || b.rowCount == 1) &&
+        (columnCount == b.columnCount ||
+            columnCount == 1 ||
+            b.columnCount == 1);
+  }
+
+  /// Broadcasts the current matrix with matrix [b].
+  ///
+  /// If the matrices are compatible for broadcasting, it replicates the input matrices
+  /// along the required dimensions to produce two matrices with the same shape.
+  ///
+  /// [b] The matrix to be broadcasted with the current matrix.
+  ///
+  /// Returns a list of two matrices, the first one being the broadcasted version
+  /// of the current matrix, and the second one being the broadcasted version of matrix [b].
+  ///
+  /// Example:
+  /// ```dart
+  /// Matrix a = Matrix([
+  ///   [1, 2, 3],
+  /// ]);
+  ///
+  /// Matrix b = Matrix([
+  ///   [1],
+  ///   [2],
+  ///   [3],
+  /// ]);
+  ///
+  /// List<Matrix> broadcasted = a.broadcast(b);
+  /// print(broadcasted[0]);
+  /// ```
+  ///
+  /// Output:
+  /// ```
+  /// Matrix: 3x3
+  /// ┌ 1  2  3 ┐
+  /// │ 1  2  3 │
+  /// └ 1  2  3 ┘
+  ///
+  /// print(broadcasted[1]);
+  /// ```
+  ///
+  /// Output:
+  /// ```
+  /// Matrix: 3x3
+  /// ┌ 1  1  1 ┐
+  /// │ 2  2  2 │
+  /// └ 3  3  3 ┘
+  /// ```
+  List<Matrix> broadcast(Matrix b) {
+    // Check compatibility
+    if (!isCompatibleForBroadcastWith(b)) {
+      throw Exception('Matrices are not compatible for broadcasting.');
+    }
+
+    // Determine the dimensions of the output matrices
+    int numRows = math.max(rowCount, b.rowCount);
+    int numCols = math.max(columnCount, b.columnCount);
+
+    // Broadcast and replicate the input matrices
+    Matrix aBroadcasted = replicateMatrix(numRows, numCols);
+    Matrix bBroadcasted = b.replicateMatrix(numRows, numCols);
+
+    // Return the broadcasted matrices
+    return [aBroadcasted, bBroadcasted];
+  }
+
   /// Applies the given function [func] to each element in the matrix and returns a new matrix with the results.
   ///
   /// [func] should be a function that takes a single argument and returns a value.

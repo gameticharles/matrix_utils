@@ -2,13 +2,19 @@
 
 [![pub package](https://img.shields.io/pub/v/matrix_utils.svg?logo=dart&logoColor=00b9fc)](https://pub.dartlang.org/packages/matrix_utils)
 [![Null Safety](https://img.shields.io/badge/null-safety-brightgreen)](https://dart.dev/null-safety)
+[![likes](https://img.shields.io/pub/likes/matrix_utils)](https://pub.dartlang.org/packages/matrix_utils/score)
+[![points](https://img.shields.io/pub/points/matrix_utils)](https://pub.dartlang.org/packages/matrix_utils/score)
+[![popularity](https://img.shields.io/pub/popularity/matrix_utils)](https://pub.dartlang.org/packages/matrix_utils/score)
+[![sdk version](https://badgen.net/pub/sdk-version/matrix_utils)](https://pub.dartlang.org/packages/matrix_utils)
+
 [![Last Commits](https://img.shields.io/github/last-commit/gameticharles/matrix_utils?ogo=github&logoColor=white)](https://github.com/gameticharles/matrix_utils/commits/master)
 [![Pull Requests](https://img.shields.io/github/issues-pr/gameticharles/matrix_utils?ogo=github&logoColor=white)](https://github.com/gameticharles/matrix_utils/pulls)
 [![Code size](https://img.shields.io/github/languages/code-size/gameticharles/matrix_utils?ogo=github&logoColor=white)](https://github.com/gameticharles/matrix_utils)
 [![License](https://img.shields.io/github/license/gameticharles/matrix_utils?ogo=github&logoColor=white)](https://github.com/gameticharles/matrix_utils/blob/main/LICENSE)
 
+[![stars](https://img.shields.io/github/stars/gameticharles/matrix_utils)](https://github.com/gameticharles/matrix_utils/stargazers)
+[![forks](https://img.shields.io/github/forks/gameticharles/matrix_utils)](https://github.com/gameticharles/matrix_utils/network/members)
 [![CI](https://img.shields.io/github/workflow/status/gameticharles/matrix_utils/Dart%20CI/master?logo=github-actions&logoColor=white)](https://github.com/gameticharles/matrix/actions)
-[![New Commits](https://img.shields.io/github/commits-since/gameticharles/matrix_utils/latest?logo=github&logoColor=white)](https://github.com/gameticharles/matrix_utils/network)
 
 A Dart library that provides an easy-to-use Matrix class for performing various matrix operations.
 
@@ -17,12 +23,12 @@ A Dart library that provides an easy-to-use Matrix class for performing various 
 - Matrix creation, filling and generation: Methods for filling the matrix with specific values or generating matrices with certain properties, such as zero, ones, identity, diagonal, list, or random matrices.
 - Import and export matrices to and from other formats (e.g., CSV, JSON, binary)
 - Matrix operations: Implement common matrix operations such as addition, subtraction, multiplication (element-wise and matrix-matrix), and division (element-wise) etc.
-- Matrix transformation methods: Add methods for matrix transformations, such as transpose, inverse, and rank.
+- Matrix transformation methods: Add methods for matrix transformations, such as transpose, inverse, pseudoInverse, and rank etc.
 - Matrix manipulation (concatenate, sort, removeRow, removeRows,removeCol,removeCols, reshape,Swapping rows and columns etc. )
 - Statistical methods: Methods for calculating statistical properties of the matrix, such as min, max, sum, mean, median, mode, skewness, standard deviation, and variance.
 - Element-wise operations: Methods for performing element-wise operations on the matrix, such as applying a function to each element or filtering elements based on a condition.
 - Solving linear systems of equations
-- Most matrix decompositions are implemented like LU decomposition, QR decomposition, LQ decomposition, Cholesky, Singular Value Decomposition (SVD)  with different algorithms Crout's, Doolittle, Gauss Elimination Method, Gram Schmidt, Householder, Partial and Complete Pivoting, etc.
+- Solve matrix decompositions like LU decomposition, QR decomposition, LQ decomposition, Cholesky, Singular Value Decomposition (SVD)  with different algorithms Crout's, Doolittle, Gauss Elimination Method, Gram Schmidt, Householder, Partial and Complete Pivoting, etc.
 - Matrix slicing and partitioning: Methods for extracting sub-Matrices or slices from the matrix.
 - Matrix concatenation and stacking: Methods for concatenating or stacking matrices horizontally or vertically.
 - Matrix norms: Methods for calculating matrix norms, such as L1, L2 (Euclidean), and infinity norms.

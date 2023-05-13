@@ -1,5 +1,8 @@
 ## 0.0.6
 
+* Added matrix broadcast and replicate matrix
+* Added pseudoInverse of a matrix
+* Fixed corrected README
 * Fixed bugs
 
 ## 0.0.5
