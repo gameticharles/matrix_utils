@@ -1,4 +1,3 @@
-
 part of matrix_utils;
 
 /// An enum representing the alignment options for matrix elements in a string representation.

@@ -6,8 +6,6 @@ void printLine(String s) {
 }
 
 void main() {
-  var eMat = Matrix("1 2 3 4; 2 5 6 7; 3 6 8 9; 4 7 9 10");
-
   var mat = Matrix([
     [4.0, 2.0, 1.0],
     [16.0, 4.0, 1.0],

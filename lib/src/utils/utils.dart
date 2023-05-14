@@ -1,8 +1,6 @@
 part of matrix_utils;
 
 /* TODO:
-
-
 Performance Optimizations:
    - Implement parallel processing techniques to improve the performance of computationally intensive operations (e.g., matrix multiplication, decompositions)
    - Optimize existing methods using efficient algorithms or data structures
@@ -54,54 +52,6 @@ class _Utils {
         throw ArgumentError('List element is not of type num');
       }
     }).toList();
-  }
-
-  // Helper method for QR Iteration on bidiagonal matrix B.
-  static SingularValueDecomposition qrIterationOnBidiagonal(Matrix B,
-      {double eps = 1e-10, int maxIterations = 1000}) {
-    int m = B.rowCount;
-    int n = B.columnCount;
-
-    Matrix U = Matrix.eye(m);
-    Matrix V = Matrix.eye(n);
-
-    for (int iteration = 0; iteration < maxIterations; iteration++) {
-      bool converged = true;
-
-      for (int k = 0; k < n - 1; k++) {
-        if (B[k + 1][k].abs() > eps * (B[k][k].abs() + B[k + 1][k + 1].abs())) {
-          converged = false;
-
-          // Perform QR iteration on submatrix (B[k:n, k:n])
-          Matrix subB = B.subMatrix(k, n - 1, k, n - 1);
-          QRDecomposition subQR =
-              subB.decomposition.qrDecompositionGramSchmidt();
-          Matrix subQ = subQR.Q;
-          Matrix subR = subQR.R;
-
-          // Update B, U, and V
-          B.setSubMatrix(k, k, subR * subQ);
-          U.setSubMatrix(k, k, U.subMatrix(k, m - 1, k, n - 1) * subQ);
-          V.setSubMatrix(k, k, V.subMatrix(k, n - 1, k, n - 1) * subQ);
-
-          if (B[k + 1][k].abs() <=
-              eps * (B[k][k].abs() + B[k + 1][k + 1].abs())) {
-            converged = true;
-          }
-        }
-      }
-
-      if (converged) {
-        break;
-      }
-    }
-
-    // Extract singular values and singular vectors
-    Matrix S = Diagonal(B.diagonal());
-    Matrix uSvd = U.subMatrix(0, m - 1, 0, n - 1);
-    Matrix vSvd = V;
-
-    return SingularValueDecomposition(uSvd, S, vSvd);
   }
 
   // Helper method for solving a linear system using backward substitution.

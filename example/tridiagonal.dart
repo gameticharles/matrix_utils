@@ -6,11 +6,6 @@ void printLine(String s) {
 }
 
 void main() {
-  printLine('Tridiagonalize');
-
-  Matrix tri = Matrix.factory.tridiagonal(10, -4, 1, 2);
-  print('Matrix tri = Matrix.tridiagonal(10, -4, 1, 2);\n$tri\n');
-
   // 2x2 simple symmetric matrix
   var a1 = Matrix([
     [2, 1],
@@ -56,6 +51,22 @@ void main() {
     [3, 4, 7]
   ]);
 
+  printLine('Create Tridiagonalize');
+
+  Matrix tri = Matrix.factory.tridiagonal(10, -4, 1, 2);
+  print("Is the tri tridiagonal? ${tri.isTridiagonal()}");
+  print('Matrix tri = Matrix.tridiagonal(10, -4, 1, 2);\n$tri\n');
+
+  printLine('Create Diagonalize');
+  var bi = a4.bidiagonalize();
+  bi.U.prettyPrint();
+  bi.B.prettyPrint();
+  bi.V.prettyPrint();
+
+  var tr = a4.tridiagonalize();
+  tr.prettyPrint();
+
+  printLine('Tridiagonalize a matrix');
   var triA1 = a1.tridiagonalize();
   print("Is the triA1 tridiagonal? ${triA1.isTridiagonal()}");
   print('triA1:\n$triA1\n');

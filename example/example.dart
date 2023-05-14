@@ -12,19 +12,7 @@ void main() {
     [1, 1, 2, 9]
   ]);
 
-  var matt = Matrix.fromList([
-    [1, 2, -1],
-    [3, 8, -1],
-    [-1, 1, 2]
-  ]);
   var eMat = Matrix("1 2 3 4; 2 5 6 7; 3 6 8 9; 4 7 9 10");
-  var eMat1 = Matrix("-26 -32 -25; 31 42 23; -11 -15 -4");
-  var eMat2 = Matrix([
-    [1, 2, 3, 4],
-    [5, 6, 7, 8],
-    [9, 10, 11, 12],
-    [13, 14, 15, 16]
-  ]);
 
   printLine('Broadcast and Replicate Matrix');
   var newMats = mat.broadcast(Matrix("1;2;3"));
@@ -52,11 +40,11 @@ void main() {
     [1, 1, 4]
   ]);
 
-  var eigen = matr.eigen1();
+  var eigen = matr.eigen();
   print('Eigen Values:\n${eigen.values}\n');
   print('Eigenvectors:');
   for (Matrix eigenvector in eigen.vectors) {
-    print(eigenvector.round(2));
+    print(eigenvector.round(1));
   }
   print('Verification: ${eigen.verify(matr)}');
   print('Reconstruct Original:\n ${eigen.check}');
@@ -67,7 +55,7 @@ void main() {
 
   print('Normalized eigenvectors:');
   for (Matrix eigenvector in normalizedEigen.vectors) {
-    print(eigenvector);
+    print(eigenvector.round());
   }
   print('Reconstruct Original:\n ${normalizedEigen.check}');
 
@@ -103,7 +91,7 @@ void main() {
   var y = mat.where(
     (value) => value.contains(6),
   );
-  print('Rows that contains 6:\n${y}');
+  print('Rows that contains 6:\n$y');
 
   printLine('Iterate through rows');
   // Iterate through the rows of the matrix using the default iterator
@@ -166,7 +154,7 @@ void main() {
   print(mat.row(0));
 
   // Access column
-  print(mat.column(0)); //TODO
+  print(mat.column(0));
 
   // update row method 1
   mat[0] = [1, 2, 3, 4];
@@ -351,7 +339,7 @@ void main() {
   ]);
 
   var newArray = sliceArray.subMatrix(0, 2, 1, 4);
-  print(" sliced array: ${newArray}");
+  print(" sliced array: $newArray");
 
   // min max
   var numbers = Matrix([
@@ -365,11 +353,6 @@ void main() {
   Matrix a = Matrix([
     [1, 2],
     [3, 4]
-  ]);
-
-  Matrix b = Matrix([
-    [5, 6],
-    [7, 8]
   ]);
 
 // Index (row,column) of an element in the matrix
@@ -417,7 +400,7 @@ void main() {
   print(inverse);
 
   //Solve Matrix
-  var AA = Matrix([
+  var mat1 = Matrix([
     [2, 1, 1],
     [1, 3, 2],
     [1, 0, 0]
@@ -428,7 +411,7 @@ void main() {
     [6]
   ]);
   //var result = A.gaussianElimination(b);
-  var sol = AA.linear.solve(bbb, method: LinearSystemMethod.leastSquares);
+  var sol = mat1.linear.solve(bbb, method: LinearSystemMethod.leastSquares);
   print(sol);
 
   // Find the normalized matrix

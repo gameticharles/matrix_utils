@@ -1,3 +1,9 @@
+## 0.0.7
+
+* Fixed matrix round
+* Fixed corrected README
+* Fixed bugs
+
 ## 0.0.6
 
 * Added matrix broadcast and replicate matrix
@@ -10,20 +16,20 @@
 * Added linear equation solver (cramersRule, ridgeRegression, bareissAlgorithm, inverseMatrix, gaussElimination, gaussJordanElimination, leastSquares, etc.)
 * Added function to compute matrix condition number with both SVD and norm2 approaches.
 * Added matrix decompositions
-* - LU decompositions
-  * - Crout's algorithm
-  * - Doolittle algorithm
-  * - Doolittle algorithm with Partial Pivoting
-  * - Doolittle algorithm with Complete Pivoting
-  * - Gauss Elimination Method
-* - QR decompositions
-  * - QR decomposition Gram Schmidt
-  * - QR decomposition Householder
-* - LQ decomposition
-* - Cholesky Decomposition
-* - Eigenvalue Decomposition (incomplete)
-* - Singular Value Decomposition
-* - Schur Decomposition
+  * - LU decompositions
+    * - Crout's algorithm
+    * - Doolittle algorithm
+    * - Doolittle algorithm with Partial Pivoting
+    * - Doolittle algorithm with Complete Pivoting
+    * - Gauss Elimination Method
+  * - QR decompositions
+    * - QR decomposition Gram Schmidt
+    * - QR decomposition Householder
+  * - LQ decomposition
+  * - Cholesky Decomposition
+  * - Eigenvalue Decomposition (incomplete)
+  * - Singular Value Decomposition
+  * - Schur Decomposition
 * Added matrix condition
 * Added support for exponential, logarithmic, and trigonometric functions on matrices
 * Added more matrix operations like scale,norm, norm2, l2Norms,

@@ -1036,13 +1036,19 @@ extension MatrixOperationExtension on Matrix {
   /// // 3.457  4.568
   /// ```
   Matrix round([int decimalPlaces = 0]) {
-    List<List<double>> newData = List.generate(
-        rowCount, (i) => List<double>.generate(columnCount, (j) => 0));
+    // Create a new data structure for the rounded matrix
+    List<List<dynamic>> newData = List.generate(
+        rowCount, (i) => List<dynamic>.generate(columnCount, (j) => 0));
 
+    // Iterate over each element in the matrix
     for (int i = 0; i < rowCount; i++) {
       for (int j = 0; j < columnCount; j++) {
-        newData[i][j] = (_data[i][j] * math.pow(10, decimalPlaces)).round() /
-            math.pow(10, decimalPlaces);
+        if (decimalPlaces == 0) {
+          newData[i][j] = _data[i][j].round();
+        } else {
+          newData[i][j] = (_data[i][j] * math.pow(10, decimalPlaces)).round() /
+              math.pow(10, decimalPlaces);
+        }
       }
     }
 
@@ -1157,98 +1163,6 @@ extension MatrixOperationExtension on Matrix {
     return Eigen(eigenvalues, eigenvectors);
   }
 
-  Eigen eigen1({int maxIterations = 1000, double tolerance = 1e-10}) {
-    if (!isSquareMatrix()) {
-      throw ArgumentError(
-          'Eigenvalues and eigenvectors can only be computed for square matrices');
-    }
-    return _eigenJacobi(maxIterations, tolerance);
-
-    // // Check the properties of the input matrix
-    // if (isSymmetricMatrix(tolerance: tolerance)) {
-    //   // Use the Divide and Conquer algorithm for symmetric matrices
-    //   return _eigenDivideAndConquer(maxIterations, tolerance);
-    // } else if (isHermitianMatrix(tolerance: tolerance) && isSparse()) {
-    //   // Use the Lanczos algorithm for large Hermitian sparse matrices
-    //   return _eigenLanczos(maxIterations, tolerance);
-    // } else if (isDiagonalMatrix(tolerance: tolerance)) {
-    //   // Use the Jacobi method for diagonal matrices
-    //   return _eigenJacobi(maxIterations, tolerance);
-    // } else if (hasDominantEigenvalue(tolerance: tolerance)) {
-    //   // Use the Power Iteration method for matrices with a dominant eigenvalue
-    //   return _eigenPowerIteration(maxIterations, tolerance);
-    // } else {
-    //   // Use the QR algorithm for general dense matrices
-    //   return _eigenQR(maxIterations, tolerance);
-    // }
-  }
-
-  // Implement the Jacobi method
-  Eigen _eigenJacobi(int maxIterations, double tolerance) {
-    if (!isSquareMatrix()) {
-      throw ArgumentError(
-          'Eigenvalues and eigenvectors can only be computed for square matrices');
-    }
-
-    if (!isSymmetricMatrix(tolerance: tolerance)) {
-      throw ArgumentError('The Jacobi method only supports symmetric matrices');
-    }
-
-    int n = rowCount;
-    Matrix A = copy();
-    Matrix V = Matrix.eye(n, isDouble: true);
-
-    for (int k = 0; k < maxIterations; k++) {
-      // Find the largest off-diagonal element in A
-      double maxOffDiagonal = 0.0;
-      int p = 0, q = 0;
-      for (int i = 0; i < n - 1; i++) {
-        for (int j = i + 1; j < n; j++) {
-          if ((A[i][j] as num).abs() > maxOffDiagonal) {
-            maxOffDiagonal = (A[i][j] as num).toDouble().abs();
-            p = i;
-            q = j;
-          }
-        }
-      }
-
-      // Check for convergence
-      if (maxOffDiagonal < tolerance) {
-        break;
-      }
-
-      // Perform the Jacobi rotation
-      double apq = (A[p][q] as num).toDouble();
-      double app = (A[p][p] as num).toDouble();
-      double aqq = (A[q][q] as num).toDouble();
-      double phi = 0.5 * math.atan2(2 * apq, aqq - app);
-      double c = math.cos(phi);
-      double s = math.sin(phi);
-      A[p][p] = c * c * app - 2 * s * c * apq + s * s * aqq;
-      A[q][q] = s * s * app + 2 * s * c * apq + c * c * aqq;
-      A[p][q] = A[q][p] = 0.0;
-
-      for (int i = 0; i < n; i++) {
-        if (i != p && i != q) {
-          double api = (A[p][i] as num).toDouble();
-          double aqi = (A[q][i] as num).toDouble();
-          A[p][i] = A[i][p] = c * api - s * aqi;
-          A[q][i] = A[i][q] = s * api + c * aqi;
-        }
-        double vpi = c * V[p][i] - s * V[q][i];
-        double vqi = s * V[p][i] + c * V[q][i];
-        V[p][i] = vpi;
-        V[q][i] = vqi;
-      }
-    }
-
-    // Extract eigenvalues and eigenvectors
-    List<double> eigenvalues = List.generate(n, (i) => A[i][i]);
-    List<Matrix> eigenvectors = List.generate(n, (i) => V.column(i));
-
-    return Eigen(eigenvalues, eigenvectors);
-  }
-
   // Performs a plane rotation (Givens rotation) on the matrix.
   Matrix rotate(int p, int q, double c, double s) {
     int n = rowCount;
@@ -1307,6 +1221,66 @@ extension MatrixOperationExtension on Matrix {
     }
 
     return tridiagonal;
+  }
+
+  /// Computes the bidiagonalization of the matrix using Householder reflections.
+  ///
+  /// Bidiagonalization decomposes the matrix A into three matrices U, B, and V,
+  /// such that A = U * B * V', where U and V are orthogonal matrices and B is
+  /// a bidiagonal matrix.
+  ///
+  /// Returns a Bidiagonalization object containing the U, B, and V matrices.
+  ///
+  /// Example:
+  /// ```dart
+  /// Matrix A = Matrix.fromList([
+  ///   [1, 2, 3],
+  ///   [4, 5, 6],
+  ///   [7, 8, 9]
+  /// ]);
+  ///
+  /// Bidiagonalization bidiag = A.bidiagonalize();
+  /// bidiag.U.prettyPrint();
+  /// bidiag.B.prettyPrint();
+  /// bidiag.V.prettyPrint();
+  /// ```
+  Bidiagonalization bidiagonalize() {
+    var A = copy();
+    int m = A.rowCount;
+    int n = A.columnCount;
+
+    Matrix U = Matrix.eye(m);
+    Matrix B = A.copy();
+    Matrix V = Matrix.eye(n);
+
+    for (int k = 0; k < math.min(m - 1, n); k++) {
+      // Compute Householder reflection for the k-th column of B
+      var columnVector = B.subMatrix(k, m - 1, k, k);
+
+      Matrix pk = _Utils.householderReflection(columnVector);
+      Matrix P = Matrix.eye(m);
+      P.setSubMatrix(k, k, pk);
+
+      // Update B and U
+      B = P * B;
+      U = U * P;
+
+      if (k < n - 1) {
+        // Compute Householder reflection for the k-th row of B
+        var rowVector = Column(B.subMatrix(k, k, k, n - 1).flatten());
+
+        Matrix qk = _Utils.householderReflection(rowVector);
+        Matrix Q = Matrix.eye(n);
+
+        Q.setSubMatrix(k, k, qk);
+
+        // Update B and V
+        B = B * Q;
+        V = V * Q;
+      }
+    }
+
+    return Bidiagonalization(U, B, V);
   }
 
   /// Checks if the current matrix is contained in or is a submatrix of any matrix in [matrices].

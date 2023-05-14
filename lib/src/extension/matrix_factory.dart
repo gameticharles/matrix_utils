@@ -6,9 +6,9 @@ class MatrixFactory {
   /// Creates a tridiagonal matrix with the given size and diagonal values.
   ///
   /// `n` is the size of the square matrix.
-  /// `a` is the value to fill the first (upper) diagonal.
+  /// `a` is the value to fill the first (lower) diagonal.
   /// `b` is the value to fill the second (main) diagonal.
-  /// `c` is the value to fill the third (lower) diagonal.
+  /// `c` is the value to fill the third (upper) diagonal.
   ///
   /// Returns a [Matrix] with the specified tridiagonal structure.
   ///

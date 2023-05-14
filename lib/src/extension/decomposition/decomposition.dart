@@ -95,46 +95,6 @@ class MatrixDecomposition {
     return A.isAlmostEqual(product);
   }
 
-  // Helper method for computing bidiagonalize.
-  Bidiagonalization bidiagonalize() {
-    var A = _matrix.copy();
-    int m = A.rowCount;
-    int n = A.columnCount;
-
-    Matrix U = Matrix.eye(m);
-    Matrix B = A.copy();
-    Matrix V = Matrix.eye(n);
-
-    for (int k = 0; k < math.min(m - 1, n); k++) {
-      // Compute Householder reflection for the k-th column of B
-      var columnVector = B.subMatrix(k, m - 1, k, k);
-
-      Matrix pk = _Utils.householderReflection(columnVector);
-      Matrix P = Matrix.eye(m);
-      P.setSubMatrix(k, k, pk);
-
-      // Update B and U
-      B = P * B;
-      U = U * P;
-
-      if (k < n - 1) {
-        // Compute Householder reflection for the k-th row of B
-        var rowVector = Column(B.subMatrix(k, k, k, n - 1).flatten());
-
-        Matrix qk = _Utils.householderReflection(rowVector);
-        Matrix Q = Matrix.eye(n);
-
-        Q.setSubMatrix(k, k, qk);
-
-        // Update B and V
-        B = B * Q;
-        V = V * Q;
-      }
-    }
-
-    return Bidiagonalization(U, B, V);
-  }
-
   /// Computes the condition number of the matrix using its singular value
   /// decomposition (SVD). The condition number is the ratio of the largest
   /// singular value to the smallest singular value. A high condition number
@@ -838,7 +798,9 @@ class MatrixDecomposition {
   /// Matrix x = A.solve(b, method: "qr_householder");
   /// x.prettyPrint();
   /// ```
-  Matrix solve(Matrix b, {String method = "auto", double ridgeAlpha = 0.0}) {
+  Matrix solve(Matrix b,
+      {DecompositionMethod method = DecompositionMethod.auto,
+      double ridgeAlpha = 0.0}) {
     Decomposition decomposition;
     double conditionNumber = _matrix.conditionNumber();
     if (conditionNumber > 1e12) {
@@ -849,46 +811,46 @@ class MatrixDecomposition {
     if (ridgeAlpha > 0.0) {
       return LinearSystemSolvers.ridgeRegression(_matrix, b, ridgeAlpha);
     } else {
-      switch (method.toLowerCase()) {
-        case "crout":
+      switch (method) {
+        case DecompositionMethod.crout:
           decomposition = _matrix.decomposition.luDecompositionCrout();
           break;
-        case "doolittle":
+        case DecompositionMethod.doolittle:
           decomposition = _matrix.decomposition.luDecompositionDoolittle();
           break;
-        case "doolittle_pivoting":
+        case DecompositionMethod.doolittlePivoting:
           decomposition =
               _matrix.decomposition.luDecompositionDoolittlePartialPivoting();
           break;
-        case "doolittle_complete_pivoting":
+        case DecompositionMethod.doolittleCompletePivoting:
           decomposition =
               _matrix.decomposition.luDecompositionDoolittleCompletePivoting();
           break;
-        case "gauss_elimination":
+        case DecompositionMethod.gaussElimination:
           decomposition = _matrix.decomposition.luDecompositionGauss();
           break;
-        case "qr_gram_schmidt":
+        case DecompositionMethod.qrGramSchmidt:
           decomposition = _matrix.decomposition.qrDecompositionGramSchmidt();
           break;
-        case "qr_householder":
+        case DecompositionMethod.qrHouseholder:
           decomposition = _matrix.decomposition.qrDecompositionHouseholder();
           break;
-        case "lq":
+        case DecompositionMethod.lq:
           decomposition = _matrix.decomposition.lqDecomposition();
           break;
-        case "cholesky":
+        case DecompositionMethod.cholesky:
           decomposition = _matrix.decomposition.choleskyDecomposition();
           break;
-        case "eigenvalue":
+        case DecompositionMethod.eigenvalue:
           decomposition = _matrix.decomposition.eigenvalueDecomposition();
           break;
-        case "singular_value":
+        case DecompositionMethod.singularValue:
           decomposition = _matrix.decomposition.singularValueDecomposition();
           break;
-        case "schur":
+        case DecompositionMethod.schur:
           decomposition = _matrix.decomposition.schurDecomposition();
           break;
-        case "auto":
+        case DecompositionMethod.auto:
         default:
           if (_matrix.isSymmetricMatrix()) {
             decomposition = _matrix.decomposition.choleskyDecomposition();
