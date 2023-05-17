@@ -144,6 +144,108 @@ print(randomMatrix);
 // │ 1  7  6  8 │
 // └ 4  9  1  3 ┘
 
+//Create a matrix from a flattened array
+final source = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+final ma = Matrix.fromFlattenedList(source, 2, 6);
+print(ma);
+// Output:
+// Matrix: 2x6
+// ┌ 1 2 3 4 5 6 ┐
+// └ 7 8 9 0 0 0 ┘
+
+// Create a matrix from the  matrix factory 
+randomMatrix = Matrix.factory
+    .create(MatrixType.general, 5, 4, min: 0, max: 3, isDouble: true);
+  print('\n${randomMatrix.round(3)}');
+
+// Create a specific type of matrix from a random seed with range 
+randomMatrix = Matrix.factory
+    .create(MatrixType.sparse, 5, 5, min: 0, max: 2, isDouble: true);
+
+  print('\nProperties of the Matrix:\n${randomMatrix.round(3)}\n');
+  randomMatrix.matrixProperties().forEach((element) => print(' - $element'));
+
+```
+
+## Matrix Interoperability
+
+To convert a matrix to a json-serializable map one may use toJson method:
+
+### to/from JSON
+
+You can serialize the matrix to a json-serializable map and deserialize back to a matrix object.
+
+```dart
+final matrix = Matrix.fromList([
+    [11.0, 12.0, 13.0, 14.0],
+    [15.0, 16.0, 0.0, 18.0],
+    [21.0, 22.0, -23.0, 24.0],
+    [24.0, 32.0, 53.0, 74.0],
+  ]);
+
+// Convert to JSON representation
+final serialized = matrix.toJson();
+
+```
+
+To restore a serialized matrix one may use Matrix.fromJson constructor:
+
+```dart
+final matrix = Matrix.fromJson(serialized);
+```
+
+### to/from CSV
+
+You can write csv file and read it back to a matrix object.
+
+```dart
+String csv = '''
+1.0,2.0,3.0
+4.0,5.0,6.0
+7.0,8.0,9.0
+''';
+Matrix matrix = await Matrix.fromCSV(csv: csv);
+print(matrix);
+
+// Alternatively, read the CSV from a file:
+Matrix matrixFromFile = await Matrix.fromCSV(inputFilePath: 'input.csv');
+print(matrixFromFile);
+
+// Output:
+// Matrix: 3x3
+// ┌ 1.0 2.0 3.0 ┐
+// │ 4.0 5.0 6.0 │
+// └ 7.0 8.0 9.0 ┘
+```
+
+Write to a csv file 
+
+``` dart
+String csv = matrix.toCSV(outputFilePath: 'output.csv');
+print(csv);
+
+// Output:
+// ```
+// 1.0,2.0,3.0
+// 4.0,5.0,6.0
+// 7.0,8.0,9.0
+// ```
+```
+
+### to/from Binary Data
+
+You can serialize the matrix to a json-serializable map and deserialize back to a matrix object.
+
+```dart
+ByteData bd1 = matrix.toBinary(jsonFormat: false); // Binary format
+ByteData bd2 = matrix.toBinary(jsonFormat: true); // JSON format
+```
+
+To restore a serialized matrix one may use Matrix.fromBinary constructor:
+
+```dart
+Matrix m1 = Matrix.fromBinary(bd1, jsonFormat: false); // Binary format
+Matrix m2 = Matrix.fromBinary(bd2, jsonFormat: true); // JSON format
 ```
 
 ## Check Matrix Properties
@@ -412,25 +514,33 @@ print(n); // [1,4,1]
     [5, 7, 8, 9, 10]
   ]);
 
-// Extract a submatrix with rows 1 to 2 and columns 1 to 2
-Matrix sub = m.submatrix(rowRange: "1:2", colRange: "0:1");
+// Extract a subMatrix with rows 1 to 2 and columns 1 to 2
+Matrix sub = m.subMatrix(rowRange: "1:2", colRange: "0:1");
 
-Matrix sub = m.submatrix(rowStart: 1, rowEnd: 2, colStart: 0, colEnd: 1);
+Matrix sub = m.subMatrix(rowStart: 1, rowEnd: 2, colStart: 0, colEnd: 1);
 
 // submatrix will be:
 // [
 //   [6]
 // ]
 
-var sub = m.submatrix(rowList: [0, 2], colList: [0, 2, 4]);
+sub = m.subMatrix(rowList: [0, 2], colList: [0, 2, 4]);
 // sub will be:
 // [
 //   [1, 3, 5],
 //   [5, 8, 10]
 // ]  
 
+
+sub = m.subMatrix(columnIndices: [4, 4, 2]);
+ print("\nsub array: $sub");
+// sub array: Matrix: 3x3
+// ┌  5  5 3 ┐
+// │ 10 10 8 │
+// └ 10 10 8 ┘
+
 // Get a submatrix
-Matrix subMatrix = m.subMatrix(0, 1, 1, 3);
+Matrix subMatrix = m.slice(0, 1, 1, 3);
 
 ```
 

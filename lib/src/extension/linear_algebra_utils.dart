@@ -284,7 +284,7 @@ class LinearSystemSolvers {
       }
     }
 
-    return augmentedMatrix.subMatrix(
+    return augmentedMatrix.slice(
         0, rowCount - 1, rowCount, augmentedMatrix.columnCount - 1);
   }
 

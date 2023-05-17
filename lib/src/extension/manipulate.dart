@@ -713,60 +713,69 @@ extension MatrixManipulationExtension on Matrix {
     }
   }
 
-  /// Extracts a submatrix from the given matrix using the specified row and column indices or ranges.
+  /// Extracts a subMatrix from the given matrix using the specified row and column indices or ranges.
   ///
-  /// [rowList]: Optional list of integers representing the row indices to include in the submatrix.
-  /// [colList]: Optional list of integers representing the column indices to include in the submatrix.
-  /// [rowRange]: Optional string representing the row range (e.g. "1:3").
-  /// [colRange]: Optional string representing the column range (e.g. "1:3").
-  /// [rowStart]: Optional start index of the row range.
-  /// [rowEnd]: Optional end index of the row range.
-  /// [colStart]: Optional start index of the column range.
-  /// [colEnd]: Optional end index of the column range.
+  /// - [rowIndices]: Optional list of integers representing the row indices to include in the subMatrix.
+  /// - [columnIndices]: Optional list of integers representing the column indices to include in the subMatrix.
+  /// - [rowRange]: Optional string representing the row range (e.g. "1:3").
+  /// - [colRange]: Optional string representing the column range (e.g. "1:3").
+  /// - [rowStart]: Optional start index of the row range.
+  /// - [rowEnd]: Optional end index of the row range.
+  /// - [colStart]: Optional start index of the column range.
+  /// - [colEnd]: Optional end index of the column range.
   ///
-  /// Returns a new matrix containing the specified submatrix.
+  /// Returns a new matrix containing the specified subMatrix.
   ///
   /// Example:
   /// ```dart
   /// var matrix = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
-  /// var subMatrix = matrix.submatrix(rowList: [0, 2], colList: [1, 2]);
+  /// var subMatrix = matrix.subMatrix(rowList: [0, 2], colList: [1, 2]);
   /// print(subMatrix);
   /// // Output:
   /// // 2  3
   /// // 8  9
   /// ```
-  Matrix submatrix(
-      {List<int>? rowList,
-      List<int>? colList,
+  Matrix subMatrix(
+      {List<int>? rowIndices,
+      List<int>? columnIndices,
       String rowRange = '',
       String colRange = '',
       int? rowStart,
       int? rowEnd,
       int? colStart,
       int? colEnd}) {
-    final rowIndices = rowList ??
-        (rowStart == null || rowEnd == null
-            ? _Utils.parseRange(rowRange, rowCount)
-            : List.generate(rowEnd - rowStart, (i) => rowStart + i));
-    final colIndices = colList ??
-        (colStart == null || colEnd == null
-            ? _Utils.parseRange(colRange, columnCount)
-            : List.generate(colEnd - colStart, (i) => colStart + i));
+    // If no row indices are provided, default to all rows
+    // If rowStart or rowEnd is provided, use these to create the list
+    final rowIndices_ = rowIndices ??
+        (rowStart != null && rowEnd != null
+            ? List.generate(rowEnd - rowStart + 1, (i) => rowStart + i)
+            : (rowRange.isNotEmpty
+                ? _Utils.parseRange(rowRange, rowCount)
+                : List.generate(rowCount, (i) => i)));
 
-    if (rowIndices.any((i) => i < 0 || i >= rowCount)) {
+    // If no column indices are provided, default to all columns
+    // If colStart or colEnd is provided, use these to create the list
+    final colIndices_ = columnIndices ??
+        (colStart != null && colEnd != null
+            ? List.generate(colEnd - colStart + 1, (i) => colStart + i)
+            : (colRange.isNotEmpty
+                ? _Utils.parseRange(colRange, columnCount)
+                : List.generate(columnCount, (i) => i)));
+
+    if (rowIndices_.any((i) => i < 0 || i >= rowCount)) {
       throw Exception('Row indices are out of range');
     }
 
-    if (colIndices.any((i) => i < 0 || i >= columnCount)) {
+    if (colIndices_.any((i) => i < 0 || i >= columnCount)) {
       throw Exception('Column indices are out of range');
     }
 
     List<List<dynamic>> newData = [];
 
-    for (int i = 0; i < rowIndices.length; i++) {
+    for (int i = 0; i < rowIndices_.length; i++) {
       List<dynamic> row = [];
-      for (int j = 0; j < colIndices.length; j++) {
-        row.add(_data[rowIndices[i]][colIndices[j]]);
+      for (int j = 0; j < colIndices_.length; j++) {
+        row.add(_data[rowIndices_[i]][colIndices_[j]]);
       }
       newData.add(row);
     }
@@ -774,28 +783,30 @@ extension MatrixManipulationExtension on Matrix {
     return Matrix(newData);
   }
 
-  /// Returns a submatrix that is a portion of the original matrix.
+  /// Returns a subMatrix that is a portion of the original matrix.
   ///
   /// The parameters [startRow] and [endRow] specify the starting and ending row indices,
   /// while the optional parameters [startCol] and [endCol] specify the starting and ending
   /// column indices.
   ///
   /// Example:
-  ///
+  /// ```
   /// Matrix mat = Matrix.fromList([
   ///   [4, 5, 6, 7],
   ///   [9, 9, 8, 6],
   ///   [1, 1, 2, 9]
   /// ]);
   ///
-  /// Matrix subMat = mat.subMatrix(1, 2, 1, 2);
+  /// Matrix subMat = mat.slice(1, 2, 1, 2);
   /// print(mat);
-  ///
+  /// ```
   /// Output:
-  /// Matrix: 2x2
-  /// ┌ 9 8 ┐
-  /// └ 1 2 ┘
-  Matrix subMatrix(int startRow, int endRow, [int? startCol, int? endCol]) {
+  /// ```
+  /// // Matrix: 2x2
+  /// // ┌ 9 8 ┐
+  /// // └ 1 2 ┘
+  /// ```
+  Matrix slice(int startRow, int endRow, [int? startCol, int? endCol]) {
     if (startRow < 0 ||
         startRow >= rowCount ||
         endRow < 0 ||
@@ -820,10 +831,10 @@ extension MatrixManipulationExtension on Matrix {
     return Matrix.fromList(subData);
   }
 
-  /// Sets the values of the submatrix at the specified position.
+  /// Sets the values of the subMatrix at the specified position.
   ///
   /// The parameters [startRow] and [startCol] specify the starting row and column indices,
-  /// and [subMatrix] is the submatrix to be inserted.
+  /// and [subMatrix] is the subMatrix to be inserted.
   ///
   /// Example:
   /// ```dart
@@ -860,7 +871,7 @@ extension MatrixManipulationExtension on Matrix {
   /// Splits the matrix into smaller matrices along the specified axis.
   ///
   /// [axis]: The axis along which to split the matrix (0 for rows, 1 for columns).
-  /// [splits]: The number of equally sized submatrices to split the matrix into.
+  /// [splits]: The number of equally sized subMatrices to split the matrix into.
   ///
   /// Returns a list of new matrices resulting from the split.
   ///

@@ -88,7 +88,7 @@ void main() {
 
   test('test #1 with 2 row and column indices', () {
     expect(
-        m.subMatrix(0, 1, 1, 3),
+        m.slice(0, 1, 1, 3),
         Matrix([
           [2, 3, 4],
           [7, 8, 9]
@@ -169,7 +169,7 @@ void main() {
 
   test('test #2 with 1 row and 2 column index', () {
     expect(
-        m.submatrix(rowStart: 1, rowEnd: 2, colStart: 0, colEnd: 1),
+        m.subMatrix(rowStart: 1, rowEnd: 1, colStart: 0, colEnd: 0),
         Matrix([
           [6]
         ]));
@@ -177,7 +177,7 @@ void main() {
 
   test('test #3 with 3 row and column indices', () {
     expect(
-        m.subMatrix(0, 2, 2, 2),
+        m.slice(0, 2, 2, 2),
         Matrix([
           [3],
           [8],
@@ -187,7 +187,7 @@ void main() {
 
   test('test #4', () {
     expect(
-        m.subMatrix(0, 2, 3, 3),
+        m.slice(0, 2, 3, 3),
         Matrix([
           [4],
           [9],

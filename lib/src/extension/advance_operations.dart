@@ -9,3 +9,5 @@ Advanced Matrix Operations:
    - Matrix convolution
    - Matrix cross product
  */
+
+extension AdvancedMatrixOperations on Matrix {}

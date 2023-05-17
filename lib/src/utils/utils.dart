@@ -54,6 +54,32 @@ class _Utils {
     }).toList();
   }
 
+  /// Default tolerance for approximate equality comparison
+  static double defaultTolerance = 1e-6;
+
+  /// Map of operator functions that can be used for element-wise comparisons.
+  ///
+  /// - '>': greater than
+  /// - '<': less than
+  /// - '>=': greater than or equal to
+  /// - '<=': less than or equal to
+  /// - '==': equal to
+  /// - '!=': not equal to
+  /// - '~=': approximately equal to, within defaultTolerance
+  /// - 'is': checks if the runtime type of the left operand is the same as the right operand
+  /// - 'is!': checks if the runtime type of the left operand is not the same as the right operand
+  static final Map<String, Function(dynamic, dynamic)> comparisonFunctions = {
+    '>': (a, b) => a > b,
+    '<': (a, b) => a < b,
+    '>=': (a, b) => a >= b,
+    '<=': (a, b) => a <= b,
+    '==': (a, b) => a == b,
+    '!=': (a, b) => a != b,
+    '~=': (a, b) => (a - b).abs() < defaultTolerance, // approximate equality
+    'is': (a, b) => a.runtimeType == b,
+    'is!': (a, b) => a.runtimeType != b,
+  };
+
   // Helper method for solving a linear system using backward substitution.
   static Matrix backwardSubstitution(Matrix upper, Matrix y) {
     int rowCount = upper.rowCount;

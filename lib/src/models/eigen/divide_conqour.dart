@@ -75,13 +75,13 @@ class DivideAndConquer {
     // combination of the eigenvectors in w1 and w2 using the columns of the P matrix
     for (int i = 0; i < n1; i++) {
       Matrix newEigenvector =
-          (P.subMatrix(0, P.rowCount, 0, n1)).transpose() * w1[i];
+          (P.slice(0, P.rowCount, 0, n1)).transpose() * w1[i];
       combinedEigenvectors.add(newEigenvector);
     }
 
     for (int i = 0; i < n2; i++) {
       Matrix newEigenvector =
-          (P.subMatrix(0, P.rowCount, n1, P.columnCount)).transpose() * w2[i];
+          (P.slice(0, P.rowCount, n1, P.columnCount)).transpose() * w2[i];
       combinedEigenvectors.add(newEigenvector);
     }
 
@@ -98,8 +98,8 @@ class DivideAndConquer {
 
     // Step 2: Divide
     int pivot = findPivot(T);
-    Matrix t1 = T.subMatrix(0, 0, pivot + 1, pivot + 1);
-    Matrix t2 = T.subMatrix(pivot + 1, pivot + 1, T.rowCount - pivot - 1,
+    Matrix t1 = T.slice(0, 0, pivot + 1, pivot + 1);
+    Matrix t2 = T.slice(pivot + 1, pivot + 1, T.rowCount - pivot - 1,
         T.columnCount - pivot - 1);
 
     // Step 3: Conquer

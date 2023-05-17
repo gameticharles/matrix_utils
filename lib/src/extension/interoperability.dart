@@ -1,7 +1,6 @@
 part of matrix_utils;
 /* TODO:
 Interoperability:
-   - 
    - Enable integration with other linear algebra libraries or frameworks (e.g., TensorFlow, NumPy)
  */
 
@@ -28,9 +27,10 @@ extension MatrixInteroperabilityExtension on Matrix {
   ///
   /// Output:
   /// ```
-  /// 1.0  2.0  3.0
-  /// 4.0  5.0  6.0
-  /// 7.0  8.0  9.0
+  /// Matrix: 3x3
+  /// ┌ 1.0 2.0 3.0 ┐
+  /// │ 4.0 5.0 6.0 │
+  /// └ 7.0 8.0 9.0 ┘
   /// ```
   ///
   /// [csv]: The CSV string to create the Matrix from (optional).
@@ -99,17 +99,16 @@ extension MatrixInteroperabilityExtension on Matrix {
   /// [inputFilePath]: A file path to a JSON file containing the matrix data.
   ///
   /// Example:
-  ///
-  /// Matrix myMatrix = await Matrix.fromJSON(inputFilePath: 'path/to/matrix_data.json');
-  ///
+  /// ```dart
+  /// Matrix myMatrix = Matrix.fromJSON(inputFilePath: 'path/to/matrix_data.json');
+  /// ```
   /// Output:
   ///
   /// myMatrix will be constructed from the data in the specified JSON file.
-  static Future<Matrix> fromJSON(
-      {String? jsonString, String? inputFilePath}) async {
+  static Matrix fromJSON({String? jsonString, String? inputFilePath}) {
     if (jsonString == null && inputFilePath != null) {
       File inputFile = File(inputFilePath);
-      jsonString = await inputFile.readAsString();
+      jsonString = inputFile.readAsStringSync(); // synchronous read
     } else if (jsonString == null) {
       throw ArgumentError(
           'Either jsonString or inputFilePath must be provided.');
@@ -124,31 +123,35 @@ extension MatrixInteroperabilityExtension on Matrix {
   /// [outputFilePath]: An optional file path to save the JSON representation of the matrix.
   ///
   /// Example:
-  ///
-  /// String jsonOutput = await myMatrix.toJSON(outputFilePath: 'path/to/output_file.json');
-  ///
+  /// ```dart
+  /// String jsonOutput = myMatrix.toJSON(outputFilePath: 'path/to/output_file.json');
+  /// ```
   /// Output:
   ///
-  /// The JSON representation of myMatrix will be saved to the specified file path, and jsonOutput will contain the JSON-formatted string.
-  Future<String> toJSON({String? outputFilePath}) async {
+  /// The JSON representation of myMatrix will be saved to the specified file path, and
+  /// jsonOutput will contain the JSON-formatted string.
+  String toJSON({String? outputFilePath}) {
     String jsonString = jsonEncode(toList());
 
     if (outputFilePath != null) {
       File outputFile = File(outputFilePath);
-      await outputFile.writeAsString(jsonString);
+      outputFile.writeAsStringSync(jsonString); // synchronous write
     }
 
     return jsonString;
   }
 
-  // Importing from binary
-// byteData: ByteData object containing the matrix data
-// jsonFormat (optional): Set to true to use JSON string format, false to use binary format (default: false)
-// Example:
-// Matrix m1 = Matrix.fromBinary(byteData, jsonFormat: false); // Binary format
-// Matrix m2 = Matrix.fromBinary(byteData, jsonFormat: true); // JSON format
-// Expected output:
-// m1 and m2 will be matrices with the same values as the original matrix stored in the ByteData object
+  /// Importing from binary
+  /// byteData: ByteData object containing the matrix data
+  /// jsonFormat (optional): Set to true to use JSON string format, false to use binary format (default: false)
+  ///
+  /// Example:
+  /// ```dart
+  /// Matrix m1 = Matrix.fromBinary(byteData, jsonFormat: false); // Binary format
+  /// Matrix m2 = Matrix.fromBinary(byteData, jsonFormat: true); // JSON format
+  ///```
+  /// Expected output:
+  /// m1 and m2 will be matrices with the same values as the original matrix stored in the ByteData object
   static Future<Matrix> fromBinary(ByteData byteData,
       {bool jsonFormat = false}) async {
     if (jsonFormat) {
@@ -172,13 +175,16 @@ extension MatrixInteroperabilityExtension on Matrix {
     }
   }
 
-// Exporting to binary
-// jsonFormat (optional): Set to true to use JSON string format, false to use binary format (default: false)
-// Example:
-// ByteData bd1 = matrix.toBinary(jsonFormat: false); // Binary format
-// ByteData bd2 = matrix.toBinary(jsonFormat: true); // JSON format
-// Expected output:
-// bd1 and bd2 will be ByteData objects containing the matrix data in the chosen format
+  /// Exporting to binary
+  /// jsonFormat (optional): Set to true to use JSON string format, false to use binary format (default: false)
+  ///
+  /// Example:
+  /// ```data
+  /// ByteData bd1 = matrix.toBinary(jsonFormat: false); // Binary format
+  /// ByteData bd2 = matrix.toBinary(jsonFormat: true); // JSON format
+  /// ```
+  /// Expected output:
+  /// bd1 and bd2 will be ByteData objects containing the matrix data in the chosen format
   Future<ByteData> toBinary({bool jsonFormat = false}) async {
     if (jsonFormat) {
       String jsonString = await toJSON();

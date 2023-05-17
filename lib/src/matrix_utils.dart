@@ -13,8 +13,6 @@ class Matrix extends IterableMixin<List<dynamic>> {
     return MatrixDecomposition(this);
   }
 
-  //List<List<dynamic>> get data => _data;
-
   LinearSystemSolvers get linear {
     return LinearSystemSolvers(this);
   }
@@ -160,6 +158,51 @@ class Matrix extends IterableMixin<List<dynamic>> {
     return Matrix(list);
   }
 
+  /// Constructs a new Matrix from a flattened list.
+  ///
+  /// This function takes a single-dimensional list and the desired number of
+  /// rows and columns and returns a new Matrix with those dimensions, populated
+  /// with the elements from the source list.
+  ///
+  /// The function fills the Matrix in row-major order, which means that it
+  /// fills the first row from left to right, then moves on to the next row,
+  /// and so on.
+  ///
+  /// Throws an `ArgumentError` if the provided list does not contain exactly
+  /// `rows * cols` elements.
+  ///
+  /// - [source]: A single-dimensional list containing the elements to populate
+  ///             the new Matrix.
+  /// - [rows]: The number of rows the new Matrix should have.
+  /// - [cols]: The number of columns the new Matrix should have.
+  ///
+  /// Example:
+  /// ```dart
+  /// final source = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+  /// final matrix = Matrix.fromFlattenedList(source, 2, 5);
+  /// print(matrix);
+  /// // Output:
+  /// // 1 2 3 4 5
+  /// // 6 7 8 9 0
+  /// ```
+  static Matrix fromFlattenedList(List<dynamic> source, int rows, int cols) {
+    List<List<dynamic>> data = [];
+    int sourceIndex = 0;
+    for (int i = 0; i < rows; i++) {
+      List<dynamic> row = [];
+      for (int j = 0; j < cols; j++) {
+        if (sourceIndex < source.length) {
+          row.add(source[sourceIndex++]);
+        } else {
+          row.add(0);
+        }
+      }
+      data.add(row);
+    }
+
+    return Matrix(data);
+  }
+
   /// Creates a matrix with random elements of type double or int.
   ///
   /// [rowCount]: The number of rows in the matrix.
@@ -171,7 +214,7 @@ class Matrix extends IterableMixin<List<dynamic>> {
   ///
   /// Example:
   /// ```dart
-  /// var randomMatrix = Matrix.random(3, 4, min: 1, max: 10, isInt: true);
+  /// var randomMatrix = Matrix.random(3, 4, min: 1, max: 10, double: false);
   /// print(randomMatrix);
   /// // Output:
   /// // Matrix: 3x4
@@ -182,26 +225,10 @@ class Matrix extends IterableMixin<List<dynamic>> {
   factory Matrix.random(int rowCount, int columnCount,
       {double min = 0,
       double max = 1,
-      bool isInt = false,
+      bool isDouble = true,
       math.Random? random}) {
-    random ??= math.Random();
-    List<List<dynamic>> data;
-
-    if (isInt) {
-      int intMin = min.toInt();
-      int intMax = max.toInt();
-      data = List.generate(
-          rowCount,
-          (_) => List.generate(
-              columnCount, (_) => random!.nextInt(intMax - intMin) + intMin));
-    } else {
-      data = List.generate(
-          rowCount,
-          (_) => List.generate(
-              columnCount, (_) => random!.nextDouble() * (max - min) + min));
-    }
-
-    return Matrix(data);
+    return Matrix.factory.create(MatrixType.general, rowCount, columnCount,
+        min: min, max: max, random: random, isDouble: isDouble);
   }
 
   /// Creates a Matrix of the specified dimensions with all elements set to 0.
@@ -219,21 +246,8 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// // └ 0 0 0 ┘
   /// ```
   factory Matrix.zeros(int rows, int cols, {bool isDouble = false}) {
-    if (rows <= 0 || cols <= 0) {
-      throw Exception('Rows and columns must be greater than 0');
-    }
-
-    List<List<dynamic>> newData = [];
-
-    for (int i = 0; i < rows; i++) {
-      List<dynamic> row = [];
-      for (int j = 0; j < cols; j++) {
-        row.add(isDouble ? 0.0 : 0);
-      }
-      newData.add(row);
-    }
-
-    return Matrix(newData);
+    return Matrix.factory
+        .create(MatrixType.zeros, rows, cols, isDouble: isDouble);
   }
 
   /// Creates a Matrix of the specified dimensions with all elements set to 1.
@@ -251,21 +265,8 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// // └ 1 1 1 ┘
   /// ```
   factory Matrix.ones(int rows, int cols, {bool isDouble = false}) {
-    if (rows <= 0 || cols <= 0) {
-      throw Exception('Rows and columns must be greater than 0');
-    }
-
-    List<List<dynamic>> newData = [];
-
-    for (int i = 0; i < rows; i++) {
-      List<dynamic> row = [];
-      for (int j = 0; j < cols; j++) {
-        row.add(isDouble ? 1.0 : 1);
-      }
-      newData.add(row);
-    }
-
-    return Matrix(newData);
+    return Matrix.factory
+        .create(MatrixType.ones, rows, cols, isDouble: isDouble);
   }
 
   /// Creates a square identity Matrix of the specified size.
@@ -282,26 +283,20 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// // │ 0 1 0 │
   /// // └ 0 0 1 ┘
   /// ```
+  // Method to create an identity matrix.
   factory Matrix.eye(int size, {bool isDouble = false}) {
-    if (size <= 0) {
-      throw Exception('Size must be a positive integer');
+    return Matrix.factory
+        .create(MatrixType.identity, size, size, isDouble: isDouble);
+  }
+
+  // Method to create a scalar matrix.
+  factory Matrix.scalar(int size, dynamic value) {
+    if (value is! num) {
+      throw ArgumentError('Value must be a number (int or double)');
     }
 
-    List<List<dynamic>> newData = [];
-
-    for (int i = 0; i < size; i++) {
-      List<dynamic> row = [];
-      for (int j = 0; j < size; j++) {
-        if (i == j) {
-          row.add(isDouble ? 1.0 : 1);
-        } else {
-          row.add(isDouble ? 0.0 : 0);
-        }
-      }
-      newData.add(row);
-    }
-
-    return Matrix(newData);
+    return Matrix.factory.create(MatrixType.identity, size, size,
+        value: value, isDouble: value is double);
   }
 
   /// Creates a Matrix of the specified dimensions with all elements set to the specified value.
@@ -320,20 +315,8 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// // └ 7 7 7 ┘
   /// ```
   factory Matrix.fill(int rows, int cols, dynamic value) {
-    if (rows < 1 || cols < 1) {
-      throw Exception("Rows and columns must be greater than 0");
-    }
-    List<List<dynamic>> newData = [];
-
-    for (int i = 0; i < rows; i++) {
-      List<dynamic> row = [];
-      for (int j = 0; j < cols; j++) {
-        row.add(value);
-      }
-      newData.add(row);
-    }
-
-    return Matrix(newData);
+    return Matrix.factory.create(MatrixType.general, rows, cols,
+        value: value, isDouble: value is double);
   }
 
   /// Creates a row Matrix with equally spaced values between the start and end values (inclusive).
@@ -420,7 +403,8 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// Returns a new Matrix with boolean values as a result of the comparison.
   ///
   /// [matrix]: The input Matrix to perform the comparison on.
-  /// [operator]: A string representing the comparison operator ('>', '<', '>=', '<=', '==', '!=').
+  /// [operator]: A string representing the comparison operator ('>', '<', '>=', '<=', '==', '!=', '~=').
+  /// Also performs a comparison on the element type ('is' and 'is!')
   /// [value]: The value to compare each element to.
   ///
   /// Example:
@@ -433,37 +417,19 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// // ┌ false false ┐
   /// // └ true true   ┘
   /// ```
-  static Matrix compare(Matrix matrix, String operator, num value) {
-    List<List<bool>> result = [];
+  static Matrix compare(Matrix matrix, String operator, dynamic value,
+      {double tolerance = 1e-6}) {
+    _Utils.defaultTolerance = tolerance;
 
-    for (int i = 0; i < matrix.rowCount; i++) {
-      List<bool> row = [];
-      for (int j = 0; j < matrix.columnCount; j++) {
-        switch (operator) {
-          case '>':
-            row.add(matrix._data[i][j] > value);
-            break;
-          case '<':
-            row.add(matrix._data[i][j] < value);
-            break;
-          case '>=':
-            row.add(matrix._data[i][j] >= value);
-            break;
-          case '<=':
-            row.add(matrix._data[i][j] <= value);
-            break;
-          case '==':
-            row.add(matrix._data[i][j] == value);
-            break;
-          case '!=':
-            row.add(matrix._data[i][j] != value);
-            break;
-          default:
-            throw Exception('Invalid operator');
-        }
-      }
-      result.add(row);
+    if (!_Utils.comparisonFunctions.containsKey(operator)) {
+      throw Exception('Invalid operator');
     }
+
+    var compareFunc = _Utils.comparisonFunctions[operator];
+
+    var result = matrix
+        .map((row) => row.map((item) => compareFunc!(item, value)).toList())
+        .toList();
 
     return Matrix(result);
   }

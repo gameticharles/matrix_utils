@@ -1,3 +1,10 @@
+## 0.0.8
+
+* Added Exponential, logarithmic, and Matrix power (generalized, not just integer powers)
+* Added support to create from flattened arrays
+* Clean codes
+* Fixed bugs
+
 ## 0.0.7
 
 * Fixed matrix round

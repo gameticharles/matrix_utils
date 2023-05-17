@@ -253,8 +253,8 @@ class LU {
 
     // Copy right hand side with pivoting
     var nx = B.columnCount;
-    var X = B.submatrix(
-        rowList: _piv.flatten().map((e) => (e as num).toInt()).toList(),
+    var X = B.subMatrix(
+        rowIndices: _piv.flatten().map((e) => (e as num).toInt()).toList(),
         colStart: 0,
         colEnd: nx - 1);
 

@@ -595,8 +595,7 @@ extension MatrixOperationExtension on Matrix {
     Matrix cofactorMatrix = Matrix.zeros(rowCount, columnCount, isDouble: true);
     for (int i = 0; i < rowCount; i++) {
       for (int j = 0; j < columnCount; j++) {
-        cofactorMatrix[i][j] =
-            math.pow(-1, i + j) * subMatrix(i, j).determinant();
+        cofactorMatrix[i][j] = math.pow(-1, i + j) * slice(i, j).determinant();
       }
     }
     return cofactorMatrix;
@@ -860,7 +859,7 @@ extension MatrixOperationExtension on Matrix {
   ///   [5, 6]
   /// ]);
   ///
-  /// Matrix aPseudoInverse = pseudoInverse(a);
+  /// Matrix aPseudoInverse = a.pseudoInverse();
   /// print(aPseudoInverse);
   /// ```
   ///
@@ -872,7 +871,8 @@ extension MatrixOperationExtension on Matrix {
   ///
   /// [a] The input matrix.
   /// Returns the pseudoinverse of the input matrix.
-  Matrix pseudoInverse(Matrix a) {
+  Matrix pseudoInverse() {
+    Matrix a = copy();
     Matrix aTranspose = a.transpose();
     return (aTranspose * a).inverse() * aTranspose;
   }
@@ -1255,7 +1255,7 @@ extension MatrixOperationExtension on Matrix {
 
     for (int k = 0; k < math.min(m - 1, n); k++) {
       // Compute Householder reflection for the k-th column of B
-      var columnVector = B.subMatrix(k, m - 1, k, k);
+      var columnVector = B.slice(k, m - 1, k, k);
 
       Matrix pk = _Utils.householderReflection(columnVector);
       Matrix P = Matrix.eye(m);
@@ -1267,7 +1267,7 @@ extension MatrixOperationExtension on Matrix {
 
       if (k < n - 1) {
         // Compute Householder reflection for the k-th row of B
-        var rowVector = Column(B.subMatrix(k, k, k, n - 1).flatten());
+        var rowVector = Column(B.slice(k, k, k, n - 1).flatten());
 
         Matrix qk = _Utils.householderReflection(rowVector);
         Matrix Q = Matrix.eye(n);

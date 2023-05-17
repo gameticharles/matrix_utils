@@ -42,9 +42,10 @@ class MatrixFactory {
   /// Creates a matrix with the specified [type], [rowCount], and [columnCount].
   ///
   /// The [min] and [max] parameters specify the range of possible values for
-  /// the matrix elements. If [isInt] is set to true, the matrix elements
-  /// will be integers; otherwise, they will be doubles. If [random] is provided,
-  /// it will be used as the random number generator; otherwise, a new instance
+  /// the matrix elements. If [isDouble] is set to true, the matrix elements
+  /// will be doubles; otherwise, they will be integers. If a [value] is provided as default
+  /// value for some matrices (such as diagonal and general matrices) type it will use it.
+  /// If [random] is provided, it will be used as the random number generator; otherwise, a new instance
   /// of `Random` will be created.
   ///
   /// The [type] parameter must be a value from the [MatrixType] enumeration, and
@@ -88,57 +89,32 @@ class MatrixFactory {
   Matrix create(MatrixType type, int rowCount, int columnCount,
       {double min = 0,
       double max = 1,
-      bool isInt = false,
+      bool isDouble = false,
+      dynamic value,
       math.Random? random}) {
     random ??= math.Random();
-    List<List<dynamic>> data;
+
+    if (rowCount <= 0 || columnCount <= 0) {
+      throw Exception('Rows and columns must be greater than 0');
+    }
+
+    // Generate matrix with appropriate type of zeros
+    List<List<dynamic>> data = List.generate(rowCount,
+        (_) => List.filled(columnCount, isDouble ? 0.0 : 0, growable: false));
 
     switch (type) {
       case MatrixType.square:
         if (rowCount != columnCount) {
           throw ArgumentError("Matrix must be square for the square type.");
         }
-        if (isInt) {
-          int intMin = min.toInt();
-          int intMax = max.toInt();
-          data = List.generate(
-              rowCount,
-              (_) => List.generate(columnCount,
-                  (_) => random!.nextInt(intMax - intMin) + intMin));
-        } else {
-          data = List.generate(
-              rowCount,
-              (_) => List.generate(columnCount,
-                  (_) => random!.nextDouble() * (max - min) + min));
-        }
-        break;
 
-      case MatrixType.diagonal:
-        if (rowCount != columnCount) {
-          throw ArgumentError(
-              "Matrix must be square for the diagonal matrix type.");
+        for (int i = 0; i < rowCount; i++) {
+          for (int j = 0; j < columnCount; j++) {
+            data[i][j] = isDouble
+                ? random.nextDouble() * (max - min) + min
+                : random.nextInt(max.toInt() - min.toInt()) + min.toInt();
+          }
         }
-        data = List.generate(
-            rowCount,
-            (_) => List.generate(columnCount, (j) {
-                  if (_ == j) {
-                    return isInt
-                        ? random!.nextInt(max.toInt() - min.toInt()) +
-                            min.toInt()
-                        : random!.nextDouble() * (max - min) + min;
-                  } else {
-                    return isInt ? 0 : 0.0;
-                  }
-                }));
-        break;
-
-      case MatrixType.identity:
-        if (rowCount != columnCount) {
-          throw ArgumentError(
-              "Matrix must be square for the identity matrix type.");
-        }
-        data = List.generate(
-            rowCount, (_) => List.generate(columnCount, (j) => _ == j ? 1 : 0));
         break;
 
       case MatrixType.upperTriangular:
@@ -160,27 +136,16 @@ class MatrixFactory {
           throw ArgumentError(
               "Matrix must be square for the symmetric matrix type.");
         }
-        data = List.generate(
-            rowCount, (_) => List.filled(columnCount, 0, growable: false));
+
         for (int i = 0; i < rowCount; i++) {
           for (int j = i; j < columnCount; j++) {
-            final value = isInt
-                ? random.nextInt(max.toInt() - min.toInt()) + min.toInt()
-                : random.nextDouble() * (max - min) + min;
+            final value = isDouble
+                ? random.nextDouble() * (max - min) + min
+                : random.nextInt(max.toInt() - min.toInt()) + min.toInt();
             data[i][j] = value;
             data[j][i] = value;
           }
         }
-        break;
-
-      case MatrixType.zeros:
-        data = List.generate(rowCount,
-            (_) => List.generate(columnCount, (_) => isInt ? 0 : 0.0));
-        break;
-
-      case MatrixType.ones:
-        data = List.generate(rowCount,
-            (_) => List.generate(columnCount, (_) => isInt ? 1 : 1.0));
         break;
 
       case MatrixType.tridiagonal:
@@ -188,16 +153,12 @@ class MatrixFactory {
           throw ArgumentError(
               "Matrix must be square for the tridiagonal matrix type.");
         }
-        data = List.generate(
-            rowCount, (_) => List.filled(columnCount, 0, growable: false));
         for (int i = 0; i < rowCount; i++) {
           for (int j = 0; j < columnCount; j++) {
             if (i == j || (i - j).abs() == 1) {
-              data[i][j] = isInt
-                  ? random.nextInt(max.toInt() - min.toInt()) + min.toInt()
-                  : random.nextDouble() * (max - min) + min;
-            } else {
-              data[i][j] = isInt ? 0 : 0.0;
+              data[i][j] = isDouble
+                  ? random.nextDouble() * (max - min) + min
+                  : random.nextInt(max.toInt() - min.toInt()) + min.toInt();
             }
           }
         }
@@ -208,12 +169,11 @@ class MatrixFactory {
           throw ArgumentError(
               "Matrix must be square for the periodic matrix type.");
         }
-        data = List.generate(
-            rowCount, (_) => List.filled(columnCount, 0, growable: false));
+
         List<dynamic> firstRow = List.generate(columnCount, (_) {
-          return isInt
-              ? random!.nextInt(max.toInt() - min.toInt()) + min.toInt()
-              : random!.nextDouble() * (max - min) + min;
+          return isDouble
+              ? random!.nextDouble() * (max - min) + min
+              : random!.nextInt(max.toInt() - min.toInt()) + min.toInt();
         });
         for (int i = 0; i < rowCount; i++) {
           for (int j = 0; j < columnCount; j++) {
@@ -227,8 +187,7 @@ class MatrixFactory {
           throw ArgumentError(
               "Matrix must be square for the negative definite matrix type.");
         }
-        data = List.generate(
-            rowCount, (_) => List.filled(columnCount, 0, growable: false));
+
         List<List<dynamic>> lowerTriangular = List.generate(
             rowCount,
             (_) => List.generate(columnCount,
@@ -249,8 +208,7 @@ class MatrixFactory {
           throw ArgumentError(
               "Matrix must be square for the derogatory matrix type.");
         }
-        data = List.generate(
-            rowCount, (_) => List.filled(columnCount, 0, growable: false));
+
         List<int> indices = List.generate(columnCount, (index) => index);
         indices.shuffle(random);
         for (int i = 0; i < rowCount; i++) {
@@ -267,8 +225,7 @@ class MatrixFactory {
           throw ArgumentError(
               "Matrix must be square for the positive definite matrix type.");
         }
-        data = List.generate(
-            rowCount, (_) => List.filled(columnCount, 0, growable: false));
+
         List<List<dynamic>> lowerTriangular = List.generate(
             rowCount,
             (_) => List.generate(columnCount,
@@ -289,22 +246,21 @@ class MatrixFactory {
           throw ArgumentError(
               "Matrix must be square for the hermitian matrix type.");
         }
-        data = List.generate(
-            rowCount, (_) => List.filled(columnCount, 0, growable: false));
+
         for (int i = 0; i < rowCount; i++) {
           for (int j = i; j < columnCount; j++) {
             if (i == j) {
-              final value = isInt
-                  ? random.nextInt(max.toInt() - min.toInt()) + min.toInt()
-                  : random.nextDouble() * (max - min) + min;
+              final value = isDouble
+                  ? random.nextDouble() * (max - min) + min
+                  : random.nextInt(max.toInt() - min.toInt()) + min.toInt();
               data[i][j] = value;
             } else {
-              final realPart = isInt
-                  ? random.nextInt(max.toInt() - min.toInt()) + min.toInt()
-                  : random.nextDouble() * (max - min) + min;
-              final imaginaryPart = isInt
-                  ? random.nextInt(max.toInt() - min.toInt()) + min.toInt()
-                  : random.nextDouble() * (max - min) + min;
+              final realPart = isDouble
+                  ? random.nextDouble() * (max - min) + min
+                  : random.nextInt(max.toInt() - min.toInt()) + min.toInt();
+              final imaginaryPart = isDouble
+                  ? random.nextDouble() * (max - min) + min
+                  : random.nextInt(max.toInt() - min.toInt()) + min.toInt();
               data[i][j] = Complex(realPart, imaginaryPart);
               data[j][i] = Complex(realPart, -imaginaryPart);
             }
@@ -314,15 +270,14 @@ class MatrixFactory {
 
       case MatrixType.sparse:
         double sparseRatio = 0.1; // Adjust this value to control sparsity
-        data = List.generate(rowCount,
-            (_) => List.generate(columnCount, (_) => isInt ? 0 : 0.0));
+
         int nonZeroCount = (rowCount * columnCount * sparseRatio).ceil();
         for (int i = 0; i < nonZeroCount; i++) {
           int row = random.nextInt(rowCount);
           int col = random.nextInt(columnCount);
-          data[row][col] = isInt
-              ? random.nextInt(max.toInt() - min.toInt()) + min.toInt()
-              : random.nextDouble() * (max - min) + min;
+          data[row][col] = isDouble
+              ? random.nextDouble() * (max - min) + min
+              : random.nextInt(max.toInt() - min.toInt()) + min.toInt();
         }
         break;
 
@@ -332,12 +287,13 @@ class MatrixFactory {
               "Matrix must be square for the Toeplitz matrix type.");
         }
         List<dynamic> firstRow = List.generate(columnCount, (_) {
-          return isInt
-              ? random!.nextInt(max.toInt() - min.toInt()) + min.toInt()
-              : random!.nextDouble() * (max - min) + min;
+          return isDouble
+              ? random!.nextDouble() * (max - min) + min
+              : random!.nextInt(max.toInt() - min.toInt()) + min.toInt();
         });
         data = List.generate(rowCount,
             (i) => List.generate(columnCount, (j) => firstRow[(j - i).abs()]));
+
         break;
 
       case MatrixType.idempotent:
@@ -364,9 +320,9 @@ class MatrixFactory {
               "Matrix must be square for the Hankel matrix type.");
         }
         List<dynamic> firstColumn = List.generate(rowCount, (_) {
-          return isInt
-              ? random!.nextInt(max.toInt() - min.toInt()) + min.toInt()
-              : random!.nextDouble() * (max - min) + min;
+          return isDouble
+              ? random!.nextDouble() * (max - min) + min
+              : random!.nextInt(max.toInt() - min.toInt()) + min.toInt();
         });
         data = List.generate(
             rowCount,
@@ -380,9 +336,9 @@ class MatrixFactory {
               "Matrix must be square for the circulant matrix type.");
         }
         List<dynamic> firstRow = List.generate(columnCount, (_) {
-          return isInt
-              ? random!.nextInt(max.toInt() - min.toInt()) + min.toInt()
-              : random!.nextDouble() * (max - min) + min;
+          return isDouble
+              ? random!.nextDouble() * (max - min) + min
+              : random!.nextInt(max.toInt() - min.toInt()) + min.toInt();
         });
         data = List.generate(
             rowCount,
@@ -396,9 +352,9 @@ class MatrixFactory {
               "Matrix must be square for the Vandermonde matrix type.");
         }
         List<dynamic> firstRow = List.generate(columnCount, (_) {
-          return isInt
-              ? random!.nextInt(max.toInt() - min.toInt()) + min.toInt()
-              : random!.nextDouble() * (max - min) + min;
+          return isDouble
+              ? random!.nextDouble() * (max - min) + min
+              : random!.nextInt(max.toInt() - min.toInt()) + min.toInt();
         });
         data = List.generate(rowCount,
             (i) => List.generate(columnCount, (j) => math.pow(firstRow[j], i)));
@@ -409,8 +365,6 @@ class MatrixFactory {
           throw ArgumentError(
               "Matrix must be square for the permutation matrix type.");
         }
-        data = List.generate(
-            rowCount, (_) => List.filled(columnCount, 0, growable: false));
         List<int> indices = List.generate(columnCount, (index) => index);
         indices.shuffle(random);
         for (int i = 0; i < rowCount; i++) {
@@ -423,12 +377,10 @@ class MatrixFactory {
           throw ArgumentError(
               "Matrix must be square for the nilpotent matrix type.");
         }
-        data = List.generate(
-            rowCount, (_) => List.filled(columnCount, 0, growable: false));
         for (int i = 0; i < rowCount - 1; i++) {
-          data[i][i + 1] = isInt
-              ? random.nextInt(max.toInt() - min.toInt()) + min.toInt()
-              : random.nextDouble() * (max - min) + min;
+          data[i][i + 1] = isDouble
+              ? random.nextDouble() * (max - min) + min
+              : random.nextInt(max.toInt() - min.toInt()) + min.toInt();
         }
         break;
 
@@ -437,70 +389,101 @@ class MatrixFactory {
           throw ArgumentError(
               "Matrix must be square for the involutory matrix type.");
         }
-        data = List.generate(
-            rowCount, (_) => List.filled(columnCount, 0, growable: false));
+
         for (int i = 0; i < rowCount; i++) {
-          data[i][i] = 1;
+          data[i][i] = isDouble ? 1.0 : 1;
         }
         int half = (columnCount / 2).floor();
         for (int i = 0; i < half; i++) {
           int j = columnCount - i - 1;
-          num value = isInt
-              ? random.nextInt(max.toInt() - min.toInt()) + min.toInt()
-              : random.nextDouble() * (max - min) + min;
+          num value = isDouble
+              ? random.nextDouble() * (max - min) + min
+              : random.nextInt(max.toInt() - min.toInt()) + min.toInt();
           data[i][j] = value;
           data[j][i] = -value;
         }
         break;
 
       case MatrixType.diagonallyDominant:
-        data = List.generate(
-            rowCount, (_) => List.filled(columnCount, null, growable: false));
         for (int i = 0; i < rowCount; i++) {
           double rowSum = 0;
           for (int j = 0; j < columnCount; j++) {
             if (i != j) {
-              data[i][j] = isInt
-                  ? random.nextInt(max.toInt() - min.toInt()) + min.toInt()
-                  : random.nextDouble() * (max - min) + min;
+              data[i][j] = isDouble
+                  ? random.nextDouble() * (max - min) + min
+                  : random.nextInt(max.toInt() - min.toInt()) + min.toInt();
               rowSum += data[i][j].abs();
             }
           }
-          data[i][i] = isInt ? rowSum.ceil() : rowSum;
+          data[i][i] = isDouble ? rowSum : rowSum.ceil();
         }
         break;
 
       case MatrixType.strictlyDiagonallyDominant:
-        data = List.generate(
-            rowCount, (_) => List.filled(columnCount, null, growable: false));
         for (int i = 0; i < rowCount; i++) {
           double rowSum = 0;
           for (int j = 0; j < columnCount; j++) {
             if (i != j) {
-              data[i][j] = isInt
-                  ? random.nextInt(max.toInt() - min.toInt()) + min.toInt()
-                  : random.nextDouble() * (max - min) + min;
+              data[i][j] = isDouble
+                  ? random.nextDouble() * (max - min) + min
+                  : random.nextInt(max.toInt() - min.toInt()) + min.toInt();
               rowSum += data[i][j].abs();
             }
           }
-          data[i][i] = isInt ? rowSum.ceil() + 1 : rowSum + (max - min);
+          data[i][i] = isDouble ? rowSum + (max - min) : rowSum.ceil() + 1;
         }
         break;
 
-      default:
-        if (isInt) {
-          int intMin = min.toInt();
-          int intMax = max.toInt();
-          data = List.generate(
-              rowCount,
-              (_) => List.generate(columnCount,
-                  (_) => random!.nextInt(intMax - intMin) + intMin));
-        } else {
-          data = List.generate(
-              rowCount,
-              (_) => List.generate(columnCount,
-                  (_) => random!.nextDouble() * (max - min) + min));
+      case MatrixType.zeros:
+        break;
+
+      case MatrixType.ones:
+        data = List.generate(rowCount,
+            (_) => List.generate(columnCount, (_) => isDouble ? 1.0 : 1));
+        break;
+
+      case MatrixType.diagonal:
+        if (rowCount != columnCount) {
+          throw ArgumentError(
+              "Matrix must be square for the diagonal matrix type.");
         }
+        for (int i = 0; i < rowCount; i++) {
+          data[i][i] = value != null
+              ? (value is num
+                  ? (isDouble ? value.toDouble() : value.toInt())
+                  : value)
+              : (isDouble
+                  ? random.nextDouble() * (max - min) + min
+                  : random.nextInt(max.toInt() - min.toInt()) + min.toInt());
+        }
+        break;
+
+      case MatrixType.identity:
+        if (rowCount != columnCount) {
+          throw ArgumentError(
+              "Matrix must be square for the identity matrix type.");
+        }
+        for (int i = 0; i < rowCount; i++) {
+          data[i][i] = isDouble ? 1.0 : 1;
+        }
+
+        break;
+
+      case MatrixType.general:
+      default:
+        data = List.generate(
+          rowCount,
+          (_) => List.generate(
+            columnCount,
+            (_) => value != null
+                ? (value is num
+                    ? (isDouble ? value.toDouble() : value.toInt())
+                    : value)
+                : (isDouble
+                    ? random!.nextDouble() * (max - min) + min
+                    : random!.nextInt(max.toInt() - min.toInt()) + min.toInt()),
+          ),
+        );
     }
 
     return Matrix(data);

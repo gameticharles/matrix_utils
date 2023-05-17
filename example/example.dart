@@ -27,10 +27,44 @@ void main() {
   var randMat = Matrix.random(5, 4);
   print(randMat.round(3));
 
+  randMat = Matrix.factory
+      .create(MatrixType.general, 5, 4, min: 0, max: 3, isDouble: true);
+  print('\n${randMat.round(3)}');
+
+  randMat = Matrix.factory
+      .create(MatrixType.sparse, 5, 5, min: 0, max: 2, isDouble: true);
+
+  print('\nProperties of the Matrix:\n${randMat.round(3)}\n');
+  randMat.matrixProperties().forEach((element) => print(' - $element'));
+
   printLine('Matrix Properties');
 
   print('Properties of the Matrix:\n$eMat\n');
   eMat.matrixProperties().forEach((element) => print(' - $element'));
+
+  printLine('SubMatrix or Partition of Matrix');
+
+  var sliceArray = Matrix([
+    [1, 2, 3, 4, 5],
+    [6, 7, 8, 9, 10],
+    [6, 7, 8, 9, 10]
+  ]);
+
+  var newArray = sliceArray.slice(0, 2, 1, 4);
+  print(" sliced array: $newArray");
+
+  newArray = sliceArray.subMatrix(
+    rowStart: 0,
+    rowEnd: 2,
+    colStart: 1,
+    colEnd: 4,
+  );
+  print("\nsub array: $newArray");
+
+  newArray = sliceArray.subMatrix(
+    columnIndices: [4, 4, 2],
+  );
+  print("\nsub array: $newArray");
 
   printLine('Eigen matrix');
 
@@ -330,16 +364,6 @@ void main() {
 
   var a3 = a2.concatenate([a1], axis: 1);
   print(a3);
-
-  // slice
-  var sliceArray = Matrix([
-    [1, 2, 3, 4, 5],
-    [6, 7, 8, 9, 10],
-    [6, 7, 8, 9, 10]
-  ]);
-
-  var newArray = sliceArray.subMatrix(0, 2, 1, 4);
-  print(" sliced array: $newArray");
 
   // min max
   var numbers = Matrix([

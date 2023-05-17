@@ -18,6 +18,7 @@ part 'src/utils/utils.dart';
 part 'src/enum/matrix_align.dart';
 part 'src/enum/matrix_types.dart';
 part 'src/enum/linear_methods.dart';
+part 'src/enum/sparse_format.dart';
 part 'src/enum/decomposition_methods.dart';
 
 part 'src/models/row.dart';
@@ -25,6 +26,7 @@ part 'src/models/column.dart';
 part 'src/models/diagonal.dart';
 part 'src/models/eigen/eigen.dart';
 part 'src/models/complex.dart';
+part 'src/models/sparse_matrix.dart';
 part 'src/models/eigen/divide_conqour.dart';
 part 'src/models/iterators/matrix_iterator.dart';
 part 'src/models/iterators/element_iterator.dart';
@@ -37,6 +39,7 @@ part 'src/extension/extension.dart';
 part 'src/extension/manipulate.dart';
 part 'src/extension/stats.dart';
 part 'src/extension/operations.dart';
+part 'src/extension/advance_operations.dart';
 part 'src/extension/structure.dart';
 part 'src/extension/hyperbolic_functions.dart';
 
