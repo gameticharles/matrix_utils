@@ -171,7 +171,7 @@ randomMatrix = Matrix.factory
 
 To convert a matrix to a json-serializable map one may use toJson method:
 
-### to/from JSON
+### to<->from JSON
 
 You can serialize the matrix to a json-serializable map and deserialize back to a matrix object.
 
@@ -194,7 +194,7 @@ To restore a serialized matrix one may use Matrix.fromJson constructor:
 final matrix = Matrix.fromJson(serialized);
 ```
 
-### to/from CSV
+### to<->from CSV
 
 You can write csv file and read it back to a matrix object.
 
@@ -232,7 +232,7 @@ print(csv);
 // ```
 ```
 
-### to/from Binary Data
+### to<->from Binary Data
 
 You can serialize the matrix to a json-serializable map and deserialize back to a matrix object.
 
