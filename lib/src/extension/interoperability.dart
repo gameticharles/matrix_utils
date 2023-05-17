@@ -152,11 +152,10 @@ extension MatrixInteroperabilityExtension on Matrix {
   ///```
   /// Expected output:
   /// m1 and m2 will be matrices with the same values as the original matrix stored in the ByteData object
-  static Future<Matrix> fromBinary(ByteData byteData,
-      {bool jsonFormat = false}) async {
+  static Matrix fromBinary(ByteData byteData, {bool jsonFormat = false}) {
     if (jsonFormat) {
       String jsonString = utf8.decode(byteData.buffer.asUint8List());
-      return await fromJSON(jsonString: jsonString);
+      return fromJSON(jsonString: jsonString);
     } else {
       int numRows = byteData.getInt32(0, Endian.little);
       int numCols = byteData.getInt32(4, Endian.little);
@@ -185,9 +184,9 @@ extension MatrixInteroperabilityExtension on Matrix {
   /// ```
   /// Expected output:
   /// bd1 and bd2 will be ByteData objects containing the matrix data in the chosen format
-  Future<ByteData> toBinary({bool jsonFormat = false}) async {
+  ByteData toBinary({bool jsonFormat = false}) {
     if (jsonFormat) {
-      String jsonString = await toJSON();
+      String jsonString = toJSON();
       return ByteData.view(utf8.encoder.convert(jsonString).buffer);
     } else {
       int numRows = rowCount;
