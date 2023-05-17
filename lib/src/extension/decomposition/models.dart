@@ -100,8 +100,20 @@ class EigenvalueDecomposition extends Decomposition {
 
   @override
   Matrix solve(Matrix b) {
-    // TODO: implement solve
-    throw UnimplementedError();
+    if (b.rowCount != V.rowCount) {
+      throw ArgumentError('Matrix row dimensions must agree.');
+    }
+
+    // Compute D^-1
+    Matrix dInv = D.copy();
+    for (int i = 0; i < D.rowCount; i++) {
+      dInv[i][i] = 1 / dInv[i][i];
+    }
+
+    // Compute x = V * D^-1 * V^-1 * b
+    Matrix x = V * dInv * V.inverse() * b;
+
+    return x;
   }
 }
 

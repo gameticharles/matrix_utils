@@ -15,10 +15,10 @@ void main() {
     ]);
 
     var qr = A.decomposition.qrDecompositionGramSchmidt();
-    expect(qr.checkMatrix.round(0), A,
+    expect(qr.checkMatrix.round(), A,
         reason: 'Check matrix if the result can reconstruct the matrix A');
     expect(
-        qr.solve(b).round(0),
+        qr.solve(b).round(),
         Matrix([
           [1],
           [7],
@@ -40,10 +40,10 @@ void main() {
     ]);
 
     var qr = A.decomposition.qrDecompositionHouseholder();
-    expect(qr.checkMatrix.round(0), A,
+    expect(qr.checkMatrix.round(), A,
         reason: 'Check matrix if the result can reconstruct the matrix A');
     expect(
-        qr.solve(b).round(0),
+        qr.solve(b).round(),
         Matrix([
           [1],
           [7],
@@ -65,10 +65,10 @@ void main() {
     ]);
 
     var lq = A.decomposition.lqDecomposition();
-    expect(lq.checkMatrix.round(0), A,
+    expect(lq.checkMatrix.round(), A,
         reason: 'Check matrix if the result can reconstruct the matrix A');
     expect(
-        lq.solve(b).round(0),
+        lq.solve(b).round(),
         Matrix([
           [1],
           [8],
@@ -90,10 +90,10 @@ void main() {
     ]);
 
     var cho = A.decomposition.choleskyDecomposition();
-    expect(cho.checkMatrix.round(0), A,
+    expect(cho.checkMatrix.round(), A,
         reason: 'Check matrix if the result can reconstruct the matrix A');
     expect(
-        cho.solve(b).round(0),
+        cho.solve(b).round(),
         Matrix([
           [1],
           [7],
@@ -115,10 +115,10 @@ void main() {
     ]);
 
     var egd = A.decomposition.eigenvalueDecomposition();
-    expect(egd.checkMatrix.round(0), A,
+    expect(egd.checkMatrix.round(), A,
         reason: 'Check matrix if the result can reconstruct the matrix A');
     expect(
-        egd.solve(b).round(0),
+        egd.solve(b).round(),
         Matrix([
           [1],
           [7],
@@ -140,9 +140,9 @@ void main() {
     ]);
 
     var svd = A.decomposition.singularValueDecomposition();
-    expect(svd.checkMatrix.round(0), A);
+    expect(svd.checkMatrix.round(), A);
     expect(
-        svd.solve(b).round(0),
+        svd.solve(b).round(),
         Matrix([
           [1],
           [7],
@@ -163,9 +163,9 @@ void main() {
     ]);
 
     var schur = A.decomposition.schurDecomposition();
-    expect(schur.checkMatrix.round(0), A);
+    expect(schur.checkMatrix.round(), A);
     expect(
-        schur.solve(b).round(0),
+        schur.solve(b).round(),
         Matrix([
           [1],
           [7],
@@ -182,9 +182,9 @@ void main() {
     Matrix b = Column([106.8, 177.2, 279.2]);
 
     var lu = A.decomposition.luDecompositionDoolittle();
-    expect(lu.checkMatrix.round(0), A);
+    expect(lu.checkMatrix.round(), A);
     expect(
-        lu.solve(b).round(0),
+        lu.solve(b).round(),
         Matrix([
           [-2],
           [45],
@@ -201,9 +201,9 @@ void main() {
     Matrix b = Column([106.8, 177.2, 279.2]);
 
     var lu = A.decomposition.luDecompositionDoolittlePartialPivoting();
-    expect(lu.checkMatrix.round(0), A);
+    expect(lu.checkMatrix.round(), A);
     expect(
-        lu.solve(b).round(0),
+        lu.solve(b).round(),
         Matrix([
           [-2],
           [45],
@@ -220,10 +220,10 @@ void main() {
     Matrix b = Column([106.8, 177.2, 279.2]);
 
     var lu = A.decomposition.luDecompositionDoolittleCompletePivoting();
-    print(lu.checkMatrix.round(0));
-    expect(lu.checkMatrix.round(0), A);
+    print(lu.checkMatrix.round());
+    expect(lu.checkMatrix.round(), A);
     expect(
-        lu.solve(b).round(0),
+        lu.solve(b).round(),
         Matrix([
           [-2],
           [45],
@@ -240,9 +240,9 @@ void main() {
     Matrix b = Column([106.8, 177.2, 279.2]);
 
     var lu = A.decomposition.luDecompositionCrout();
-    expect(lu.checkMatrix.round(0), A);
+    expect(lu.checkMatrix.round(), A);
     expect(
-        lu.solve(b).round(0),
+        lu.solve(b).round(),
         Matrix([
           [-2],
           [45],
@@ -259,9 +259,9 @@ void main() {
     Matrix b = Column([106.8, 177.2, 279.2]);
 
     var lu = A.decomposition.luDecompositionGauss();
-    expect(lu.checkMatrix.round(0), A);
+    expect(lu.checkMatrix.round(), A);
     expect(
-        lu.solve(b).round(0),
+        lu.solve(b).round(),
         Matrix([
           [-2],
           [45],

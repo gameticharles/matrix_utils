@@ -16,7 +16,7 @@
 [![forks](https://img.shields.io/github/forks/gameticharles/matrix_utils)](https://github.com/gameticharles/matrix_utils/network/members)
 [![CI](https://img.shields.io/github/workflow/status/gameticharles/matrix_utils/Dart%20CI/master?logo=github-actions&logoColor=white)](https://github.com/gameticharles/matrix/actions)
 
-A Dart library that provides an easy-to-use Matrix class for performing various matrix operations.
+A Dart library that provides an easy-to-use Matrix class for performing various matrix operations and linear algebra.
 
 ## Features
 

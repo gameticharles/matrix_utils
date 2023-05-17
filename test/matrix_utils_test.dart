@@ -274,7 +274,7 @@ void main() {
 
     var result = A.linear.solve(b, method: LinearSystemMethod.luDecomposition);
     expect(
-        result.round(0),
+        result.round(),
         Matrix([
           [6],
           [15],
