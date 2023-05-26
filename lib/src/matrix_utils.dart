@@ -326,7 +326,7 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// ```
   ///
   /// Output:
-  /// ```
+  /// ```dart
   /// 1 2
   /// 3 4
   /// 5 6
