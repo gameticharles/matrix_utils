@@ -20,7 +20,7 @@ extension MatrixManipulationExtension on Matrix {
   /// // 3  4
   /// // 5  6
   /// ```
-  Matrix concatenates(List<Matrix> matrices,
+  Matrix concatenate(List<Matrix> matrices,
       {int axis = 0, bool resize = false}) {
     return Matrix.concatenate([this, ...matrices], axis: axis, resize: resize);
   }
