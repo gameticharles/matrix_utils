@@ -73,17 +73,40 @@ extension MatrixOperationExtension on Matrix {
     }
   }
 
-  /// Multiplies this matrix by a scalar value.
+  /// Multiplies this matrix with another matrix or a scalar value.
   ///
-  /// [scalar]: The scalar value to multiply this matrix by.
+  /// This method performs the multiplication operation based on the type of [other]:
+  /// - If [other] is a [Matrix], it performs matrix multiplication. This operation
+  ///   requires the number of columns in this matrix to equal the number of rows in the [other] matrix.
+  /// - If [other] is a [num], it performs scalar multiplication. Each element in this matrix
+  ///   is multiplied by the [other] scalar value.
   ///
-  /// Returns a new matrix containing the result of the scalar multiplication.
+  /// The function does not mutate the original matrix but instead returns a new
+  /// matrix that is the result of the multiplication operation.
+  ///
+  /// Throws an [Exception] if:
+  /// - [other] is a [Matrix] but the matrices have incompatible sizes for multiplication.
+  /// - [other] is not a [Matrix] or a [num].
   ///
   /// Example:
   /// ```dart
-  /// var matrix = Matrix([[1, 2], [3, 4]]);
-  /// var result = matrix * 2;
-  /// print(result);
+  /// var matrixA = Matrix([
+  ///   [1, 2],
+  ///   [3, 4],
+  /// ]);
+  /// var matrixB = Matrix([
+  ///   [2, 0],
+  ///   [1, 2],
+  /// ]);
+  /// var resultMatrix = matrixA * matrixB;
+  /// print(resultMatrix);
+  /// // Output:
+  /// // 4  4
+  /// // 10 8
+  ///
+  /// var scalar = 2;
+  /// var resultScalar = matrixA * scalar;
+  /// print(resultScalar);
   /// // Output:
   /// // 2  4
   /// // 6  8
@@ -94,18 +117,19 @@ extension MatrixOperationExtension on Matrix {
         throw Exception('Cannot multiply matrices of incompatible sizes');
       }
 
-      List<List<dynamic>> newData =
-          List.generate(rowCount, (_) => List.filled(other.columnCount, 0.0));
+      // Define the size limit for switching to normal multiplication
+      const int sizeLimit =
+          64; // Adjust this value based on your performance testing
 
-      for (int i = 0; i < rowCount; i++) {
-        for (int j = 0; j < other.columnCount; j++) {
-          for (int k = 0; k < columnCount; k++) {
-            newData[i][j] += _data[i][k] * other[k][j];
-          }
-        }
+      // Switch to normal multiplication for small matrices
+      if (rowCount <= sizeLimit ||
+          columnCount <= sizeLimit ||
+          other.columnCount <= sizeLimit) {
+        return _normalMultiply(other);
       }
 
-      return Matrix(newData);
+      // Otherwise, use Strassen's algorithm
+      return _strassenMultiply(other);
     } else if (other is num) {
       return scale(other);
     } else {
@@ -113,6 +137,156 @@ extension MatrixOperationExtension on Matrix {
     }
   }
 
+  // Helper function to multiply small matrices
+  Matrix _normalMultiply(Matrix other) {
+    List<List<dynamic>> newData =
+        List.generate(rowCount, (_) => List.filled(other.columnCount, 0.0));
+
+    for (int i = 0; i < rowCount; i++) {
+      for (int j = 0; j < other.columnCount; j++) {
+        for (int k = 0; k < columnCount; k++) {
+          newData[i][j] += _data[i][k] * other[k][j];
+        }
+      }
+    }
+
+    return Matrix(newData);
+  }
+
+  // Helper function to multiply larger matrices
+  Matrix _strassenMultiply(Matrix B) {
+    Matrix A = this;
+
+    // If matrices' sizes are not a power of 2, we fill them with zeroes
+    int newSize = math
+        .pow(
+            2,
+            (math.log(math.max(
+                        math.max(A.rowCount, A.columnCount), B.columnCount)) /
+                    math.log(2))
+                .ceil())
+        .toInt();
+
+    Matrix A1 = Matrix.zeros(newSize, newSize, isDouble: true);
+    Matrix B1 = Matrix.zeros(newSize, newSize, isDouble: true);
+
+    for (int i = 0; i < A.rowCount; i++) {
+      for (int j = 0; j < A.columnCount; j++) {
+        A1[i][j] = A[i][j];
+      }
+    }
+    for (int i = 0; i < B.rowCount; i++) {
+      for (int j = 0; j < B.columnCount; j++) {
+        B1[i][j] = B[i][j];
+      }
+    }
+
+    Matrix C = A1._strassenRecursive(B1);
+
+    Matrix C1 = Matrix.zeros(A.rowCount, B.columnCount, isDouble: true);
+    for (int i = 0; i < C1.rowCount; i++) {
+      for (int j = 0; j < C1.columnCount; j++) {
+        C1[i][j] = C[i][j];
+      }
+    }
+
+    return C1;
+  }
+
+  // Helper function to help multiply large matrices
+  Matrix _strassenRecursive(Matrix B) {
+    Matrix A = this;
+    int size = A.rowCount;
+
+    if (size == 1) {
+      return A * B;
+    }
+
+    // Step 1: Dividing the matrices into quarters
+    int newSize = size ~/ 2;
+
+    // Ensure that the matrices are square and have dimensions that are a power of 2.
+    if (newSize * 2 != size) {
+      Matrix oldA = A;
+      Matrix oldB = B;
+
+      // Increase size to the next power of 2.
+      size = size * 2;
+      newSize = size ~/ 2;
+
+      A = Matrix.zeros(size, size, isDouble: true);
+      B = Matrix.zeros(size, size, isDouble: true);
+
+      A.copyFrom(oldA, resize: false);
+      B.copyFrom(oldB, resize: false);
+    }
+
+    // Divide matrices into quarters
+    // Divide matrices into quarters
+    Matrix A11 = A.slice(0, newSize, 0, newSize);
+    Matrix A12 = A.slice(0, newSize, newSize, size);
+    Matrix A21 = A.slice(newSize, size, 0, newSize);
+    Matrix A22 = A.slice(newSize, size, newSize, size);
+
+    Matrix B11 = B.slice(0, newSize, 0, newSize);
+    Matrix B12 = B.slice(0, newSize, newSize, size);
+    Matrix B21 = B.slice(newSize, size, 0, newSize);
+    Matrix B22 = B.slice(newSize, size, newSize, size);
+
+// Step 2: Calculating the seven products
+    Matrix P1 = (A11) * (B12 - B22);
+    Matrix P2 = (A11 + A12) * (B22);
+    Matrix P3 = (A21 + A22) * (B11);
+    Matrix P4 = (A22) * (B21 - B11);
+    Matrix P5 = (A11 + A22) * (B11 + B22);
+    Matrix P6 = (A12 - A22) * (B21 + B22);
+    Matrix P7 = (A11 - A21) * (B11 + B12);
+
+// Step 3: Calculating the four quarters of the resulting matrix
+    Matrix C11 = P5 + P4 - P2 + P6;
+    Matrix C12 = P1 + P2;
+    Matrix C21 = P3 + P4;
+    Matrix C22 = P1 + P5 - P3 - P7;
+
+// Step 4: Combining the quarters into the resulting matrix
+    Matrix C = Matrix.zeros(size, size, isDouble: true);
+    C.setSubMatrix(0, 0, C11);
+    C.setSubMatrix(0, newSize, C12);
+    C.setSubMatrix(newSize, 0, C21);
+    C.setSubMatrix(newSize, newSize, C22);
+
+    return C;
+  }
+
+  /// Scales a matrix by a given factor.
+  ///
+  /// This method multiplies every element in the matrix by [scaleFactor].
+  ///
+  /// The function does not mutate the original matrix but instead returns a new
+  /// matrix that is the result of the scaling operation.
+  ///
+  /// The parameter [scaleFactor] is a number by which every element of the matrix will be multiplied.
+  ///
+  /// Example:
+  /// ```dart
+  /// var matrix = Matrix([
+  ///   [1, 2, 3],
+  ///   [4, 5, 6],
+  ///   [7, 8, 9],
+  /// ]);
+  ///
+  /// var scaledMatrix = matrix.scale(2);
+  ///
+  /// print(scaledMatrix);
+  /// ```
+  ///
+  /// Output:
+  /// ```dart
+  /// // Matrix: 3x3
+  /// // ┌  2  4  6 ┐
+  /// // │  8 10 12 │
+  /// // └ 14 16 18 ┘
+  /// ```
   Matrix scale(num scaleFactor) {
     List<List<dynamic>> newData = [];
 
@@ -1255,7 +1429,7 @@ extension MatrixOperationExtension on Matrix {
 
     for (int k = 0; k < math.min(m - 1, n); k++) {
       // Compute Householder reflection for the k-th column of B
-      var columnVector = B.slice(k, m - 1, k, k);
+      var columnVector = B.slice(k, m, k, k + 1);
 
       Matrix pk = _Utils.householderReflection(columnVector);
       Matrix P = Matrix.eye(m);
@@ -1267,7 +1441,7 @@ extension MatrixOperationExtension on Matrix {
 
       if (k < n - 1) {
         // Compute Householder reflection for the k-th row of B
-        var rowVector = Column(B.slice(k, k, k, n - 1).flatten());
+        var rowVector = Column(B.slice(k, k + 1, k, n).flatten());
 
         Matrix qk = _Utils.householderReflection(rowVector);
         Matrix Q = Matrix.eye(n);

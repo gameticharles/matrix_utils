@@ -302,7 +302,7 @@ class MatrixDecomposition {
     Matrix R = A.copy();
 
     for (int k = 0; k < math.min(A.rowCount, A.columnCount); k++) {
-      var columnVector = R.column(k).slice(k, A.rowCount - 1);
+      var columnVector = R.column(k).slice(k, A.rowCount);
       Matrix pk = _Utils.householderReflection(columnVector);
       Matrix P = Matrix.eye(A.rowCount);
       P.setSubMatrix(k, k, pk);

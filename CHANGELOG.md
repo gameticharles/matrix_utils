@@ -1,3 +1,10 @@
+## 0.0.9
+
+* Improved copyFrom() to retain or resize matrices
+* Fixed README 
+* Corrected anonotations
+* Fixed bugs
+
 ## 0.0.8
 
 * Added Exponential, logarithmic, and Matrix power (generalized, not just integer powers)

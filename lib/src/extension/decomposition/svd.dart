@@ -523,20 +523,20 @@ class SVD {
   Matrix U() {
     if (_m > _n) {
       var dim = math.max(_m, _n) - 1;
-      return _u.slice(0, dim, 0, dim);
+      return _u.slice(0, dim + 1, 0, dim + 1);
     }
     if (_m < _n) {
       var dim = math.min(_m, _n) - 1;
-      return _u.slice(0, dim, 0, dim);
+      return _u.slice(0, dim + 1, 0, dim + 1);
     } else {
-      return _u.slice(0, _m - 1, 0, math.min(_m + 1, _n) - 1);
+      return _u.slice(0, _m, 0, math.min(_m + 1, _n));
     }
   }
 
   /// Return the right singular vectors
   /// return V
   Matrix V() {
-    return _v.slice(0, _n - 1, 0, _n - 1);
+    return _v.slice(0, _n, 0, _n);
   }
 
   /// Return the diagonal matrix of singular values

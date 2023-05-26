@@ -16,24 +16,43 @@ class Row extends Matrix {
   /// ```
   Row(List<dynamic> data) : super([data]);
 
-  // /// Assigns the value to the specified column index of the Row.
-  // operator []=(int index, dynamic value) {
-  //   if (_data.isNotEmpty && value.length != _data[0].length) {
-  //     throw Exception('Row has different length than the other rows');
-  //   }
-  //   if (index < 0 || index >= _data[0].length) {
-  //     throw Exception('Index is out of range');
-  //   }
-  //   _data[0][index] = value;
-  // }
+  /// Retrieves the value at a specific column index from the Row.
+  ///
+  /// [colIndex]: The index of the column.
+  ///
+  /// Throws [Exception] if the index is out of range.
+  ///
+  /// Example:
+  /// ```dart
+  /// var row = Row([1, 2, 3]);
+  /// print(row.getValueAt(1)); // Output: 2
+  /// ```
+  dynamic getValueAt(int colIndex) {
+    if (colIndex < 0 || colIndex >= _data[0].length) {
+      throw Exception('Index is out of range');
+    }
+    return _data[0][colIndex];
+  }
 
-  // /// Retrieves the specified column from the matrix.
-  // List<dynamic> operator [](int index) {
-  //   if (index < 0 || index >= _data[0].length) {
-  //     throw Exception('Index is out of range');
-  //   }
-  //   return _data[0][index];
-  // }
+  /// Assigns a value at a specific column index in the Row.
+  ///
+  /// [colIndex]: The index of the column.
+  /// [value]: The value to be assigned.
+  ///
+  /// Throws [Exception] if the index is out of range.
+  ///
+  /// Example:
+  /// ```dart
+  /// var row = Row([1, 2, 3]);
+  /// row.setValueAt(1, 5);
+  /// print(row); // Output: [1, 5, 3]
+  /// ```
+  void setValueAt(int colIndex, dynamic value) {
+    if (colIndex < 0 || colIndex >= _data[0].length) {
+      throw Exception('Index is out of range');
+    }
+    _data[0][colIndex] = value;
+  }
 
   /// Creates a new Row object with the specified number of columns filled with the specified value.
   ///
@@ -56,6 +75,54 @@ class Row extends Matrix {
     List<dynamic> row = List.generate(cols, (index) => value);
 
     return Row(row);
+  }
+
+  /// Generates a `Row` with the given `length`, filled with random values
+  /// between `min` and `max`. If `isDouble` is `true`, then the values will be doubles.
+  /// Otherwise, they will be integers. If `random` is not `null`, it will be used
+  /// as the random number generator.
+  static Row random(int length,
+      {double min = 0,
+      double max = 1,
+      bool isDouble = true,
+      math.Random? random,
+      int? seed}) {
+    Matrix randomMatrix = Matrix.random(1, length,
+        min: min, max: max, isDouble: isDouble, random: random, seed: seed);
+    return Row(randomMatrix._data);
+  }
+
+  /// Adds a new value at the end of the row.
+  void push(dynamic value) {
+    _data[0].add(value);
+  }
+
+  /// Removes the last value in the row.
+  dynamic pop() {
+    return _data[0].removeLast();
+  }
+
+  /// Adds a new value at the beginning of the row.
+  void unShift(dynamic value) {
+    _data[0].insert(0, value);
+  }
+
+  /// Removes the first value in the row.
+  dynamic shift() {
+    return _data[0].removeAt(0);
+  }
+
+  /// Adds/removes elements at an arbitrary position in the row.
+  void splice(int start, int deleteCount, [List<dynamic> newItems = const []]) {
+    _data[0].removeRange(start, start + deleteCount);
+    _data[0].insertAll(start, newItems);
+  }
+
+  /// Swaps two elements in the row.
+  void swap(int index1, int index2) {
+    var temp = _data[0][index1];
+    _data[0][index1] = _data[0][index2];
+    _data[0][index2] = temp;
   }
 
   /// Get the list of the elements that are in the matrix

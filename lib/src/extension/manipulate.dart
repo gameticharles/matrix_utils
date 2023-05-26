@@ -20,70 +20,9 @@ extension MatrixManipulationExtension on Matrix {
   /// // 3  4
   /// // 5  6
   /// ```
-  Matrix concatenate(List<Matrix> matrices,
+  Matrix concatenates(List<Matrix> matrices,
       {int axis = 0, bool resize = false}) {
-    if (matrices.isEmpty) {
-      throw Exception("Matrices list cannot be null or empty");
-    }
-
-    if (axis != 0 && axis != 1) {
-      throw Exception("Invalid axis: Axis must be either 0 or 1");
-    }
-
-    Matrix result = this;
-
-    for (Matrix other in matrices) {
-      if (!resize &&
-          ((axis == 0 && columnCount != other.columnCount) ||
-              (axis == 1 && rowCount != other.rowCount))) {
-        throw Exception("Incompatible matrices for concatenation");
-      }
-
-      int maxRowCount =
-          axis == 1 ? math.max(rowCount, other.rowCount) : rowCount;
-      int maxColumnCount =
-          axis == 0 ? math.max(columnCount, other.columnCount) : columnCount;
-
-      List<List<dynamic>> resizedDataA = List.generate(
-          maxRowCount, (i) => List<dynamic>.filled(maxColumnCount, 0));
-      List<List<dynamic>> resizedDataB = List.generate(
-          maxRowCount, (i) => List<dynamic>.filled(maxColumnCount, 0));
-
-      if (resize) {
-        for (int i = 0; i < rowCount; i++) {
-          for (int j = 0; j < columnCount; j++) {
-            resizedDataA[i][j] = result[i][j];
-          }
-        }
-
-        for (int i = 0; i < other.rowCount; i++) {
-          for (int j = 0; j < other.columnCount; j++) {
-            resizedDataB[i][j] = other[i][j];
-          }
-        }
-      } else {
-        resizedDataA = result.toList();
-        resizedDataB = other.toList();
-      }
-
-      List<List<dynamic>> newData = [];
-
-      if (axis == 0) {
-        newData.addAll(resizedDataA);
-        newData.addAll(resizedDataB);
-      } else {
-        for (int i = 0; i < maxRowCount; i++) {
-          List<dynamic> newRow = [];
-          newRow.addAll(resizedDataA[i]);
-          newRow.addAll(resizedDataB[i]);
-          newData.add(newRow);
-        }
-      }
-
-      result = Matrix(newData);
-    }
-
-    return result;
+    return Matrix.concatenate([this, ...matrices], axis: axis, resize: resize);
   }
 
   /// Reshapes the matrix to have the specified number of rows and columns.
@@ -675,10 +614,23 @@ extension MatrixManipulationExtension on Matrix {
 
   /// Copies the elements from another matrix into this matrix.
   ///
-  /// [other]: The matrix to copy elements from.
-  /// [resize]: Optional boolean flag to resize the current matrix to the shape of the other matrix.
+  /// - [other]: The matrix to copy elements from.
+  /// - [resize]: Optional boolean flag to resize this matrix to the shape of the other matrix.
+  ///     * If `resize` is `true`, the current matrix will be resized to the shape of the `other` matrix before the elements are copied.
+  ///     * If `resize` is `false`, the current matrix will not be resized.
+  /// - [retainSize]: Optional boolean flag to retain the original size of this matrix while copying.
+  ///     * If `retainSize` is `true`, the current matrix will retain its original size, and only elements from the `other` matrix that can fit will be copied.
+  ///     * If `retainSize` is `false`, the current matrix will be resized to the shape of the `other` matrix before the elements are copied.
   ///
-  /// Example:
+  /// If both [resize] and [retainSize] are set to `true`, an exception will be thrown because this is a contradictory situation.
+  ///
+  /// If [resize] is `true` and [retainSize] is `false` (default), this matrix will be resized to the size of the [other] matrix before copying.
+  ///
+  /// If [resize] is `false` (default) and [retainSize] is `true`, this matrix will retain its original size, and only elements from the [other] matrix that can fit will be copied.
+  ///
+  /// If [resize] and [retainSize] are both set to `false` (default), and the matrices have different shapes, an exception will be thrown.
+  ///
+  /// Example 1:
   /// ```dart
   /// var matrixA = Matrix([[1, 2], [3, 4]]);
   /// var matrixB = Matrix([[5, 6], [7, 8], [9, 10]]);
@@ -689,26 +641,46 @@ extension MatrixManipulationExtension on Matrix {
   /// // 7  8
   /// // 9 10
   /// ```
-  void copyFrom(Matrix other, {bool resize = false}) {
-    if (!resize &&
-        (rowCount != other.rowCount || columnCount != other.columnCount)) {
-      throw Exception("Matrices have different shapes");
+  ///
+  /// Example 2:
+  /// ```dart
+  /// var matrixA = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
+  /// var matrixB = Matrix([[10, 11], [12, 13]]);
+  /// matrixA.copyFrom(matrixB, retainSize: true);
+  /// print(matrixA);
+  /// // Output:
+  /// // 10 11 3
+  /// // 12 13 6
+  /// // 7  8  9
+  /// ```
+  void copyFrom(Matrix other, {bool resize = false, bool retainSize = false}) {
+    if (resize && retainSize) {
+      throw Exception("resize and retainSize cannot both be true");
     }
 
-    int newRowCount = resize ? other.rowCount : rowCount;
-    int newColumnCount = resize ? other.columnCount : columnCount;
-
-    if (resize) {
+    if (resize && !retainSize) {
       _data = List.generate(
-          newRowCount, (i) => List<dynamic>.filled(newColumnCount, 0));
+          other.rowCount, (i) => List<dynamic>.filled(other.columnCount, 0));
     }
 
-    int copyRowCount = math.min(rowCount, other.rowCount);
-    int copyColumnCount = math.min(columnCount, other.columnCount);
+    if (!resize && retainSize) {
+      int copyRowCount = math.min(rowCount, other.rowCount);
+      int copyColumnCount = math.min(columnCount, other.columnCount);
 
-    for (int i = 0; i < copyRowCount; i++) {
-      for (int j = 0; j < copyColumnCount; j++) {
-        this[i][j] = other[i][j];
+      for (int i = 0; i < copyRowCount; i++) {
+        for (int j = 0; j < copyColumnCount; j++) {
+          this[i][j] = other[i][j];
+        }
+      }
+    } else if (!resize && !retainSize) {
+      if (rowCount != other.rowCount || columnCount != other.columnCount) {
+        throw Exception("Matrices have different shapes");
+      }
+
+      for (int i = 0; i < rowCount; i++) {
+        for (int j = 0; j < columnCount; j++) {
+          this[i][j] = other[i][j];
+        }
       }
     }
   }
@@ -785,9 +757,9 @@ extension MatrixManipulationExtension on Matrix {
 
   /// Returns a subMatrix that is a portion of the original matrix.
   ///
-  /// The parameters [startRow] and [endRow] specify the starting and ending row indices,
+  /// The parameters [startRow] and [endRow] specify the starting and ending row indices (endRow exclusive),
   /// while the optional parameters [startCol] and [endCol] specify the starting and ending
-  /// column indices.
+  /// column indices (endCol exclusive).
   ///
   /// Example:
   /// ```
@@ -797,7 +769,7 @@ extension MatrixManipulationExtension on Matrix {
   ///   [1, 1, 2, 9]
   /// ]);
   ///
-  /// Matrix subMat = mat.slice(1, 2, 1, 2);
+  /// Matrix subMat = mat.slice(1, 3, 1, 3);
   /// print(mat);
   /// ```
   /// Output:
@@ -809,24 +781,24 @@ extension MatrixManipulationExtension on Matrix {
   Matrix slice(int startRow, int endRow, [int? startCol, int? endCol]) {
     if (startRow < 0 ||
         startRow >= rowCount ||
-        endRow < 0 ||
-        endRow >= rowCount) {
+        endRow <= 0 ||
+        endRow > rowCount) {
       throw RangeError("Row indices are out of range.");
     }
 
     startCol ??= 0;
-    endCol ??= columnCount - 1;
+    endCol ??= columnCount;
 
     if (startCol < 0 ||
         startCol >= columnCount ||
-        endCol < 0 ||
-        endCol >= columnCount) {
+        endCol <= 0 ||
+        endCol > columnCount) {
       throw RangeError("Column indices are out of range.");
     }
 
     List<List<dynamic>> subData = [];
-    for (int i = startRow; i <= endRow; i++) {
-      subData.add(_data[i].sublist(startCol, endCol + 1));
+    for (int i = startRow; i < endRow; i++) {
+      subData.add(_data[i].sublist(startCol, endCol));
     }
     return Matrix.fromList(subData);
   }

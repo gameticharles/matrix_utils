@@ -1,17 +1,20 @@
 part of matrix_utils;
 
 class Vector {
-  final List<double> _data;
+  final List<num> _data;
 
-  Vector(int length) : _data = List<double>.filled(length, 0);
+  Vector(int length, {bool isDouble = true})
+      : _data = List<num>.filled(length, isDouble ? 0.0 : 0);
 
-  Vector.fromList(List<double> data) : _data = data;
+  Vector.fromList(List<num> data) : _data = data;
 
-  double operator [](int index) => _data[index];
+  num operator [](int index) => _data[index];
 
-  void operator []=(int index, double value) {
+  void operator []=(int index, num value) {
     _data[index] = value;
   }
+
+  List<num> toList() => _data;
 
   int get length => _data.length;
 
@@ -54,6 +57,25 @@ class Vector {
       result[i] = this[i] * scalar;
     }
     return result;
+  }
+
+  static Vector random(int length,
+      {double min = 0,
+      double max = 1,
+      bool isDouble = true,
+      math.Random? random,
+      int? seed}) {
+    if (seed != null) {
+      random = math.Random(seed);
+    }
+    List<num> data = List.generate(
+      length,
+      (_) => (isDouble
+          ? random!.nextDouble() * (max - min) + min
+          : random!.nextInt(max.toInt() - min.toInt()) + min.toInt()),
+    );
+
+    return Vector.fromList(data);
   }
 
   Vector operator /(double scalar) {

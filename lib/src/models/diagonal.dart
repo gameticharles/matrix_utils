@@ -51,6 +51,44 @@ class Diagonal extends Matrix {
   /// ```
   dynamic get lastItem => _data[_data.length - 1][_data.length - 1];
 
+  /// Retrieves the value at a specific index from the main diagonal.
+  ///
+  /// [index]: The index on the main diagonal.
+  ///
+  /// Throws [Exception] if the index is out of range.
+  ///
+  /// Example:
+  /// ```dart
+  /// var diag = Diagonal([1, 2, 3]);
+  /// print(diag.getValueAt(1)); // Output: 2
+  /// ```
+  dynamic getValueAt(int index) {
+    if (index < 0 || index >= _data.length) {
+      throw Exception('Index is out of range');
+    }
+    return _data[index][index];
+  }
+
+  /// Assigns a value at a specific index in the main diagonal.
+  ///
+  /// [index]: The index on the main diagonal.
+  /// [value]: The value to be assigned.
+  ///
+  /// Throws [Exception] if the index is out of range.
+  ///
+  /// Example:
+  /// ```dart
+  /// var diag = Diagonal([1, 2, 3]);
+  /// diag.setValueAt(1, 5);
+  /// print(diag); // Output: [1, 5, 3]
+  /// ```
+  void setValueAt(int index, dynamic value) {
+    if (index < 0 || index >= _data.length) {
+      throw Exception('Index is out of range');
+    }
+    _data[index][index] = value;
+  }
+
   /// Returns the sum of all elements in the Matrix.
   ///
   /// Example:

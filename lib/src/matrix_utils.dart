@@ -1,24 +1,62 @@
 part of matrix_utils;
 
+/// The `Matrix` class provides a structure for two-dimensional arrays of data,
+/// along with various utility methods for manipulating these arrays.
+///
+/// The class extends `IterableMixin` allowing iteration over the rows or columns of the matrix.
 class Matrix extends IterableMixin<List<dynamic>> {
+  /// Private field to hold the actual data of the matrix.
   List<List<dynamic>> _data = const [];
 
+  /// Getter to retrieve row-wise iteration over the matrix.
+  /// It returns an iterable of rows, where each row is a list of elements.
+  ///
+  /// Example usage:
+  /// ```
+  /// final matrix = Matrix([[1, 2], [3, 4]]);
+  /// matrix.rows.forEach(print); // Prints [1, 2] then [3, 4]
+  /// ```
   Iterable<List<dynamic>> get rows => _MatrixIterable(this, columnMajor: false);
+
+  /// Getter to retrieve column-wise iteration over the matrix.
+  /// It returns an iterable of columns, where each column is a list of elements.
+  ///
+  /// Example usage:
+  /// ```
+  /// final matrix = Matrix([[1, 2], [3, 4]]);
+  /// matrix.columns.forEach(print); // Prints [[1], [3]] then [[2], [4]]
+  /// ```
   Iterable<List<dynamic>> get columns =>
       _MatrixIterable(this, columnMajor: true);
 
+  /// Getter to retrieve an iterable over all elements in the matrix,
+  /// regardless of their row or column.
+  ///
+  /// Example usage:
+  /// ```
+  /// final matrix = Matrix([[1, 2], [3, 4]]);
+  /// matrix.elements.forEach(print); // Prints 1, 2, 3, 4
+  /// ```
   Iterable<dynamic> get elements => _MatrixElementIterable(this);
 
+  /// Getter to retrieve the MatrixDecomposition object associated with the matrix.
+  /// This object provides methods for various matrix decompositions, like LU, QR etc.
   MatrixDecomposition get decomposition {
     return MatrixDecomposition(this);
   }
 
+  /// Getter to retrieve the LinearSystemSolvers object associated with the matrix.
+  /// This object provides methods for solving linear systems of equations represented by the matrix.
   LinearSystemSolvers get linear {
     return LinearSystemSolvers(this);
   }
 
+  /// Static getter to retrieve the MatrixFactory object.
+  /// This object provides methods for generating special kinds of matrices like diagonal, identity etc.
   static MatrixFactory get factory => MatrixFactory();
 
+  /// Overrides the iterator getter to provide a MatrixIterator.
+  /// This iterator iterates over the rows of the matrix.
   @override
   Iterator<List<dynamic>> get iterator => MatrixIterator(this);
 
@@ -185,7 +223,7 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// // 1 2 3 4 5
   /// // 6 7 8 9 0
   /// ```
-  static Matrix fromFlattenedList(List<dynamic> source, int rows, int cols) {
+  factory Matrix.fromFlattenedList(List<dynamic> source, int rows, int cols) {
     List<List<dynamic>> data = [];
     int sourceIndex = 0;
     for (int i = 0; i < rows; i++) {
@@ -201,6 +239,167 @@ class Matrix extends IterableMixin<List<dynamic>> {
     }
 
     return Matrix(data);
+  }
+
+  /// Constructs a Matrix from a list of Column vectors.
+  ///
+  /// All columns must have the same number of rows. Otherwise, an exception will be thrown.
+  ///
+  /// Example:
+  /// ```dart
+  /// var col1 = Column([1, 2, 3]);
+  /// var col2 = Column([4, 5, 6]);
+  /// var col3 = Column([7, 8, 9]);
+  /// var matrix = Matrix.fromColumns([col1, col2, col3]);
+  /// print(matrix);
+  /// ```
+  ///
+  /// Output:
+  /// ```
+  /// 1 4 7
+  /// 2 5 8
+  /// 3 6 9
+  /// ```
+  factory Matrix.fromColumns(List<Column> columns) {
+    final numRows = columns[0].rowCount;
+    if (columns.any((col) => col.rowCount != numRows)) {
+      throw Exception('All columns must have the same number of rows');
+    }
+
+    List<List<dynamic>> data = List.generate(numRows, (i) => []);
+    for (Column column in columns) {
+      for (int i = 0; i < numRows; i++) {
+        data[i].add(column.getValueAt(i));
+      }
+    }
+
+    return Matrix(data);
+  }
+
+  /// Constructs a Matrix from a list of Row vectors.
+  ///
+  /// All rows must have the same number of columns. Otherwise, an exception will be thrown.
+  ///
+  /// Example:
+  /// ```dart
+  /// var row1 = Row([1, 2, 3]);
+  /// var row2 = Row([4, 5, 6]);
+  /// var row3 = Row([7, 8, 9]);
+  /// var matrix = Matrix.fromRows([row1, row2, row3]);
+  /// print(matrix);
+  /// ```
+  ///
+  /// Output:
+  /// ```
+  /// 1 2 3
+  /// 4 5 6
+  /// 7 8 9
+  /// ```
+  factory Matrix.fromRows(List<Row> rows) {
+    final numCols = rows[0].columnCount;
+    if (rows.any((row) => row.columnCount != numCols)) {
+      throw Exception('All rows must have the same number of columns');
+    }
+
+    List<List<dynamic>> data = rows.map((row) => row.asList).toList();
+
+    return Matrix(data);
+  }
+
+  /// Concatenates a list of matrices along the specified axis.
+  ///
+  /// The `matrices` list must contain at least one matrix. If `resize` is true,
+  /// the matrices will be resized to match the size of the largest matrix along
+  /// the axis of concatenation. If `resize` is false, the matrices must have the
+  /// same size along the axis of concatenation, otherwise an exception will be thrown.
+  ///
+  /// The `axis` parameter determines the axis along which the matrices will be concatenated.
+  /// If `axis` is 0, the matrices will be concatenated vertically (i.e., one below the other).
+  /// If `axis` is 1, the matrices will be concatenated horizontally (i.e., one next to the other).
+  ///
+  /// Example:
+  /// ```dart
+  /// var matrix1 = Matrix([[1, 2], [3, 4]]);
+  /// var matrix2 = Matrix([[5, 6], [7, 8]]);
+  /// var concatenated = Matrix.concatenate([matrix1, matrix2], axis: 0);
+  /// print(concatenated);
+  /// ```
+  ///
+  /// Output:
+  /// ```
+  /// 1 2
+  /// 3 4
+  /// 5 6
+  /// 7 8
+  /// ```
+  factory Matrix.concatenate(List<Matrix> matrices,
+      {int axis = 0, bool resize = false}) {
+    if (matrices.isEmpty) {
+      throw Exception("Matrices list cannot be null or empty");
+    }
+
+    if (axis != 0 && axis != 1) {
+      throw Exception("Invalid axis: Axis must be either 0 or 1");
+    }
+
+    Matrix result = matrices[0];
+
+    for (int i = 1; i < matrices.length; i++) {
+      Matrix other = matrices[i];
+
+      if (!resize &&
+          ((axis == 0 && result.columnCount != other.columnCount) ||
+              (axis == 1 && result.rowCount != other.rowCount))) {
+        throw Exception("Incompatible matrices for concatenation");
+      }
+
+      int maxRowCount = axis == 1
+          ? math.max(result.rowCount, other.rowCount)
+          : result.rowCount;
+      int maxColumnCount = axis == 0
+          ? math.max(result.columnCount, other.columnCount)
+          : result.columnCount;
+
+      List<List<dynamic>> resizedDataA = List.generate(
+          maxRowCount, (i) => List<dynamic>.filled(maxColumnCount, 0));
+      List<List<dynamic>> resizedDataB = List.generate(
+          maxRowCount, (i) => List<dynamic>.filled(maxColumnCount, 0));
+
+      if (resize) {
+        for (int j = 0; j < result.rowCount; j++) {
+          for (int k = 0; k < result.columnCount; k++) {
+            resizedDataA[j][k] = result[j][k];
+          }
+        }
+
+        for (int j = 0; j < other.rowCount; j++) {
+          for (int k = 0; k < other.columnCount; k++) {
+            resizedDataB[j][k] = other[j][k];
+          }
+        }
+      } else {
+        resizedDataA = result.toList();
+        resizedDataB = other.toList();
+      }
+
+      List<List<dynamic>> newData = [];
+
+      if (axis == 0) {
+        newData.addAll(resizedDataA);
+        newData.addAll(resizedDataB);
+      } else {
+        for (int j = 0; j < maxRowCount; j++) {
+          List<dynamic> newRow = [];
+          newRow.addAll(resizedDataA[j]);
+          newRow.addAll(resizedDataB[j]);
+          newData.add(newRow);
+        }
+      }
+
+      result = Matrix(newData);
+    }
+
+    return result;
   }
 
   /// Creates a matrix with random elements of type double or int.
@@ -226,7 +425,11 @@ class Matrix extends IterableMixin<List<dynamic>> {
       {double min = 0,
       double max = 1,
       bool isDouble = true,
-      math.Random? random}) {
+      math.Random? random,
+      int? seed}) {
+    if (seed != null) {
+      random = math.Random(seed);
+    }
     return Matrix.factory.create(MatrixType.general, rowCount, columnCount,
         min: min, max: max, random: random, isDouble: isDouble);
   }
@@ -289,7 +492,17 @@ class Matrix extends IterableMixin<List<dynamic>> {
         .create(MatrixType.identity, size, size, isDouble: isDouble);
   }
 
-  // Method to create a scalar matrix.
+  /// Method to create a scalar matrix.
+  /// Example:
+  /// ```dart
+  /// var m = Matrix.scalar(3);
+  /// print(m);
+  /// // Output:
+  /// // Matrix: 3x3
+  /// // ┌ 3 0 0 ┐
+  /// // │ 0 3 0 │
+  /// // └ 0 0 3 ┘
+  /// ```
   factory Matrix.scalar(int size, dynamic value) {
     if (value is! num) {
       throw ArgumentError('Value must be a number (int or double)');
@@ -568,12 +781,13 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// Returns a string representation of the matrix with its shape and elements separated by the specified separator.
   ///
   /// [separator]: A string used to separate matrix elements in a row. Default is a space character (' ').
-  /// [alignment]: A string indicating the alignment of the elements in each column. Default is 'right'.
+  /// [alignment]: An enum indicating the alignment of the elements in each column. Default is MatrixAlign.right.
+  /// [isPrettyMatrix]: A bool indicating the output matrix string should have square around it. Default is true.
   ///
   /// Example:
   /// ```dart
   /// var m = Matrix([[1, 2], [3, 4]]);
-  /// print(m.toString(separator: ' ', alignment: 'right'));
+  /// print(m.toString(separator: ' ', alignment: MatrixAlign.right));
   /// // Output:
   /// // Matrix: 2x2
   /// // ┌ 1 2 ┐
@@ -593,7 +807,8 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// Print a string representation of the matrix with its shape and elements separated by the specified separator.
   ///
   /// [separator]: A string used to separate matrix elements in a row. Default is a space character (' ').
-  /// [alignment]: A string indicating the alignment of the elements in each column. Default is 'right'.
+  /// [alignment]: An enum indicating the alignment of the elements in each column. Default is MatrixAlign.right.
+  /// [isPrettyMatrix]: A bool indicating the output matrix string should have square around it. Default is true.
   ///
   /// Example:
   /// ```dart

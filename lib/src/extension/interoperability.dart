@@ -10,6 +10,10 @@ extension MatrixInteroperabilityExtension on Matrix {
   /// This method reads the CSV string or a CSV file specified by the input file path,
   /// using the specified delimiter, and constructs a Matrix object.
   ///
+  /// [csv]: The CSV string to create the Matrix from (optional).
+  /// [delimiter]: The delimiter to use in the CSV string (default: ',').
+  /// [inputFilePath]: The input file path to read the CSV string from (optional).
+  ///
   /// Example:
   /// ```dart
   /// String csv = '''
@@ -33,9 +37,6 @@ extension MatrixInteroperabilityExtension on Matrix {
   /// └ 7.0 8.0 9.0 ┘
   /// ```
   ///
-  /// [csv]: The CSV string to create the Matrix from (optional).
-  /// [delimiter]: The delimiter to use in the CSV string (default: ',').
-  /// [inputFilePath]: The input file path to read the CSV string from (optional).
   static Future<Matrix> fromCSV(
       {String? csv, String delimiter = ',', String? inputFilePath}) async {
     if (csv == null && inputFilePath != null) {
@@ -59,6 +60,9 @@ extension MatrixInteroperabilityExtension on Matrix {
   /// This method converts the Matrix object to a CSV string, using the specified delimiter.
   /// If an output file path is provided, the CSV string will be saved to that file.
   ///
+  /// [delimiter]: The delimiter to use in the CSV string (default: ',').
+  /// [outputFilePath]: The output file path to save the CSV string (optional).
+  ///
   /// Example:
   /// ```dart
   /// Matrix matrix = Matrix.fromList([
@@ -77,8 +81,6 @@ extension MatrixInteroperabilityExtension on Matrix {
   /// 7.0,8.0,9.0
   /// ```
   ///
-  /// [delimiter]: The delimiter to use in the CSV string (default: ',').
-  /// [outputFilePath]: The output file path to save the CSV string (optional).
   Future<String> toCSV({String delimiter = ',', String? outputFilePath}) async {
     String csv =
         map((row) => row.map((value) => value.toString()).join(delimiter))
@@ -145,13 +147,14 @@ extension MatrixInteroperabilityExtension on Matrix {
   /// byteData: ByteData object containing the matrix data
   /// jsonFormat (optional): Set to true to use JSON string format, false to use binary format (default: false)
   ///
+  /// Expected output:
+  /// m1 and m2 will be matrices with the same values as the original matrix stored in the ByteData object.
+  ///
   /// Example:
   /// ```dart
   /// Matrix m1 = Matrix.fromBinary(byteData, jsonFormat: false); // Binary format
   /// Matrix m2 = Matrix.fromBinary(byteData, jsonFormat: true); // JSON format
   ///```
-  /// Expected output:
-  /// m1 and m2 will be matrices with the same values as the original matrix stored in the ByteData object
   static Matrix fromBinary(ByteData byteData, {bool jsonFormat = false}) {
     if (jsonFormat) {
       String jsonString = utf8.decode(byteData.buffer.asUint8List());
@@ -177,13 +180,14 @@ extension MatrixInteroperabilityExtension on Matrix {
   /// Exporting to binary
   /// jsonFormat (optional): Set to true to use JSON string format, false to use binary format (default: false)
   ///
+  /// Expected output:
+  /// bd1 and bd2 will be ByteData objects containing the matrix data in the chosen format
+  ///
   /// Example:
   /// ```data
   /// ByteData bd1 = matrix.toBinary(jsonFormat: false); // Binary format
   /// ByteData bd2 = matrix.toBinary(jsonFormat: true); // JSON format
   /// ```
-  /// Expected output:
-  /// bd1 and bd2 will be ByteData objects containing the matrix data in the chosen format
   ByteData toBinary({bool jsonFormat = false}) {
     if (jsonFormat) {
       String jsonString = toJSON();

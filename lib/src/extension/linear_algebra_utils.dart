@@ -285,7 +285,7 @@ class LinearSystemSolvers {
     }
 
     return augmentedMatrix.slice(
-        0, rowCount - 1, rowCount, augmentedMatrix.columnCount - 1);
+        0, rowCount, rowCount, augmentedMatrix.columnCount);
   }
 
   /// Solves a linear system Ax = b using the least squares method.
