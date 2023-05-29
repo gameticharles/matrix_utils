@@ -34,6 +34,7 @@ A Dart library that provides an easy-to-use Matrix class for performing various 
 - Matrix norms: Methods for calculating matrix norms, such as L1, L2 (Euclidean), and infinity norms.
 - Determine the properties of a matrix.
 - From the matrix, row and columns of the matrix are iterables and also iterate on every element.
+- Supports vectors, complex numbers and complex vectors with most of the basic functionalities and operations.
 
 ## TODO
 
@@ -258,7 +259,7 @@ randomMatrix.matrixProperties().forEach((element) => print(' - $element'));
 //  - Upper Triangular Matrix
 //  - Singular Matrix
 //  - Vandermonde Matrix
-//  - NilpotentMatrix
+//  - Nilpotent Matrix
 //  - Sparse Matrix
 ```
 
@@ -953,10 +954,10 @@ print(result);
 
 ```dart
 Matrix x = Matrix.fromList([
-[2, 3, 3, 3],
-[9, 9, 8, 6],
-[1, 1, 2, 9],
-[0, 1, 1, 1]
+  [2, 3, 3, 3],
+  [9, 9, 8, 6],
+  [1, 1, 2, 9],
+  [0, 1, 1, 1]
 ]);
 
 //Sorting all elements in ascending order (default behavior):

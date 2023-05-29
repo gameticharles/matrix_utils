@@ -79,7 +79,7 @@ extension MatrixStructure on Matrix {
     safelyAdd('Circulant Matrix', isCirculantMatrix);
     safelyAdd('Vandermonde Matrix', isVandermondeMatrix);
     safelyAdd('Permutation Matrix', isPermutationMatrix);
-    safelyAdd('NilpotentMatrix', isNilpotentMatrix);
+    safelyAdd('Nilpotent Matrix', isNilpotentMatrix);
     safelyAdd('Involutary Matrix', isInvolutaryMatrix);
     safelyAdd('Idempotent Matrix', isIdempotentMatrix);
     safelyAdd('Tridiagonal Matrix', isTridiagonal);

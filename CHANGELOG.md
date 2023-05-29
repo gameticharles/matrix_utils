@@ -1,3 +1,8 @@
+## 0.1.2
+* Fixed spellings in matrix structure properties
+* Added Vectors, Complex Numbers, and Complex Vectors to README
+* Fixed README
+
 ## 0.1.1
 * Fixed README
 
