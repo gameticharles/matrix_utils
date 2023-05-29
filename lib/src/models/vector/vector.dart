@@ -15,7 +15,7 @@ class Vector {
   Vector.fromList(List<num> data) : _data = data;
 
   /// Constructs a [Vector] from a list of random numerical values
-  static Vector random(int length,
+  factory Vector.random(int length,
       {double min = 0,
       double max = 1,
       bool isDouble = true,
@@ -33,6 +33,73 @@ class Vector {
     );
 
     return Vector.fromList(data);
+  }
+
+  /// Creates a row Vector with equally spaced values between the start and end values (inclusive).
+  ///
+  /// [start]: Start value.
+  /// [end]: End value.
+  /// [number]: Number of equally spaced points. Default is 50.
+  ///
+  /// Example:
+  /// ```dart
+  /// var m = Vector.linespace(0, 10, 3);
+  /// print(m);
+  /// // Output:
+  /// // Matrix: 1x3
+  /// // [ 0 5 10 ]
+  /// ```
+  factory Vector.linspace(int start, int end, [int number = 50]) {
+    if (start.runtimeType != end.runtimeType) {
+      throw Exception('Start and end must be of the same type');
+    }
+
+    if (number <= 0) {
+      throw Exception('Number must be a positive integer');
+    }
+
+    double step = (end - start) / (number - 1);
+    List<num> data = [];
+    for (int i = 0; i < number; i++) {
+      data.add(start + i * step);
+    }
+
+    return Vector.fromList(data);
+  }
+
+  /// Creates a Vector with values in the specified range, incremented by the specified step size.
+  ///
+  /// [end]: End value (exclusive).
+  /// [start]: Start value. Default is 1.
+  /// [steps]: Step size. Default is 1.
+  ///
+  /// Example:
+  /// ```dart
+  /// var m = Vector.range(6,  start: 1, step: 2);
+  /// print(m);
+  /// // Output:
+  /// // [1, 3, 5]
+  /// ```
+  factory Vector.range(int end, {int start = 1, int step = 1}) {
+    if (start >= end) {
+      throw Exception('Start must be less than end');
+    }
+
+    if (step <= 0) {
+      throw Exception('Step must be a positive integer');
+    }
+
+    List<num> range = [];
+    for (int i = start; i < end; i += step) {
+      range.add(i);
+    }
+
+    return Vector.fromList(range);
+  }
+
+  /// Alias for Matrix.range.
+  factory Vector.arrange(int end, {int start = 1, int step = 1}) {
+    return Vector.range(end, start: start, step: step);
   }
 
   /// Fetches the value at the given index of the vector.

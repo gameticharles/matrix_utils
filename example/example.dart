@@ -40,12 +40,16 @@ void main() {
   var randMat = Matrix.random(5, 4);
   print(randMat.round(3));
 
+  randMat = Matrix.factory.create(MatrixType.general, 5, 4,
+      min: 0, max: 3, seed: 12, isDouble: true);
+  print('\n${randMat.round(3)}');
+
   randMat = Matrix.factory
       .create(MatrixType.general, 5, 4, min: 0, max: 3, isDouble: true);
   print('\n${randMat.round(3)}');
 
-  randMat = Matrix.factory
-      .create(MatrixType.sparse, 5, 5, min: 0, max: 2, isDouble: true);
+  randMat = Matrix.factory.create(MatrixType.sparse, 5, 5,
+      min: 0, max: 2, seed: 12, isDouble: true);
 
   print('\nProperties of the Matrix:\n${randMat.round(3)}\n');
   randMat.matrixProperties().forEach((element) => print(' - $element'));

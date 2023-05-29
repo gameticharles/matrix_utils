@@ -32,6 +32,22 @@ extension MatrixVectorOperations on Matrix {
     }
     return result;
   }
+
+  Vector multiply(Vector vector) {
+    if (columnCount != vector.length) {
+      throw ArgumentError(
+          'The number of columns in the matrix must be equal to the length of the vector for multiplication.');
+    }
+
+    Vector result = Vector(rowCount);
+    for (int i = 0; i < rowCount; i++) {
+      for (int j = 0; j < columnCount; j++) {
+        result[i] += this[i][j] * vector[j];
+      }
+    }
+
+    return result;
+  }
 }
 
 extension VectorMatrixOperations on Vector {

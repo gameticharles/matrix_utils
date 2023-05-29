@@ -48,6 +48,8 @@ class MatrixFactory {
   /// If [random] is provided, it will be used as the random number generator; otherwise, a new instance
   /// of `Random` will be created.
   ///
+  /// [seed]: An optional seed for the random number generator for reproducible randomness. If not provided, the randomness is not reproducible.
+  ///
   /// The [type] parameter must be a value from the [MatrixType] enumeration, and
   /// it determines the structure of the matrix. The supported matrix types are:
   ///
@@ -91,7 +93,11 @@ class MatrixFactory {
       double max = 1,
       bool isDouble = false,
       dynamic value,
+      int? seed,
       math.Random? random}) {
+    if (seed != null) {
+      random = math.Random(seed);
+    }
     random ??= math.Random();
 
     if (rowCount <= 0 || columnCount <= 0) {

@@ -402,6 +402,7 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// [max]: The maximum value for the random elements (exclusive). Default is 1.
   /// [isDouble]: If true, generates random doubles. If false, generates random integers. Default is true.
   /// [random]: A `Random` object to generate random numbers. If not provided, a new `Random` object will be created.
+  /// [seed]: An optional seed for the random number generator for reproducible randomness. If not provided, the randomness is not reproducible.
   ///
   /// Example:
   /// ```dart
@@ -419,11 +420,8 @@ class Matrix extends IterableMixin<List<dynamic>> {
       bool isDouble = true,
       math.Random? random,
       int? seed}) {
-    if (seed != null) {
-      random = math.Random(seed);
-    }
     return Matrix.factory.create(MatrixType.general, rowCount, columnCount,
-        min: min, max: max, random: random, isDouble: isDouble);
+        min: min, max: max, random: random, seed: seed, isDouble: isDouble);
   }
 
   /// Creates a Matrix of the specified dimensions with all elements set to 0.
@@ -707,24 +705,40 @@ class Matrix extends IterableMixin<List<dynamic>> {
     return diagonal;
   }
 
-  /// Returns the indices of the first occurrence of the specified element in the matrix as a List<int>.
+  /// Returns the indices of occurrences of the specified element in the matrix.
+  /// If [findAll] is set to true, returns a List<List<int>> of all indices where the element was found.
+  /// If [findAll] is false or not provided, returns a List<int> of the first occurrence.
   /// Returns null if the element is not found.
   ///
   /// [element]: The element to search for in the matrix.
+  /// [findAll]: Whether to find all occurrences of the element.
   ///
   /// Example:
   /// ```dart
-  /// var m = Matrix([[1, 2], [3, 4]]);
-  /// var index = m.indexOf(3);
-  /// print(index);
-  /// // Output: [1, 0]
+  /// var m = Matrix([[1, 2, 1], [3, 1, 4], [1, 5, 6]]);
+  /// var singleIndex = m.indicesOf(1);
+  /// print(singleIndex);
+  /// // Output: [0, 0]
+  /// var allIndices = m.indicesOf(1, findAll: true);
+  /// print(allIndices);
+  /// // Output: [[0, 0], [0, 2], [1, 1], [2, 0]]
   /// ```
-  List<int>? indexOf(dynamic element) {
+  dynamic indexOf(dynamic element, {bool findAll = false}) {
+    List<List<int>> allIndices = [];
+
     for (int i = 0; i < rowCount; i++) {
-      int index = _data[i].indexOf(element);
-      if (index != -1) {
-        return [i, index];
+      for (int j = 0; j < _data[i].length; j++) {
+        if (_data[i][j] == element) {
+          if (!findAll) {
+            return [i, j];
+          }
+          allIndices.add([i, j]);
+        }
       }
+    }
+
+    if (findAll) {
+      return allIndices.isNotEmpty ? allIndices : null;
     }
 
     return null;

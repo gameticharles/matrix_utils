@@ -1,3 +1,8 @@
+## 0.1.0
+* Improved indexOf() and random functionalities
+* Fixed README 
+* Fixed bugs
+
 ## 0.0.9
 
 * Started benchmarking

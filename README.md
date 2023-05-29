@@ -129,7 +129,6 @@ print(matrix);
 // ┌ 1 2 3 ┐
 // | 4 5 6 |
 // └ 7 8 9 ┘
-
 ```
 
 Create a from a list of lists
@@ -219,19 +218,86 @@ print(randomMatrix);
 // └ 4  9  1  3 ┘
 ```
 
-Create a matrix from the  matrix factory 
+Create a specific random matrix from the  matrix factory 
 
 ```dart
 var randomMatrix = Matrix.factory
     .create(MatrixType.general, 5, 4, min: 0, max: 3, isDouble: true);
   print('\n${randomMatrix.round(3)}');
+```
 
-Create a specific type of matrix from a random seed with range 
-randomMatrix = Matrix.factory
-    .create(MatrixType.sparse, 5, 5, min: 0, max: 2, isDouble: true);
+Create a specific type of matrix from a random seed with range
+
+```dart
+ randMat = Matrix.factory.create(MatrixType.general, 5, 4,
+      min: 0, max: 3, seed: 12, isDouble: true);
+  print('\n${randMat.round(3)}');
+
+// Output:
+// Matrix: 5x4
+// ┌ 1.949 1.388 2.833 1.723 ┐
+// │ 0.121 1.954 2.386 2.407 │
+// │ 2.758  2.81 1.026 0.737 │
+// │ 1.951  0.37 0.075 0.069 │
+// └ 2.274 1.932 2.659 0.196 ┘
+```
+
+```dart
+var randomMatrix = Matrix.factory
+    .create(MatrixType.sparse, 5, 5, min: 0, max: 2, seed: 12, isDouble: true);
 
 print('\nProperties of the Matrix:\n${randomMatrix.round(3)}\n');
 randomMatrix.matrixProperties().forEach((element) => print(' - $element'));
+
+// Properties of the Matrix:
+// Matrix: 5x5
+// ┌ 0.0 1.149   0.0 0.0   0.0 ┐
+// │ 0.0   0.0 0.925 0.0 1.302 │
+// │ 0.0   0.0   0.0 0.0   0.0 │
+// │ 0.0   0.0   0.0 0.0   0.0 │
+// └ 0.0   0.0   0.0 0.0   0.0 ┘
+//
+//  - Square Matrix
+//  - Upper Triangular Matrix
+//  - Singular Matrix
+//  - Vandermonde Matrix
+//  - NilpotentMatrix
+//  - Sparse Matrix
+```
+
+## Matrix Copy
+
+Copy another original matrix
+
+```dart
+var a = Matrix();
+a.copy(y); // Copy another matrix
+```
+
+Copy the elements of the another matrix and resize the current matrix
+
+```dart
+var matrixA = Matrix([[1, 2], [3, 4]]);
+var matrixB = Matrix([[5, 6], [7, 8], [9, 10]]);
+matrixA.copyFrom(matrixB, resize: true);
+print(matrixA);
+// Output:
+// 5  6
+// 7  8
+// 9 10
+```
+
+Copy the elements of the another matrix but retain the current matrix size
+
+```dart
+var matrixA = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
+var matrixB = Matrix([[10, 11], [12, 13]]);
+matrixA.copyFrom(matrixB, retainSize: true);
+print(matrixA);
+// Output:
+// 10 11 3
+// 12 13 6
+// 7  8  9
 ```
 
 ## Matrix Interoperability
@@ -252,7 +318,6 @@ final matrix = Matrix.fromList([
 
 // Convert to JSON representation
 final serialized = matrix.toJson();
-
 ```
 
 To restore a serialized matrix one may use Matrix.fromJson constructor:
@@ -521,10 +586,11 @@ print(sum); // Output: 10
 // determine the trace of a matrix
 var trace = matrix.trace();
 print(trace); // Output: 5
-
 ```
 
-More operations are available
+## Assessing the elements of a matrix
+
+Matrix can be accessed as components
 
 ```dart
 var v = Matrix([
@@ -547,7 +613,11 @@ print(d);
 // 1 0 0
 // 0 2 0
 // 0 0 3
+```
 
+Change or use element value
+
+```dart
 v[1][2] = 0;
 
 var u = v[1][2] + r[0][1];
@@ -559,15 +629,125 @@ print(z); // 8
 var y = v[1][2] + b[1][1];
 print(y); // 9
 
-var a = Matrix();
-a.copyFrom(y); // Copy another matrix
-
 var k = v.row(1); // Get all elements in row 1
 print(k); // [1,2,3]
 
 var n = v.column(1); // Get all elements in column 1
 print(n); // [1,4,1]
+```
 
+Index (row,column) of an element in the matrix
+
+```dart
+var mat = Matrix.fromList([
+  [2, 3, 3, 3],
+  [9, 9, 8, 6],
+  [1, 1, 2, 9]
+]);
+
+var index = mat.indexOf(8);
+print(index);
+// Output: [1, 2]
+
+var indices = mat.indexOf(3, findAll: true);
+print(indices);
+// Output: [[0, 1], [0, 2], [0, 3]]
+```
+
+Access Row and Column
+
+```dart
+var mat = Matrix.fromList([
+  [2, 3, 3, 3],
+  [9, 9, 8, 6],
+  [1, 1, 2, 9]
+]);
+
+print(mat[0]);
+print(mat.row(0));
+
+// Access column
+print(mat.column(0));
+
+// update row method 1
+mat[0] = [1, 2, 3, 4];
+print(mat);
+
+// update row method 2
+var v = mat.setRow(0, [4, 5, 6, 7]);
+print(v);
+
+// Update column
+v = mat.setColumn(0, [1, 4, 5]);
+print(v);
+
+// Insert row
+v = mat.insertRow(0, [8, 8, 8, 8]);
+print(v);
+
+// Insert column
+v = mat.insertColumn(4, [8, 8, 8, 8]);
+print(v);
+
+// Delete row
+print(mat.removeRow(0));
+
+// Delete column
+print(mat.removeColumn(0));
+
+// Delete rows
+mat.removeRows([0, 1]);
+
+// Delete columns
+mat.removeColumns([0, 2]);
+```
+
+### Iterable objects from a matrix
+
+You can get the iterable from a matrix object. Consider the matrix below:
+
+```dart
+var mat = Matrix.fromList([
+  [2, 3, 3, 3],
+  [9, 9, 8, 6],
+  [1, 1, 2, 9]
+]);
+```
+
+Iterate through the rows of the matrix using the default iterator
+
+```dart
+for (List<dynamic> row in mat.rows) {
+  print(row);
+}
+```
+
+Iterate through the columns of the matrix using the column iterator
+
+```dart
+for (List<dynamic> column in mat.columns) {
+  print(column);
+}
+```
+
+Iterate through the elements of the matrix using the element iterator
+
+```dart
+for (dynamic element in mat.elements) {
+  print(element);
+}
+```
+
+Iterate through elements in the matrix using foreach method
+
+```dart
+var m = Matrix([[1, 2], [3, 4]]);
+m.forEach((x) => print(x));
+// Output:
+// 1
+// 2
+// 3
+// 4
 ```
 
 ## Partition of Matrix
@@ -595,8 +775,7 @@ sub = m.subMatrix(rowList: [0, 2], colList: [0, 2, 4]);
 // [
 //   [1, 3, 5],
 //   [5, 8, 10]
-// ]  
-
+// ]
 
 sub = m.subMatrix(columnIndices: [4, 4, 2]);
  print("\nsub array: $sub");
@@ -607,17 +786,15 @@ sub = m.subMatrix(columnIndices: [4, 4, 2]);
 
 // Get a submatrix
 Matrix subMatrix = m.slice(0, 1, 1, 3);
-
 ```
 
 ## Manipulating the matrix
 
 Manipulate the matrices
 
-```dart
-// concatenate
+1. concatenate on axis 0
 
-// axis 0
+```dart
 var l1 = Matrix([
 [1, 1, 1],
 [1, 1, 1],
@@ -631,8 +808,11 @@ var l2 = Matrix([
 ]);
 var l3 = Matrix().concatenate([l1, l2]);
 print(l3);
+```
 
-// axis 1
+2. concatenate on axis 1
+
+```dart
 var a1 = Matrix([
 [1, 1, 1, 1],
 [1, 1, 1, 1],
@@ -649,30 +829,16 @@ print(a3);
 
 a3 = a2.concatenate([a1], axis: 1);
 print(a3);
+```
 
-// Reshape the matrix
+Reshape the matrix
+
+```dart
 var matrix = Matrix([[1, 2], [3, 4]]);
 var reshaped = matrix.reshape(1, 4);
 print(reshaped);
 // Output:
 // 1  2  3  4
-
-// Sort the elements in a matrix
-var matrix = Matrix([[3], [1], [4]]);
-var sortedMatrix = matrix.sort(ascending: false);
-print(sortedMatrix);
-// Output:
-// 4
-// 3
-// 1
-
-// Remove a row
-var matrixWithoutRow = matrix.removeRow(1);
-print(matrixWithoutRow);
-// Output:
-// 1  2
-// 5  6
-
 ```
 
 ## Solving Linear Systems of Equations
@@ -691,7 +857,6 @@ print(x);
 // 6.0
 // 15.0
 // -23.0
-
 ```
 
 You can also use the the decompositions to solve a linear system of equations
@@ -723,7 +888,6 @@ print(x);
 // ┌ 1 ┐
 // │ 7 │
 // └ 6 ┘
-
 ```
 
 ## Boolean Operations
@@ -744,7 +908,6 @@ print(targetMatrix.notIn([matrix2, matrix3])); // Output: true
 print(targetMatrix.notIn([matrix1, matrix2])); // Output: false
 
 print(targetMatrix.isSubMatrix(matrix3)); // Output: true
-
 ```
 
 Check Equality of Matrix
@@ -773,7 +936,6 @@ print(result);
 // ┌ false  true  true true ┐
 // │  true  true  true true │
 // └ false false false true 
-
 ```
 
 ## Sorting Matrix
@@ -848,7 +1010,6 @@ print(matrix);
 // ┌ 3 4 ┐
 // └ 1 2 ┘
 
-
 // Swap columns
 matrix.swapColumns(0, 1);
 print(matrix);
@@ -856,11 +1017,6 @@ print(matrix);
 // Matrix: 2x2
 // ┌ 4 3 ┐
 // └ 2 1 ┘
-
-// Index (row,column) of an element in the matrix 
-var index = m.indexOf(3);
-print(index);
-// Output: [1, 0]
 
 // Get the leading diagonal of the matrix
 var m = Matrix([[1, 2], [3, 4]]);
@@ -875,16 +1031,6 @@ print(doubled);
 // Matrix: 2x2
 // ┌ 2 4 ┐
 // └ 6 8 ┘
-
-// // Iterate through elements in the matrix using foreach method
-var m = Matrix([[1, 2], [3, 4]]);
-m.forEach((x) => print(x));
-// Output:
-// 1
-// 2
-// 3
-// 4
-
 ```
 
 ## Testing
