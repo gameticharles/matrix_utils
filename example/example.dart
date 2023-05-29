@@ -451,7 +451,7 @@ void main() {
     [5],
     [6]
   ]);
-  //var result = A.gaussianElimination(b);
+
   var sol = mat1.linear.solve(bbb, method: LinearSystemMethod.leastSquares);
   print(sol);
 

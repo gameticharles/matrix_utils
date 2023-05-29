@@ -66,10 +66,7 @@ print(a);
 Create a matrix from a list of lists
 
 ```dart
-Matrix b = Matrix([
-  [1, 2],
-  [3, 4]
-]);
+Matrix b = Matrix([[1, 2], [3, 4]]);
 print(b);
 // Output:
 // Matrix: 2x2
@@ -222,16 +219,16 @@ Create a specific random matrix from the  matrix factory
 
 ```dart
 var randomMatrix = Matrix.factory
-    .create(MatrixType.general, 5, 4, min: 0, max: 3, isDouble: true);
-  print('\n${randomMatrix.round(3)}');
+  .create(MatrixType.general, 5, 4, min: 0, max: 3, isDouble: true);
+print('\n${randomMatrix.round(3)}');
 ```
 
 Create a specific type of matrix from a random seed with range
 
 ```dart
- randMat = Matrix.factory.create(MatrixType.general, 5, 4,
-      min: 0, max: 3, seed: 12, isDouble: true);
-  print('\n${randMat.round(3)}');
+randMat = Matrix.factory.create(MatrixType.general, 5, 4,
+    min: 0, max: 3, seed: 12, isDouble: true);
+print('\n${randMat.round(3)}');
 
 // Output:
 // Matrix: 5x4
@@ -263,6 +260,46 @@ randomMatrix.matrixProperties().forEach((element) => print(' - $element'));
 //  - Vandermonde Matrix
 //  - NilpotentMatrix
 //  - Sparse Matrix
+```
+
+## Check Matrix Properties
+
+Easy much easier to query the properties of a matrix.
+
+```dart
+Matrix A = Matrix([
+    [4, 1, -1],
+    [1, 4, -1],
+    [-1, -1, 4]
+  ]);
+
+  print('\n\n$A\n');
+  print('l1Norm: ${A.l1Norm()}');
+  print('l2Norm: ${A.l2Norm()}');
+  print('Rank: ${A.rank()}');
+  print('Condition number: ${A.conditionNumber()}');
+  print('Decomposition Condition number: ${A.decomposition.conditionNumber()}');
+  A.matrixProperties().forEach((element) => print(' - $element'));
+
+  // Output:
+  // Matrix: 3x3
+  // ┌  4  1 -1 ┐
+  // │  1  4 -1 │
+  // └ -1 -1  4 ┘
+  //
+  // l1Norm: 6.0
+  // l2Norm: 7.3484692283495345
+  // Rank: 3
+  // Condition number: 3.6742346141747673
+  // Decomposition Condition number: 1.9999999999999998
+  //  - Square Matrix
+  //  - Full Rank Matrix
+  //  - Symmetric Matrix
+  //  - Non-Singular Matrix
+  //  - Hermitian Matrix
+  //  - Positive Definite Matrix
+  //  - Diagonally Dominant Matrix
+  //  - Strictly Diagonally Dominant Matrix
 ```
 
 ## Matrix Copy
@@ -378,46 +415,6 @@ To restore a serialized matrix one may use Matrix.fromBinary constructor:
 ```dart
 Matrix m1 = Matrix.fromBinary(bd1, jsonFormat: false); // Binary format
 Matrix m2 = Matrix.fromBinary(bd2, jsonFormat: true); // JSON format
-```
-
-## Check Matrix Properties
-
-Easy much easier to query the properties of a matrix.
-
-```dart
-Matrix A = Matrix([
-    [4, 1, -1],
-    [1, 4, -1],
-    [-1, -1, 4]
-  ]);
-
-  print('\n\n$A\n');
-  print('l1Norm: ${A.l1Norm()}');
-  print('l2Norm: ${A.l2Norm()}');
-  print('Rank: ${A.rank()}');
-  print('Condition number: ${A.conditionNumber()}');
-  print('Decomposition Condition number: ${A.decomposition.conditionNumber()}');
-  A.matrixProperties().forEach((element) => print(' - $element'));
-
-  // Output:
-  // Matrix: 3x3
-  // ┌  4  1 -1 ┐
-  // │  1  4 -1 │
-  // └ -1 -1  4 ┘
-  // 
-  // l1Norm: 6.0
-  // l2Norm: 7.3484692283495345
-  // Rank: 3
-  // Condition number: 3.6742346141747673
-  // Decomposition Condition number: 1.9999999999999998
-  //  - Square Matrix
-  //  - Full Rank Matrix
-  //  - Symmetric Matrix
-  //  - Non-Singular Matrix
-  //  - Hermitian Matrix
-  //  - Positive Definite Matrix
-  //  - Diagonally Dominant Matrix
-  //  - Strictly Diagonally Dominant Matrix
 ```
 
 ## Matrix Operations
@@ -796,39 +793,52 @@ Manipulate the matrices
 
 ```dart
 var l1 = Matrix([
-[1, 1, 1],
-[1, 1, 1],
-[1, 1, 1]
+  [1, 1, 1],
+  [1, 1, 1],
+  [1, 1, 1]
 ]);
 var l2 = Matrix([
-[0, 0, 0],
-[0, 0, 0],
-[0, 0, 0],
-[0, 0, 0],
+  [0, 0, 0],
+  [0, 0, 0],
+  [0, 0, 0],
+  [0, 0, 0],
 ]);
 var l3 = Matrix().concatenate([l1, l2]);
 print(l3);
+// Output:
+// Matrix: 7x3
+// ┌ 1 1 1 ┐
+// │ 1 1 1 │
+// │ 1 1 1 │
+// │ 0 0 0 │
+// │ 0 0 0 │
+// │ 0 0 0 │
+// └ 0 0 0 ┘
 ```
 
 2. concatenate on axis 1
 
 ```dart
 var a1 = Matrix([
-[1, 1, 1, 1],
-[1, 1, 1, 1],
-[1, 1, 1, 1]
+  [1, 1, 1, 1],
+  [1, 1, 1, 1],
+  [1, 1, 1, 1]
 ]);
 var a2 = Matrix([
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 ]);
 
 var a3 = Matrix().concatenate([a2, a1], axis: 1);
-print(a3);
 
 a3 = a2.concatenate([a1], axis: 1);
 print(a3);
+// Output:
+// Matrix: 3x14
+// ┌ 0 0 0 0 0 0 0 0 0 0 1 1 1 1 ┐
+// │ 0 0 0 0 0 0 0 0 0 0 1 1 1 1 │
+// └ 0 0 0 0 0 0 0 0 0 0 1 1 1 1 ┘
 ```
 
 Reshape the matrix
@@ -852,11 +862,12 @@ Matrix b = Matrix([[4], [5], [6]]);
 
 // Solve the linear system Ax = b
 Matrix x = a.linear.solve(b, method: LinearSystemMethod.gaussElimination);
-print(x);
+print(x.round(1));
 // Output:
-// 6.0
-// 15.0
-// -23.0
+// Matrix: 3x1
+// ┌   6.0 ┐
+// │  15.0 │
+// └ -23.0 ┘
 ```
 
 You can also use the the decompositions to solve a linear system of equations
@@ -935,7 +946,7 @@ print(result);
 // Matrix: 3x4
 // ┌ false  true  true true ┐
 // │  true  true  true true │
-// └ false false false true 
+// └ false false false true ┘
 ```
 
 ## Sorting Matrix
@@ -995,7 +1006,7 @@ print(xSortedColumn2Descending);
 // └ 0 1 1 1 ┘
 ```
 
-## Other Functions
+## Other Functions of matrices
 
 The Matrix class provides various other functions for matrix manipulation and analysis.
 
@@ -1032,6 +1043,97 @@ print(doubled);
 // ┌ 2 4 ┐
 // └ 6 8 ┘
 ```
+
+## Vectors, Complex Numbers, and ComplexVectors
+
+This library provides efficient and easy-to-use classes for representing and manipulating vectors, complex numbers, and complex vectors in Dart. This document serves as an introduction to these classes, featuring a variety of examples to demonstrate their usage.
+
+### Vectors
+
+Vectors are a fundamental concept in mathematics and physics. They represent quantities that have both magnitude and direction.
+
+This library allows you to create vectors, access and modify their elements, and perform vector operations such as addition, subtraction, and dot product.
+
+```dart
+// Creating a new vector
+Vector v = Vector(3);
+print(v);  // Output: [0, 0, 0]
+
+// Setting and getting elements
+v[0] = 1;
+v[1] = 2;
+v[2] = 3;
+print(v[0]);  // Output: 1
+print(v);  // Output: [1, 2, 3]
+
+// Performing vector operations
+Vector u = Vector.fromList([4, 5, 6]);
+Vector sum = v + u;
+Vector diff = v - u;
+double dotProduct = v.dot(u);
+print(sum);  // Output: [5, 7, 9]
+print(diff);  // Output: [-3, -3, -3]
+print(dotProduct);  // Output: 32
+
+// Norm and normalization
+double norm = v.norm();
+Vector normalized = v.normalize();
+print(norm);  // Output: 3.7416573867739413
+print(normalized);  // Output: [0.2672612419124244, 0.5345224838248488, 0.8017837257372732]
+```
+
+### Complex Numbers
+
+Complex numbers extend the concept of the one-dimensional number line to the two-dimensional complex plane by using the number i, where i^2 = -1.
+
+Complex numbers are crucial in many areas of mathematics and engineering.
+
+The Complex class in this library lets you create complex numbers, access their real and imaginary parts, and obtain their conjugate.
+
+```dart
+// Creating a new complex number
+Complex z = Complex(3, 2);
+print(z);  // Output: 3 + 2i
+
+// Accessing the real and imaginary parts
+print(z.real);  // Output: 3
+print(z.imaginary);  // Output: 2
+
+// Conjugation
+Complex conjugate = z.conjugate();
+print(conjugate);  // Output: 3 - 2i
+
+```
+
+### Complex vectors
+
+ComplexVectors are a type of vector where the elements are complex numbers. They are especially important in quantum mechanics and signal processing.
+
+The ComplexVector class provides ways to create complex vectors, perform operations on them such as addition, and calculate their norm and normalized form.
+
+```dart
+// Creating a new complex vector
+ComplexVector cv = ComplexVector(2);
+cv[0] = Complex(1, 2);
+cv[1] = Complex(3, 4);
+print(cv);  // Output: [(1 + 2i), (3 + 4i)]
+
+// Accessing elements
+print(cv[0]);  // Output: 1 + 2i
+
+// Vector operations (example: addition)
+ComplexVector cv2 = ComplexVector.fromList([Complex(5, 6), Complex(7, 8)]);
+ComplexVector sum = cv + cv2;
+print(sum);  // Output: [(6 + 8i), (10 + 12i)]
+
+// Norm and normalization
+double norm = cv.norm();
+ComplexVector normalized = cv.normalize();
+print(norm);  // Output: 5.477225575051661
+print(normalized);  // Output: [(0.18257418583505536 + 0.3651483716701107i), (0.5477225575051661 + 0.7302967433402214i)]
+```
+
+The above sections provide a basic introduction to vectors, complex numbers, and complex vectors. The full API of these classes offers even more possibilities, including conversions to other forms of vectors, multiplication by scalars, and more. These classes aim to make mathematical programming in Dart efficient, flexible, and enjoyable.
 
 ## Testing
 

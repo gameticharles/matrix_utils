@@ -1,3 +1,6 @@
+## 0.1.1
+* Fixed README
+
 ## 0.1.0
 * Improved indexOf() and random functionalities
 * Fixed README 
