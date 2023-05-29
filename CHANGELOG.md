@@ -1,6 +1,10 @@
 ## 0.0.9
 
+* Started benchmarking
+* Implemented matrix form rows and columns
+* Implemented Vectors, Complex nyumbers and Complex Vectors
 * Improved copyFrom() to retain or resize matrices
+* Improved matrix concatenate
 * Fixed README 
 * Corrected anonotations
 * Fixed bugs

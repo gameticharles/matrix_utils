@@ -8,7 +8,7 @@ class MatrixFromRowsBenchmark extends BenchmarkBase {
   MatrixFromRowsBenchmark() : super('Matrix initialization (fromRows)');
 
   final _source = List<Row>.filled(
-      numOfColumns, Row.random(numOfRows, min: -10000, max: 10000, seed: 12));
+      numOfRows, Row.random(numOfColumns, min: -10000, max: 10000, seed: 12));
 
   static void main() {
     MatrixFromRowsBenchmark().report();

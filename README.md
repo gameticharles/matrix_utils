@@ -24,7 +24,7 @@ A Dart library that provides an easy-to-use Matrix class for performing various 
 - Import and export matrices to and from other formats (e.g., CSV, JSON, binary)
 - Matrix operations: Implement common matrix operations such as addition, subtraction, multiplication (element-wise and matrix-matrix), and division (element-wise) etc.
 - Matrix transformation methods: Add methods for matrix transformations, such as transpose, inverse, pseudoInverse, and rank etc.
-- Matrix manipulation (concatenate, sort, removeRow, removeRows,removeCol,removeCols, reshape,Swapping rows and columns etc. )
+- Matrix manipulation (concatenate, sort, removeRow, removeRows, removeCol, removeCols, reshape, swapping rows and columns etc. )
 - Statistical methods: Methods for calculating statistical properties of the matrix, such as min, max, sum, mean, median, mode, skewness, standard deviation, and variance.
 - Element-wise operations: Methods for performing element-wise operations on the matrix, such as applying a function to each element or filtering elements based on a condition.
 - Solving linear systems of equations
@@ -51,8 +51,9 @@ import 'package:matrix_utils/matrix_utils.dart';
 
 You can create a Matrix object in different ways:
 
+Create a 2x2 Matrix from string
+
 ```dart
-// Create a 2x2 Matrix from string 
 Matrix a = Matrix("1 2 3; 4 5 6; 7 8 9");
 print(a);
 // Output:
@@ -60,8 +61,11 @@ print(a);
 // ┌ 1 2 3 ┐
 // │ 4 5 6 │
 // └ 7 8 9 ┘
+```
 
-// Create a matrix from a list of lists
+Create a matrix from a list of lists
+
+```dart
 Matrix b = Matrix([
   [1, 2],
   [3, 4]
@@ -71,8 +75,11 @@ print(b);
 // Matrix: 2x2
 // ┌ 1 2 ┐
 // └ 3 4 ┘
+```
 
-// Create a matrix from a list of diagonal objects
+Create a matrix from a list of diagonal objects
+
+```dart
 Matrix d = Matrix.fromDiagonal([1, 2, 3]);
 print(d);
 // Output:
@@ -80,71 +87,11 @@ print(d);
 // ┌ 1 0 0 ┐
 // │ 0 2 0 │
 // └ 0 0 3 ┘
+```
 
-// Create a from a list of lists
-Matrix c = [[1, '2', true],[3, '4', false]].toMatrix()
-print(c);
-// Output:
-// Matrix: 2x3
-// ┌ 1 2  true ┐
-// └ 3 4 false ┘
+Create a matrix from a flattened array
 
-// Create a 2x2 matrix with all zeros
-Matrix zeros = Matrix.zeros(2, 2);
-print(zeros)
-// Output:
-// Matrix: 2x2
-// ┌ 0 0 ┐
-// └ 0 0 ┘
-
-// Create a 2x3 matrix with all ones
-Matrix ones = Matrix.ones(2, 3);
-print(ones)
-// Output:
-// Matrix: 2x3
-// ┌ 1 1 1 ┐
-// └ 1 1 1 ┘
-
-// Create a 2x2 identity matrix
-Matrix identity = Matrix.eye(2);
-print(identity)
-// Output:
-// Matrix: 2x2
-// ┌ 1 0 ┐
-// └ 0 1 ┘
-
-// Create a matrix that is filled with same object
-Matrix e = Matrix.fill(2, 3, 7);
-print(e);
-// Output:
-// Matrix: 2x3
-// ┌ 7 7 7 ┐
-// └ 7 7 7 ┘
-
-// Create a matrix from linspace and create a diagonal matrix
-Matrix f = Matrix.linspace(0, 10, 3);
-print(f);
-// Output:
-// Matrix: 1x3
-// [ 0.0 5.0 10.0 ]
-
-// Create from a range or arrange at a step
-var m = Matrix.range(6, start: 1, step: 2, isColumn: false);
-print(m);
-// Output:
-// Matrix: 1x3
-// [ 1  3  5 ]
-
-// Create a matrix from a random seed with range 
-var randomMatrix = Matrix.random(3, 4, min: 1, max: 10, isInt: true);
-print(randomMatrix);
-// Output:
-// Matrix: 3x4
-// ┌ 3  5  9  2 ┐
-// │ 1  7  6  8 │
-// └ 4  9  1  3 ┘
-
-//Create a matrix from a flattened array
+```dart
 final source = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
 final ma = Matrix.fromFlattenedList(source, 2, 6);
 print(ma);
@@ -152,19 +99,139 @@ print(ma);
 // Matrix: 2x6
 // ┌ 1 2 3 4 5 6 ┐
 // └ 7 8 9 0 0 0 ┘
+```
 
-// Create a matrix from the  matrix factory 
-randomMatrix = Matrix.factory
+Create a matrix from list of columns
+
+```dart
+var col1 = Column([1, 2, 3]);
+var col2 = Column([4, 5, 6]);
+var col3 = Column([7, 8, 9]);
+var matrix = Matrix.fromColumns([col1, col2, col3]);
+print(matrix);
+// Output:
+// Matrix: 3x3
+// ┌ 1 4 7 ┐
+// | 2 5 8 |
+// └ 3 6 9 ┘
+```
+
+Create a matrix from list of rows
+
+```dart
+var row1 = Row([1, 2, 3]);
+var row2 = Row([4, 5, 6]);
+var row3 = Row([7, 8, 9]);
+var matrix = Matrix.fromRows([row1, row2, row3]);
+print(matrix);
+// Output:
+// Matrix: 3x3
+// ┌ 1 2 3 ┐
+// | 4 5 6 |
+// └ 7 8 9 ┘
+
+```
+
+Create a from a list of lists
+
+```dart
+Matrix c = [[1, '2', true],[3, '4', false]].toMatrix()
+print(c);
+// Output:
+// Matrix: 2x3
+// ┌ 1 2  true ┐
+// └ 3 4 false ┘
+```
+
+Create a 2x2 matrix with all zeros
+
+```dart
+Matrix zeros = Matrix.zeros(2, 2);
+print(zeros)
+// Output:
+// Matrix: 2x2
+// ┌ 0 0 ┐
+// └ 0 0 ┘
+```
+
+Create a 2x3 matrix with all ones
+
+```dart
+Matrix ones = Matrix.ones(2, 3);
+print(ones)
+// Output:
+// Matrix: 2x3
+// ┌ 1 1 1 ┐
+// └ 1 1 1 ┘
+```
+
+Create a 2x2 identity matrix
+
+```dart
+Matrix identity = Matrix.eye(2);
+print(identity)
+// Output:
+// Matrix: 2x2
+// ┌ 1 0 ┐
+// └ 0 1 ┘
+```
+
+Create a matrix that is filled with same object
+
+```dart
+Matrix e = Matrix.fill(2, 3, 7);
+print(e);
+// Output:
+// Matrix: 2x3
+// ┌ 7 7 7 ┐
+// └ 7 7 7 ┘
+```
+
+Create a matrix from linspace and create a diagonal matrix
+
+```dart
+Matrix f = Matrix.linspace(0, 10, 3);
+print(f);
+// Output:
+// Matrix: 1x3
+// [ 0.0 5.0 10.0 ]
+```
+
+Create from a range or arrange at a step
+
+```dart
+var m = Matrix.range(6, start: 1, step: 2, isColumn: false);
+print(m);
+// Output:
+// Matrix: 1x3
+// [ 1  3  5 ]
+```
+
+Create a random matrix within arange of values
+
+```dart
+var randomMatrix = Matrix.random(3, 4, min: 1, max: 10, isDouble: true);
+print(randomMatrix);
+// Output:
+// Matrix: 3x4
+// ┌ 3  5  9  2 ┐
+// │ 1  7  6  8 │
+// └ 4  9  1  3 ┘
+```
+
+Create a matrix from the  matrix factory 
+
+```dart
+var randomMatrix = Matrix.factory
     .create(MatrixType.general, 5, 4, min: 0, max: 3, isDouble: true);
   print('\n${randomMatrix.round(3)}');
 
-// Create a specific type of matrix from a random seed with range 
+Create a specific type of matrix from a random seed with range 
 randomMatrix = Matrix.factory
     .create(MatrixType.sparse, 5, 5, min: 0, max: 2, isDouble: true);
 
-  print('\nProperties of the Matrix:\n${randomMatrix.round(3)}\n');
-  randomMatrix.matrixProperties().forEach((element) => print(' - $element'));
-
+print('\nProperties of the Matrix:\n${randomMatrix.round(3)}\n');
+randomMatrix.matrixProperties().forEach((element) => print(' - $element'));
 ```
 
 ## Matrix Interoperability
@@ -357,7 +424,6 @@ print(elementDivision);
 // Matrix: 2x2
 // ┌                 0.2 0.3333333333333333 ┐
 // └ 0.42857142857142855                0.5 ┘
-
 
 // Matrix exponent
 Matrix expo = b ^ 2;

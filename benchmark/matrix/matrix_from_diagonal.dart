@@ -6,7 +6,7 @@ const size = 10000;
 class MatrixDiagonalBenchmark extends BenchmarkBase {
   MatrixDiagonalBenchmark() : super('Matrix initialization (diagonal)');
 
-  late List<dynamic> _source;
+  late final List<dynamic> _source = Vector.random(size, seed: 12).toList();
 
   static void main() {
     MatrixDiagonalBenchmark().report();
@@ -15,11 +15,6 @@ class MatrixDiagonalBenchmark extends BenchmarkBase {
   @override
   void run() {
     Matrix.fromDiagonal(_source);
-  }
-
-  @override
-  void setup() {
-    _source = Vector.random(size, seed: 12).toList();
   }
 }
 

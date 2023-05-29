@@ -89,14 +89,13 @@ class Matrix extends IterableMixin<List<dynamic>> {
       // _data = input;
       // }
 
-      _data = input;
-
-      int length = _data[0].length;
-      for (var row in _data) {
+      int length = input[0].length;
+      for (var row in input) {
         if (row.length != length) {
           throw Exception('Rows have different lengths');
         }
       }
+      _data = input;
     } else {
       throw Exception('Invalid input type');
     }
@@ -217,26 +216,19 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// Example:
   /// ```dart
   /// final source = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
-  /// final matrix = Matrix.fromFlattenedList(source, 2, 5);
+  /// final matrix = Matrix.fromFlattenedList(source, 3, 5);
   /// print(matrix);
   /// // Output:
   /// // 1 2 3 4 5
   /// // 6 7 8 9 0
+  /// // 0 0 0 0 0
   /// ```
   factory Matrix.fromFlattenedList(List<dynamic> source, int rows, int cols) {
-    List<List<dynamic>> data = [];
     int sourceIndex = 0;
-    for (int i = 0; i < rows; i++) {
-      List<dynamic> row = [];
-      for (int j = 0; j < cols; j++) {
-        if (sourceIndex < source.length) {
-          row.add(source[sourceIndex++]);
-        } else {
-          row.add(0);
-        }
-      }
-      data.add(row);
-    }
+    List<List<dynamic>> data = List.generate(
+        rows,
+        (_) => List.generate(cols,
+            (_) => sourceIndex < source.length ? source[sourceIndex++] : 0));
 
     return Matrix(data);
   }
@@ -260,20 +252,28 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// 2 5 8
   /// 3 6 9
   /// ```
-  factory Matrix.fromColumns(List<Column> columns) {
+  factory Matrix.fromColumns(List<Column> columns, {bool resize = false}) {
     final numRows = columns[0].rowCount;
-    if (columns.any((col) => col.rowCount != numRows)) {
-      throw Exception('All columns must have the same number of rows');
-    }
-
-    List<List<dynamic>> data = List.generate(numRows, (i) => []);
-    for (Column column in columns) {
-      for (int i = 0; i < numRows; i++) {
-        data[i].add(column.getValueAt(i));
+    for (Column col in columns) {
+      if (col.rowCount != numRows) {
+        throw Exception('All columns must have the same number of rows');
       }
     }
 
+    List<List<dynamic>> data =
+        List.generate(numRows, (i) => List.filled(columns.length, 0));
+    for (int j = 0; j < columns.length; j++) {
+      for (int i = 0; i < numRows; i++) {
+        data[i][j] = columns[j].getValueAt(i);
+      }
+    }
     return Matrix(data);
+
+    // List<List<dynamic>> data =
+    //     columns.map((col) => col.columns.first.flatten).toList();
+    // return Matrix(data).transpose();
+
+    //return Matrix.concatenate(columns, axis: 1, resize: resize);
   }
 
   /// Constructs a Matrix from a list of Row vectors.
@@ -295,15 +295,16 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// 4 5 6
   /// 7 8 9
   /// ```
-  factory Matrix.fromRows(List<Row> rows) {
+  factory Matrix.fromRows(List<Row> rows, {bool resize = false}) {
     final numCols = rows[0].columnCount;
-    if (rows.any((row) => row.columnCount != numCols)) {
-      throw Exception('All rows must have the same number of columns');
+    for (Row row in rows) {
+      if (row.columnCount != numCols) {
+        throw Exception('All rows must have the same number of columns');
+      }
     }
 
-    List<List<dynamic>> data = rows.map((row) => row.asList).toList();
-
-    return Matrix(data);
+    return Matrix(rows.map((row) => row.rows.first).toList());
+    //return Matrix.concatenate(rows, axis: 0, resize: resize);
   }
 
   /// Concatenates a list of matrices along the specified axis.
@@ -342,64 +343,55 @@ class Matrix extends IterableMixin<List<dynamic>> {
       throw Exception("Invalid axis: Axis must be either 0 or 1");
     }
 
-    Matrix result = matrices[0];
+    Matrix first = matrices[0];
+    int commonSize = (axis == 0 ? first.columnCount : first.rowCount);
 
-    for (int i = 1; i < matrices.length; i++) {
-      Matrix other = matrices[i];
-
-      if (!resize &&
-          ((axis == 0 && result.columnCount != other.columnCount) ||
-              (axis == 1 && result.rowCount != other.rowCount))) {
-        throw Exception("Incompatible matrices for concatenation");
-      }
-
-      int maxRowCount = axis == 1
-          ? math.max(result.rowCount, other.rowCount)
-          : result.rowCount;
-      int maxColumnCount = axis == 0
-          ? math.max(result.columnCount, other.columnCount)
-          : result.columnCount;
-
-      List<List<dynamic>> resizedDataA = List.generate(
-          maxRowCount, (i) => List<dynamic>.filled(maxColumnCount, 0));
-      List<List<dynamic>> resizedDataB = List.generate(
-          maxRowCount, (i) => List<dynamic>.filled(maxColumnCount, 0));
-
-      if (resize) {
-        for (int j = 0; j < result.rowCount; j++) {
-          for (int k = 0; k < result.columnCount; k++) {
-            resizedDataA[j][k] = result[j][k];
-          }
-        }
-
-        for (int j = 0; j < other.rowCount; j++) {
-          for (int k = 0; k < other.columnCount; k++) {
-            resizedDataB[j][k] = other[j][k];
-          }
-        }
-      } else {
-        resizedDataA = result.toList();
-        resizedDataB = other.toList();
-      }
-
-      List<List<dynamic>> newData = [];
-
-      if (axis == 0) {
-        newData.addAll(resizedDataA);
-        newData.addAll(resizedDataB);
-      } else {
-        for (int j = 0; j < maxRowCount; j++) {
-          List<dynamic> newRow = [];
-          newRow.addAll(resizedDataA[j]);
-          newRow.addAll(resizedDataB[j]);
-          newData.add(newRow);
+    if (!resize) {
+      for (var matrix in matrices) {
+        if ((axis == 0 && matrix.columnCount != commonSize) ||
+            (axis == 1 && matrix.rowCount != commonSize)) {
+          throw Exception("Incompatible matrices for concatenation");
         }
       }
-
-      result = Matrix(newData);
     }
 
-    return result;
+    if (axis == 0) {
+      List<List<dynamic>> data = [];
+      for (Matrix matrix in matrices) {
+        if (resize) {
+          // Copy and resize rows
+          for (List<dynamic> row in matrix) {
+            data.add(row + List<dynamic>.filled(commonSize - row.length, 0));
+          }
+        } else {
+          // Directly concatenate original rows
+          data.addAll(matrix);
+        }
+      }
+      return Matrix(data);
+    } else {
+      // axis == 1
+      int maxRows = matrices.map((matrix) => matrix.rowCount).reduce(math.max);
+      List<List<dynamic>> data = List.generate(maxRows, (_) => []);
+      for (Matrix matrix in matrices) {
+        for (int i = 0; i < maxRows; i++) {
+          if (i < matrix.rowCount) {
+            if (resize) {
+              // Copy and resize row
+              data[i] += matrix[i] +
+                  List<dynamic>.filled(commonSize - matrix[i].length, 0);
+            } else {
+              // Directly concatenate original row
+              data[i] += matrix[i];
+            }
+          } else {
+            // Add padding row
+            data[i] += List<dynamic>.filled(commonSize, 0);
+          }
+        }
+      }
+      return Matrix(data);
+    }
   }
 
   /// Creates a matrix with random elements of type double or int.
@@ -408,12 +400,12 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// [columnCount]: The number of columns in the matrix.
   /// [min]: The minimum value for the random elements (inclusive). Default is 0.
   /// [max]: The maximum value for the random elements (exclusive). Default is 1.
-  /// [isInt]: If true, generates random integers. If false, generates random doubles. Default is false.
+  /// [isDouble]: If true, generates random doubles. If false, generates random integers. Default is true.
   /// [random]: A `Random` object to generate random numbers. If not provided, a new `Random` object will be created.
   ///
   /// Example:
   /// ```dart
-  /// var randomMatrix = Matrix.random(3, 4, min: 1, max: 10, double: false);
+  /// var randomMatrix = Matrix.random(3, 4, min: 1, max: 10, isDouble: false);
   /// print(randomMatrix);
   /// // Output:
   /// // Matrix: 3x4
@@ -778,6 +770,22 @@ class Matrix extends IterableMixin<List<dynamic>> {
     return result;
   }
 
+  // @override  //performance optimization
+  // int get hashCode {
+  //   const int numberOfElements = 10;
+  //   int rowStride = rowCount < numberOfElements ? 1 : rowCount ~/ numberOfElements;
+  //   int colStride = columnCount < numberOfElements ? 1 : columnCount ~/ numberOfElements;
+  //   int result = 17;
+  //   for (int i = 0; i < rowCount; i += rowStride) {
+  //     for (int j = 0; j < columnCount; j += colStride) {
+  //       result = result * 31 + this[i, j].hashCode;
+  //     }
+  //   }
+  //   result = result * 31 + rowCount.hashCode;   // Include rowCount in hash computation
+  //   result = result * 31 + columnCount.hashCode; // Include columnCount in hash computation
+  //   return result;
+  // }
+
   /// Returns a string representation of the matrix with its shape and elements separated by the specified separator.
   ///
   /// [separator]: A string used to separate matrix elements in a row. Default is a space character (' ').
@@ -787,7 +795,7 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// Example:
   /// ```dart
   /// var m = Matrix([[1, 2], [3, 4]]);
-  /// print(m.toString(separator: ' ', alignment: MatrixAlign.right));
+  /// print(m.toString(separator: ' ', isPrettyMatrix : true, alignment: MatrixAlign.right));
   /// // Output:
   /// // Matrix: 2x2
   /// // ┌ 1 2 ┐

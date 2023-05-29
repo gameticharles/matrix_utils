@@ -90,9 +90,16 @@ class Column extends Matrix {
       bool isDouble = true,
       math.Random? random,
       int? seed}) {
-    Matrix randomMatrix = Matrix.random(length, 1,
-        min: min, max: max, isDouble: isDouble, random: random, seed: seed);
-    return Column(randomMatrix._data);
+    if (seed != null) {
+      random = math.Random(seed);
+    }
+    random ??= math.Random();
+    return Column(List.generate(
+      length,
+      (_) => (isDouble
+          ? random!.nextDouble() * (max - min) + min
+          : random!.nextInt(max.toInt() - min.toInt()) + min.toInt()),
+    ));
   }
 
   /// Adds a new value at the end of the column.

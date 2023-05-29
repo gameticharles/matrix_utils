@@ -32,10 +32,11 @@ part 'src/models/iterators/matrix_iterator.dart';
 part 'src/models/iterators/element_iterator.dart';
 
 part 'src/models/vector/vector.dart';
+part 'src/models/vector/complex_vectors.dart';
 part 'src/models/vector/matrix_vector.dart';
 part 'src/models/vector/vector_matrix.dart';
 
-part 'src/extension/extension.dart';
+part 'src/extension/list_extension.dart';
 part 'src/extension/manipulate.dart';
 part 'src/extension/stats.dart';
 part 'src/extension/operations.dart';

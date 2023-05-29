@@ -167,30 +167,30 @@ extension MatrixOperationExtension on Matrix {
                 .ceil())
         .toInt();
 
-    Matrix A1 = Matrix.zeros(newSize, newSize, isDouble: true);
-    Matrix B1 = Matrix.zeros(newSize, newSize, isDouble: true);
+    Matrix a1 = Matrix.zeros(newSize, newSize, isDouble: true);
+    Matrix b1 = Matrix.zeros(newSize, newSize, isDouble: true);
 
     for (int i = 0; i < A.rowCount; i++) {
       for (int j = 0; j < A.columnCount; j++) {
-        A1[i][j] = A[i][j];
+        a1[i][j] = A[i][j];
       }
     }
     for (int i = 0; i < B.rowCount; i++) {
       for (int j = 0; j < B.columnCount; j++) {
-        B1[i][j] = B[i][j];
+        b1[i][j] = B[i][j];
       }
     }
 
-    Matrix C = A1._strassenRecursive(B1);
+    Matrix C = a1._strassenRecursive(b1);
 
-    Matrix C1 = Matrix.zeros(A.rowCount, B.columnCount, isDouble: true);
-    for (int i = 0; i < C1.rowCount; i++) {
-      for (int j = 0; j < C1.columnCount; j++) {
-        C1[i][j] = C[i][j];
+    Matrix c1 = Matrix.zeros(A.rowCount, B.columnCount, isDouble: true);
+    for (int i = 0; i < c1.rowCount; i++) {
+      for (int j = 0; j < c1.columnCount; j++) {
+        c1[i][j] = C[i][j];
       }
     }
 
-    return C1;
+    return c1;
   }
 
   // Helper function to help multiply large matrices
@@ -223,37 +223,37 @@ extension MatrixOperationExtension on Matrix {
 
     // Divide matrices into quarters
     // Divide matrices into quarters
-    Matrix A11 = A.slice(0, newSize, 0, newSize);
-    Matrix A12 = A.slice(0, newSize, newSize, size);
-    Matrix A21 = A.slice(newSize, size, 0, newSize);
-    Matrix A22 = A.slice(newSize, size, newSize, size);
+    Matrix a11 = A.slice(0, newSize, 0, newSize);
+    Matrix a12 = A.slice(0, newSize, newSize, size);
+    Matrix a21 = A.slice(newSize, size, 0, newSize);
+    Matrix a22 = A.slice(newSize, size, newSize, size);
 
-    Matrix B11 = B.slice(0, newSize, 0, newSize);
-    Matrix B12 = B.slice(0, newSize, newSize, size);
-    Matrix B21 = B.slice(newSize, size, 0, newSize);
-    Matrix B22 = B.slice(newSize, size, newSize, size);
+    Matrix b11 = B.slice(0, newSize, 0, newSize);
+    Matrix b12 = B.slice(0, newSize, newSize, size);
+    Matrix b21 = B.slice(newSize, size, 0, newSize);
+    Matrix b22 = B.slice(newSize, size, newSize, size);
 
 // Step 2: Calculating the seven products
-    Matrix P1 = (A11) * (B12 - B22);
-    Matrix P2 = (A11 + A12) * (B22);
-    Matrix P3 = (A21 + A22) * (B11);
-    Matrix P4 = (A22) * (B21 - B11);
-    Matrix P5 = (A11 + A22) * (B11 + B22);
-    Matrix P6 = (A12 - A22) * (B21 + B22);
-    Matrix P7 = (A11 - A21) * (B11 + B12);
+    Matrix p1 = (a11) * (b12 - b22);
+    Matrix p2 = (a11 + a12) * (b22);
+    Matrix p3 = (a21 + a22) * (b11);
+    Matrix p4 = (a22) * (b21 - b11);
+    Matrix p5 = (a11 + a22) * (b11 + b22);
+    Matrix p6 = (a12 - a22) * (b21 + b22);
+    Matrix p7 = (a11 - a21) * (b11 + b12);
 
 // Step 3: Calculating the four quarters of the resulting matrix
-    Matrix C11 = P5 + P4 - P2 + P6;
-    Matrix C12 = P1 + P2;
-    Matrix C21 = P3 + P4;
-    Matrix C22 = P1 + P5 - P3 - P7;
+    Matrix c11 = p5 + p4 - p2 + p6;
+    Matrix c12 = p1 + p2;
+    Matrix c21 = p3 + p4;
+    Matrix c22 = p1 + p5 - p3 - p7;
 
 // Step 4: Combining the quarters into the resulting matrix
     Matrix C = Matrix.zeros(size, size, isDouble: true);
-    C.setSubMatrix(0, 0, C11);
-    C.setSubMatrix(0, newSize, C12);
-    C.setSubMatrix(newSize, 0, C21);
-    C.setSubMatrix(newSize, newSize, C22);
+    C.setSubMatrix(0, 0, c11);
+    C.setSubMatrix(0, newSize, c12);
+    C.setSubMatrix(newSize, 0, c21);
+    C.setSubMatrix(newSize, newSize, c22);
 
     return C;
   }

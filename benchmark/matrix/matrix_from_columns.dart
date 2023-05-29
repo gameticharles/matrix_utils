@@ -7,7 +7,8 @@ const numOfColumns = 1000;
 class MatrixFromColumnsBenchmark extends BenchmarkBase {
   MatrixFromColumnsBenchmark() : super('Matrix initialization (fromColumns)');
 
-  late List<Column> _source;
+  final _source = List.filled(numOfColumns,
+      Column.random(numOfRows, min: -10000, max: 10000, seed: 12));
 
   static void main() {
     MatrixFromColumnsBenchmark().report();
@@ -16,12 +17,6 @@ class MatrixFromColumnsBenchmark extends BenchmarkBase {
   @override
   void run() {
     Matrix.fromColumns(_source);
-  }
-
-  @override
-  void setup() {
-    _source =
-        List<Column>.filled(numOfColumns, Column.random(numOfRows, seed: 12));
   }
 }
 

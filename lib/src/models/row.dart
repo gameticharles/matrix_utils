@@ -87,9 +87,16 @@ class Row extends Matrix {
       bool isDouble = true,
       math.Random? random,
       int? seed}) {
-    Matrix randomMatrix = Matrix.random(1, length,
-        min: min, max: max, isDouble: isDouble, random: random, seed: seed);
-    return Row(randomMatrix._data);
+    if (seed != null) {
+      random = math.Random(seed);
+    }
+    random ??= math.Random();
+    return Row(List.generate(
+      length,
+      (_) => (isDouble
+          ? random!.nextDouble() * (max - min) + min
+          : random!.nextInt(max.toInt() - min.toInt()) + min.toInt()),
+    ));
   }
 
   /// Adds a new value at the end of the row.

@@ -36,6 +36,32 @@ class Complex {
     return Complex(real, -imaginary);
   }
 
+  Complex operator +(Complex other) {
+    return Complex(real + other.real, imaginary + other.imaginary);
+  }
+
+  Complex operator -(Complex other) {
+    return Complex(real - other.real, imaginary - other.imaginary);
+  }
+
+  Complex operator *(Complex other) {
+    return Complex(real * other.real - imaginary * other.imaginary,
+        real * other.imaginary + imaginary * other.real);
+  }
+
+  Complex operator /(Complex other) {
+    num denominator =
+        other.real * other.real + other.imaginary * other.imaginary;
+    if (denominator == 0) {
+      throw Exception("Cannot divide by zero.");
+    }
+    num newReal =
+        (real * other.real + imaginary * other.imaginary) / denominator;
+    num newImaginary =
+        (imaginary * other.real - real * other.imaginary) / denominator;
+    return Complex(newReal, newImaginary);
+  }
+
   /// Returns the string representation of the complex number.
   ///
   /// The string representation is in the form "a + bi" or "a - bi",

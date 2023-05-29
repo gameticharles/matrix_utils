@@ -14,6 +14,19 @@ void main() {
 
   var eMat = Matrix("1 2 3 4; 2 5 6 7; 3 6 8 9; 4 7 9 10");
 
+  printLine('Test Complex Numbers');
+  var z1 = Complex(3, 2);
+  var z2 = Complex(1, -1);
+  var sum = z1 + z2;
+  var difference = z1 - z2;
+  var product = z1 * z2;
+  var quotient = z1 / z2;
+
+  print(sum);
+  print(difference);
+  print(product);
+  print(quotient);
+
   printLine('Broadcast and Replicate Matrix');
   var newMats = mat.broadcast(Matrix("1;2;3"));
   for (var newMat in newMats) {
@@ -300,11 +313,11 @@ void main() {
   print(ones);
 
   print('Sum');
-  var sum = Matrix([
+  var sum1 = Matrix([
     [2, 2],
     [2, 2]
   ]);
-  print(sum.sum);
+  print(sum1.sum);
 
   // reshape
   var array = [
