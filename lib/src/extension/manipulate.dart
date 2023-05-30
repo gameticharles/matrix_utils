@@ -723,7 +723,11 @@ extension MatrixManipulationExtension on Matrix {
             ? List.generate(rowEnd - rowStart + 1, (i) => rowStart + i)
             : (rowRange.isNotEmpty
                 ? _Utils.parseRange(rowRange, rowCount)
-                : List.generate(rowCount, (i) => i)));
+                : (rowStart != null
+                    ? List.generate(rowCount - rowStart, (i) => rowStart + i)
+                    : (rowEnd != null
+                        ? List.generate(rowEnd + 1, (i) => i)
+                        : List.generate(rowCount, (i) => i)))));
 
     // If no column indices are provided, default to all columns
     // If colStart or colEnd is provided, use these to create the list
@@ -732,7 +736,11 @@ extension MatrixManipulationExtension on Matrix {
             ? List.generate(colEnd - colStart + 1, (i) => colStart + i)
             : (colRange.isNotEmpty
                 ? _Utils.parseRange(colRange, columnCount)
-                : List.generate(columnCount, (i) => i)));
+                : (colStart != null
+                    ? List.generate(columnCount - colStart, (i) => colStart + i)
+                    : (colEnd != null
+                        ? List.generate(colEnd + 1, (i) => i)
+                        : List.generate(columnCount, (i) => i)))));
 
     if (rowIndices_.any((i) => i < 0 || i >= rowCount)) {
       throw Exception('Row indices are out of range');
@@ -742,15 +750,18 @@ extension MatrixManipulationExtension on Matrix {
       throw Exception('Column indices are out of range');
     }
 
-    List<List<dynamic>> newData = [];
+    // List<List<dynamic>> newData = [];
 
-    for (int i = 0; i < rowIndices_.length; i++) {
-      List<dynamic> row = [];
-      for (int j = 0; j < colIndices_.length; j++) {
-        row.add(_data[rowIndices_[i]][colIndices_[j]]);
-      }
-      newData.add(row);
-    }
+    // for (int i = 0; i < rowIndices_.length; i++) {
+    //   List<dynamic> row = [];
+    //   for (int j = 0; j < colIndices_.length; j++) {
+    //     row.add(_data[rowIndices_[i]][colIndices_[j]]);
+    //   }
+    //   newData.add(row);
+    // }
+    List<List<dynamic>> newData = rowIndices_.map((rowIndex) {
+      return colIndices_.map((colIndex) => _data[rowIndex][colIndex]).toList();
+    }).toList();
 
     return Matrix(newData);
   }

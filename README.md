@@ -1081,6 +1081,22 @@ double norm = v.norm();
 Vector normalized = v.normalize();
 print(norm);  // Output: 3.7416573867739413
 print(normalized);  // Output: [0.2672612419124244, 0.5345224838248488, 0.8017837257372732]
+
+// Extraction
+var u1 = Vector.fromList([5, 0, 2, 4]);
+var v1 = u1.getVector(['x', 'x', 'y']);
+print(v1); // Output: [5.0, 5.0, 0.0)]
+print(v1.runtimeType); // Vector3
+
+u1 = Vector.fromList([5, 0, 2]);
+v1 = u1.subVector(range: '1:2');
+print(v1); // Output: [5.0, 5.0, 0.0, 2.0]
+print(v1.runtimeType); // Vector4
+
+var v = Vector.fromList([1, 2, 3, 4, 5]);
+var subVector = v.subVector(indices: [0, 2, 4, 1, 1]);
+print(subVector);  // Output: [1.0, 3.0, 5.0, 2.0, 2.0]
+print(subVector.runtimeType); // Vector
 ```
 
 ### Complex Numbers

@@ -1,3 +1,10 @@
+## 0.1.4
+* Spercial matrices and vectors their functionalities
+* Fixed spellings in matrix structure properties
+* Added functions partioning of vectors subVector() and getVector()
+* Improved subMatrix() function
+* Fixed README
+
 ## 0.1.2
 * Fixed spellings in matrix structure properties
 * Added Vectors, Complex Numbers, and Complex Vectors to README

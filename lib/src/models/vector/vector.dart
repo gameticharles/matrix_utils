@@ -14,7 +14,50 @@ class Vector {
   /// Constructs a [Vector] from a list of numerical values.
   Vector.fromList(List<num> data) : _data = data;
 
-  /// Constructs a [Vector] from a list of random numerical values
+  /// Constructs a new vector of the given [length] with randomly generated values.
+  ///
+  /// The elements of the vector are either floating point or integer numbers depending
+  /// on the value of [isDouble]. If [isDouble] is true (the default), then the elements are
+  /// floating point numbers between [min] (inclusive) and [max] (exclusive). If [isDouble]
+  /// is false, the elements are integer numbers between [min] and [max] (both inclusive).
+  ///
+  /// The optional [random] parameter can be used to provide a random number generator. If not
+  /// provided, a new one is created. The optional [seed] parameter can be used to set the seed
+  /// of the random number generator for reproducible results.
+  ///
+  /// Examples
+  ///
+  /// ```dart
+  /// // Create a vector of length 3 with random double values between 0 and 1
+  /// var v1 = Vector.random(3);
+  /// print(v1);
+  ///
+  /// // Outputs: Vector([0.1231231, 0.4564564, 0.7897897])
+  ///
+  /// // Create a vector of length 3 with random integer values between 0 and 10
+  /// var v2 = Vector.random(3, min: 0, max: 10, isDouble: false);
+  /// print(v2);
+  ///
+  /// // Outputs: Vector([2, 6, 9])
+  ///
+  /// // Create a vector of length 3 with random double values between 0 and 1, with a specific seed
+  /// var v3 = Vector.random(3, seed: 42);
+  /// print(v3);
+  ///
+  /// // Outputs: Vector([0.56756756, 0.23423423, 0.89189189])
+  /// ```
+  ///
+  /// Parameters
+  /// - [length]: The length of the vector.
+  /// - [min]: The minimum value that the generated random numbers can be. Defaults to 0.
+  /// - [max]: The maximum value that the generated random numbers can be. Defaults to 1.
+  /// - [isDouble]: Whether to generate floating point numbers (true) or integer numbers (false).
+  ///   Defaults to true.
+  /// - [random]: An optional random number generator. If not provided, a new one is created.
+  /// - [seed]: An optional seed for the random number generator for reproducible results.
+  ///
+  /// Returns
+  /// A new [Vector] with randomly generated values.
   factory Vector.random(int length,
       {double min = 0,
       double max = 1,
@@ -478,15 +521,6 @@ class Vector {
     return [r, theta];
   }
 
-  @override
-  int get hashCode {
-    int result = 17;
-    for (int i = 0; i < length; ++i) {
-      result = result * 31 + this[i].hashCode;
-    }
-    return result;
-  }
-
   // @override  //performance optimization
   // int get hashCode {
   //   const int numberOfElements = 10;
@@ -497,6 +531,150 @@ class Vector {
   //   }
   //   result = result * 31 + length.hashCode; // Include length in hash computation
   //   return result;
+  // }
+
+  @override
+  int get hashCode {
+    int result = 17;
+    for (int i = 0; i < length; ++i) {
+      result = result * 31 + this[i].hashCode;
+    }
+    return result;
+  }
+
+  /// Generates a new Vector ([Vector2], [Vector3], [Vector4]) based on the mapping provided.
+  ///
+  /// The [mapping] should be a List<String> consisting of the characters 'x', 'y', 'z', 'w'
+  /// representing the desired components for the new Vector. The [mapping] and the Vector must
+  /// have the same number of components.
+  ///
+  /// For example, if the current Vector is a [Vector3] with values [1, 2, 3] and the provided
+  /// mapping is ['x', 'x', 'y'], the resulting Vector will be a [Vector3] with values [1, 1, 2].
+  ///
+  /// If a 'z' or 'w' component is requested from a [Vector2], or if a 'w' component is requested
+  /// from a [Vector3], the function will throw an Exception as these components do not exist in
+  /// the respective Vectors.
+  ///
+  /// Example:
+  /// ```
+  /// var u = Vector.fromList([5,0,2,4]);
+  /// var v = u.getVector(['x','x','y']);
+  /// print(v); // "Vector3(5.0, 5.0, 0.0)"
+  ///
+  /// u = Vector.fromList([5,0,2]);
+  /// v = u.getVector(['x','x','y','z']);
+  /// print(v); // "Vector4(5.0, 5.0, 0.0, 2.0)"
+  /// ```
+  ///
+  /// @param mapping A list of strings indicating the desired components for the new Vector.
+  /// @throws Exception If the mapping requests a component that does not exist in the current Vector.
+  /// @return A new Vector (Vector2, Vector3, Vector4) with components as specified by the mapping.
+  Vector getVector(List<String> mapping) {
+    if (mapping.length < 2 || mapping.length > 4) {
+      throw Exception('Vector must have between 2 and 4 components');
+    }
+
+    // Create a dictionary that stores the maximum allowed index for each component
+    Map<String, int> maxAllowedIndex = {'x': 0, 'y': 1, 'z': 2, 'w': 3};
+    if (_data.length < 4) {
+      maxAllowedIndex['w'] = -1; // -1 indicates the component doesn't exist
+    }
+    if (_data.length < 3) {
+      maxAllowedIndex['z'] = -1;
+    }
+
+    List<num> mappedComponents = List.filled(mapping.length, 0.0);
+
+    for (int i = 0; i < mapping.length; i++) {
+      String component = mapping[i];
+
+      if (maxAllowedIndex[component] == -1) {
+        throw Exception('Invalid mapping for this Vector dimension');
+      }
+
+      mappedComponents[i] = _data[maxAllowedIndex[component]!];
+    }
+
+    // Then create the appropriate Vector.
+    if (mapping.length == 2) {
+      return Vector2(mappedComponents[0], mappedComponents[1]);
+    } else if (mapping.length == 3) {
+      return Vector3(
+          mappedComponents[0], mappedComponents[1], mappedComponents[2]);
+    } else {
+      return Vector4(mappedComponents[0], mappedComponents[1],
+          mappedComponents[2], mappedComponents[3]);
+    }
+  }
+
+  /// Extracts a subVector from the given vector using the specified indices or range.
+  ///
+  /// - [indices]: Optional list of integers representing the indices to include in the subVector.
+  /// - [range]: Optional string representing the range (e.g. "1:3").
+  /// - [start]: Optional start index of the range.
+  /// - [end]: Optional end index of the range.
+  ///
+  /// Returns a new vector containing the specified subVector.
+  ///
+  /// Example 1:
+  /// ```dart
+  /// var v = Vector.fromList([1, 2, 3, 4, 5]);
+  /// var subVector = v.subVector(indices: [0, 2, 4]);
+  /// print(subVector);  // Output: "Vector3(1.0, 3.0, 5.0)"
+  /// ```
+  ///
+  /// Example 2:
+  /// ```dart
+  /// var v = Vector.fromList([1, 2, 3, 4, 5]);
+  /// var subVector = v.subVector(range: '1:3');
+  /// print(subVector);  // Output: "Vector3(2.0, 3.0, 4.0)"
+  /// ```
+  ///
+  /// Example 3:
+  /// ```dart
+  /// var v = Vector.fromList([1, 2, 3, 4, 5]);
+  /// var subVector = v.subVector(start: 1, end: 3);
+  /// print(subVector);  // Output: "Vector3(2.0, 3.0, 4.0)"
+  /// ```
+  ///
+  /// @throws Exception If the indices or range are out of the Vector's bounds.
+  Vector subVector(
+      {List<int>? indices, String range = '', int? start, int? end}) {
+    final indices_ = indices ??
+        (start != null && end != null
+            ? List.generate(end - start + 1, (i) => start + i)
+            : (range.isNotEmpty
+                ? _Utils.parseRange(range, length)
+                : (start != null
+                    ? List.generate(length - start, (i) => start + i)
+                    : (end != null
+                        ? List.generate(end + 1, (i) => i)
+                        : List.generate(length, (i) => i)))));
+
+    if (indices_.any((i) => i < 0 || i >= _data.length)) {
+      throw Exception('Indices are out of range');
+    }
+
+    List<num> newValues = indices_.map((i) => _data[i]).toList();
+
+    switch (newValues.length) {
+      case 2:
+        return Vector2(newValues[0], newValues[1]);
+      case 3:
+        return Vector3(newValues[0], newValues[1], newValues[2]);
+      case 4:
+        return Vector4(newValues[0], newValues[1], newValues[2], newValues[3]);
+      default:
+        return Vector.fromList(newValues);
+    }
+  }
+
+  // void rotate(double angle) {
+  //   // Default implementation or throw unsupported operation error
+  // }
+
+  // void transform(Matrix matrix) {
+  //   // Default implementation or throw unsupported operation error
   // }
 
   @override

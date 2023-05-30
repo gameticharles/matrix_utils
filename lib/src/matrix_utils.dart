@@ -773,17 +773,6 @@ class Matrix extends IterableMixin<List<dynamic>> {
     return true;
   }
 
-  @override
-  int get hashCode {
-    int result = 17;
-    for (int i = 0; i < rowCount; i++) {
-      for (int j = 0; j < columnCount; j++) {
-        result = 37 * result + _data[i][j].hashCode;
-      }
-    }
-    return result;
-  }
-
   // @override  //performance optimization
   // int get hashCode {
   //   const int numberOfElements = 10;
@@ -799,6 +788,17 @@ class Matrix extends IterableMixin<List<dynamic>> {
   //   result = result * 31 + columnCount.hashCode; // Include columnCount in hash computation
   //   return result;
   // }
+
+  @override
+  int get hashCode {
+    int result = 17;
+    for (int i = 0; i < rowCount; i++) {
+      for (int j = 0; j < columnCount; j++) {
+        result = 37 * result + _data[i][j].hashCode;
+      }
+    }
+    return result;
+  }
 
   /// Returns a string representation of the matrix with its shape and elements separated by the specified separator.
   ///
