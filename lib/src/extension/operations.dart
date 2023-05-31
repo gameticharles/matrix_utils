@@ -1145,9 +1145,9 @@ extension MatrixOperationExtension on Matrix {
         int freeVarIndex = rref.columnCount - freeVarCount + i;
 
         for (int j = 0; j < rref.rowCount; j++) {
-          if (rref[j][freeVarIndex] != 0 &&
-              rref[j].sublist(0, freeVarIndex).every((item) => item == 0)) {
-            // Checks if all elements before the pivot are 0
+          int pivotPosition = rref[j].lastIndexOf(
+              rref[j][freeVarIndex]); // Find last index of the value
+          if (rref[j][freeVarIndex] != 0 && pivotPosition == freeVarIndex) {
             nullSpaceVector[j] = -rref[j][freeVarIndex];
           }
         }

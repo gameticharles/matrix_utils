@@ -91,7 +91,11 @@ void main() {
 
   print('\nRow Echelon Form:\n${A.rowEchelonForm()}\n');
   print('Reduced Row Echelon Form:\n${A.reducedRowEchelonForm()}\n');
-  print('Null Space:\n${A.nullSpace()}\n');
+  print('Null Space:\n${Matrix.fromList([
+        [1, 2, 3],
+        [0, 1, 1],
+        [0, 0, 0]
+      ]).nullSpace()}\n');
   print('Row Space:\n${A.rowSpace()}\n');
   print('Column Space:\n${A.columnSpace()}\n');
 
