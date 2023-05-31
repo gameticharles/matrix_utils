@@ -1,3 +1,6 @@
+## 0.1.8
+* Fixed bugs (in null space)
+
 ## 0.1.7
 * Added rescale for both vectors and matrix
 * Improved vector compatibility with lists
