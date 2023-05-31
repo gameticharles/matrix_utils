@@ -1136,18 +1136,18 @@ extension MatrixOperationExtension on Matrix {
   /// ```
   Matrix nullSpace() {
     Matrix rref = reducedRowEchelonForm();
-    List<List<double>> nullSpace = [];
-
     int freeVarCount = rref.columnCount - rref.rank();
 
     if (freeVarCount > 0) {
+      List<List<double>> nullSpace = [];
       for (int i = 0; i < freeVarCount; i++) {
-        List<double> nullSpaceVector = List.filled(columnCount, 0.0);
+        List<double> nullSpaceVector = List.filled(rref.columnCount, 0.0);
         int freeVarIndex = rref.columnCount - freeVarCount + i;
 
         for (int j = 0; j < rref.rowCount; j++) {
           if (rref[j][freeVarIndex] != 0 &&
-              rref[j].indexOf(rref[j][freeVarIndex]) == freeVarIndex) {
+              rref[j].sublist(0, freeVarIndex).every((item) => item == 0)) {
+            // Checks if all elements before the pivot are 0
             nullSpaceVector[j] = -rref[j][freeVarIndex];
           }
         }
@@ -1175,6 +1175,9 @@ extension MatrixOperationExtension on Matrix {
   ///   [0, 1, 1],
   ///   [0, 0, 0]
   /// ]);
+  ///
+  /// print(A.nullity()); // Output: 1
+  /// ```
   int nullity() {
     return columnCount - rank();
   }
