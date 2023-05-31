@@ -257,18 +257,18 @@ class MatrixDecomposition {
     Matrix R = Matrix.zeros(A.columnCount, A.columnCount, isDouble: true);
 
     for (int k = 0; k < A.columnCount; k++) {
-      List<double> u = _Utils.toSDList(A.column(k).asList);
+      Vector u = Vector.fromList(_Utils.toSDList(A.column(k).asList));
 
       for (int i = 0; i < k; i++) {
-        List<double> qI = _Utils.toSDList(Q.column(i).asList);
-        double projectionScale = _Utils.vectorDotProduct(u, qI);
+        Vector qI = Vector.fromList(_Utils.toSDList(Q.column(i).asList));
+        double projectionScale = u.dot(qI);
         R[i][k] = projectionScale;
-        u = _Utils.vectorSubtract(u, _Utils.vectorScale(qI, projectionScale));
+        u = u - qI.scale(projectionScale);
       }
 
-      double normU = _Utils.vectorNorm(u);
+      double normU = u.norm();
       R[k][k] = normU;
-      Q.setColumn(k, Column(u.map((x) => x / normU).toList()).asList);
+      Q.setColumn(k, u._data.map((x) => x / normU).toList());
     }
     return QRDecomposition(Q, R);
   }

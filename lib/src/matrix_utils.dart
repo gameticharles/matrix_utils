@@ -602,6 +602,61 @@ class Matrix extends IterableMixin<List<dynamic>> {
     return Matrix.range(end, start: start, step: step, isColumn: isColumn);
   }
 
+  /// Computes the distance between two matrices.
+  ///
+  /// The method supports several types of matrix distances, defined by the `MatrixDistanceType` enum.
+  /// These include:
+  /// - Frobenius: The square root of the sum of the absolute squares of its elements, often used when matrices have the same dimensions.
+  /// - Manhattan: The sum of the absolute values of its elements.
+  /// - Chebyshev: The maximum absolute row or column sum norm.
+  /// - Spectral: The largest singular value of the matrix, i.e., the square root of the largest eigenvalue of the matrix's hermitian transpose multiplied by the matrix.
+  /// - Trace: The sum of the absolute values of eigenvalues (also equals to the sum of absolute values of singular values).
+  ///
+  /// The distance is computed as the norm of the difference between the two matrices, `m1` and `m2`.
+  ///
+  /// [m1]: The first matrix.
+  /// [m2]: The second matrix.
+  /// [distanceType]: The type of matrix distance to compute. Default is `DistanceType.frobenius`.
+  ///
+  /// Throws an `Exception` if an invalid distance type is provided.
+  ///
+  /// Example:
+  /// ```dart
+  /// var m1 = Matrix([[1, 2], [3, 4]]);
+  /// var m2 = Matrix([[5, 6], [7, 8]]);
+  /// print(Matrix.distance(m1, m2, distanceType: DistanceType.frobenius));
+  /// // Output: 8.0
+  /// ```
+  ///
+  /// Returns the computed distance between `m1` and `m2` according to `distanceType`.
+  static num distance(Matrix m1, Matrix m2,
+      {DistanceType distanceType = DistanceType.frobenius}) {
+    switch (distanceType) {
+      case DistanceType.frobenius:
+        return (m1 - m2).l2Norm();
+      case DistanceType.manhattan:
+        return (m1 - m2).l1Norm();
+      case DistanceType.chebyshev:
+        return (m1 - m2).infinityNorm();
+      case DistanceType.spectral:
+        return (m1 - m2).spectralNorm();
+      case DistanceType.trace:
+        return (m1 - m2).traceNorm();
+      case DistanceType.cosine:
+      // // Flatten the matrices and compute cosine distance
+      // return Vector.fromList(_Utils.toSDList(m1.flatten())).distance(
+      //     Vector.fromList(_Utils.toSDList(m2.flatten())),
+      //     distanceType: DistanceType.cosine);
+      case DistanceType.hamming:
+      // // Flatten the matrices and compute hamming distance
+      // return Vector.fromList(_Utils.toSDList(m1.flatten())).distance(
+      //     Vector.fromList(_Utils.toSDList(m2.flatten())),
+      //     distanceType: DistanceType.hamming);
+      default:
+        throw Exception('Invalid distance type');
+    }
+  }
+
   /// Compares each element of the matrix to the specified value using the given comparison operator.
   /// Returns a new Matrix with boolean values as a result of the comparison.
   ///
@@ -646,7 +701,9 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// var m = Matrix([[1, 2], [3, 4]]);
   /// var row = m.row(1);
   /// print(row);
-  /// // Output: 3 4
+  /// // Output:
+  /// // Matrix: 1x2
+  /// // [ 3 4 ]
   /// ```
   Row row(int index) => Row(_data[index]);
 
@@ -660,10 +717,11 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// var col = m.column(1);
   /// print(col);
   /// // Output:
-  /// // 2
-  /// // 4
+  /// // Matrix: 2x1
+  /// // ┌ 2 ┐
+  /// // └ 4 ┘
   /// ```
-  Column column(int index) => Column(_Utils.getColumn(this, index));
+  Column column(int index) => Column(_data.map((row) => row[index]).toList());
 
   /// Extracts the diagonal elements from the matrix based on the given offset.
   ///

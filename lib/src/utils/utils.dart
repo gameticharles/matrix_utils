@@ -141,29 +141,6 @@ class _Utils {
     return a;
   }
 
-  /// Returns the column at the given [index] as a list of dynamic elements.
-  ///
-  /// This is a private helper function used internally in the Matrix class.
-  ///
-  /// Example:
-  /// ```dart
-  /// // Assuming a matrix instance with the following content:
-  /// // [[1, 2, 3],
-  /// //  [4, 5, 6],
-  /// //  [7, 8, 9]]
-  /// List<dynamic> column = _getColumn(1);
-  /// print(column); // Output: [2, 5, 8]
-  /// ```
-  static List<dynamic> getColumn(Matrix m, int index) {
-    List<dynamic> column = [];
-
-    for (int i = 0; i < m.rowCount; i++) {
-      column.add(m[i][index]);
-    }
-
-    return column;
-  }
-
   // Helper function to get the sum
   static double sumLUk(Matrix L, Matrix U, int k, int row, int col) {
     double sum = 0;
@@ -180,16 +157,6 @@ class _Utils {
       }
     }
     return -1;
-  }
-
-  // Subtract vector b from vector a
-  static List<double> vectorSubtract(List<double> a, List<double> b) {
-    return List.generate(a.length, (i) => a[i] - b[i]);
-  }
-
-  // Scale vector a by scalar b
-  static List<double> vectorScale(List<double> a, double b) {
-    return a.map((e) => e * b).toList();
   }
 
   /// Calculate the Householder reflection matrix for a given vector
@@ -212,20 +179,6 @@ class _Utils {
     return P;
   }
 
-  // Compute the dot product of two vectors
-  static double vectorDotProduct(List<double> v1, List<double> v2) {
-    return v1
-        .asMap()
-        .entries
-        .map((entry) => entry.value * v2[entry.key])
-        .reduce((a, b) => a + b);
-  }
-
-  // Compute the norm of a vector
-  static double vectorNorm(List<double> v) {
-    return math.sqrt(v.map((value) => value * value).reduce((a, b) => a + b));
-  }
-
   /// Returns a string representation of the matrix with its shape and elements separated by the specified separator.
   ///
   /// [separator]: A string used to separate matrix elements in a row. Default is a space character (' ').
@@ -235,7 +188,7 @@ class _Utils {
   /// Example:
   /// ```dart
   /// var m = Matrix([[1, 2], [3, 4]]);
-  /// print(m.toString(separator: ' ', isPrettyMatrix = true alignment: 'right'));
+  /// print(m.toString(separator: ' ', isPrettyMatrix = true, alignment: 'right'));
   /// // Output:
   /// // Matrix: 2x2
   /// // ┌ 1 2 ┐

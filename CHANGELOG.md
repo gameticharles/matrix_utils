@@ -1,3 +1,8 @@
+## 0.1.5
+* Added support for distance calculation for vectors and matrices
+* Improved consistency in linear algebra
+* Added scale for vector types
+
 ## 0.1.4
 * Spercial matrices and vectors their functionalities
 * Fixed spellings in matrix structure properties

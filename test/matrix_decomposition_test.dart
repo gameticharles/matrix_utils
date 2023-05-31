@@ -220,7 +220,7 @@ void main() {
     Matrix b = Column([106.8, 177.2, 279.2]);
 
     var lu = A.decomposition.luDecompositionDoolittleCompletePivoting();
-    print(lu.checkMatrix.round());
+
     expect(lu.checkMatrix.round(), A);
     expect(
         lu.solve(b).round(),

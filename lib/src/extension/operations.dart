@@ -519,7 +519,7 @@ extension MatrixOperationExtension on Matrix {
     return diag.sum();
   }
 
-  /// Calculates the L1 norm of the matrix.
+  /// Calculates the L1 norm (Manhattan) of the matrix.
   ///
   /// The L1 norm, also known as the maximum absolute column sum norm, is
   /// calculated by summing the absolute values of each element in each column
@@ -595,7 +595,7 @@ extension MatrixOperationExtension on Matrix {
     return l2Norm();
   }
 
-  /// Calculates the Infinity norm of the matrix.
+  /// Calculates the Infinity norm (Chebyshev) of the matrix.
   ///
   /// The Infinity norm, also known as the maximum absolute row sum norm, is
   /// calculated by summing the absolute values of each element in each row and
@@ -624,6 +624,94 @@ extension MatrixOperationExtension on Matrix {
     }
 
     return maxSum;
+  }
+
+  /// Computes the spectral norm of the matrix, which is the maximum singular value.
+  ///
+  /// The spectral norm is a measure of a matrix's size that is derived from the matrix's singular values.
+  /// It is also known as the 2-norm or the operator norm.
+  ///
+  /// Returns the spectral norm as a double.
+  ///
+  /// Example:
+  /// ```dart
+  /// var A = Matrix.fromList([
+  ///   [3, 2, 2],
+  ///   [2, 3, -2]
+  /// ]);
+  ///
+  /// print(A.spectralNorm());
+  /// // Output: 5.4649857042
+  /// ```
+  ///
+  /// Note: The output may vary due to numerical precision.
+  ///
+  /// Throws [Exception] if the matrix is empty.
+  double spectralNorm() {
+    var singularValues = decomposition.singularValueDecomposition();
+
+    return _Utils.toSDList(singularValues.S.diagonal()).reduce(math.max);
+  }
+
+  /// Computes the trace norm (also known as nuclear norm) of the matrix,
+  /// which is the sum of its singular values.
+  ///
+  /// The trace norm is a measure of a matrix's size derived from the matrix's
+  /// singular values. It's used in several areas of matrix computations including
+  /// matrix approximation and understanding the properties of specific kinds of matrices.
+  ///
+  /// Returns the trace norm as a double.
+  ///
+  /// Example:
+  /// ```dart
+  /// var A = Matrix.fromList([
+  ///   [3, 2, 2],
+  ///   [2, 3, -2]
+  /// ]);
+  ///
+  /// print(A.traceNorm());
+  /// // Output: 7.865259521
+  /// ```
+  ///
+  /// Note: The output may vary due to numerical precision.
+  ///
+  /// Throws [Exception] if the matrix is empty.
+  double traceNorm() {
+    var singularValues = decomposition.singularValueDecomposition();
+    return singularValues.S.diagonal().reduce((a, b) => a + b);
+  }
+
+  /// Computes the distance between this matrix and another provided matrix
+  /// based on the specified distance type.
+  ///
+  /// [other]: The other matrix to which the distance will be calculated.
+  /// [distanceType]: The type of distance measure to be used. Default is Frobenius norm.
+  ///
+  /// Returns the distance as a double.
+  ///
+  /// Example:
+  /// ```dart
+  /// var A = Matrix.fromList([
+  ///   [3, 2, 2],
+  ///   [2, 3, -2]
+  /// ]);
+  ///
+  /// var B = Matrix.fromList([
+  ///   [1, 2, 3],
+  ///   [4, 5, 6]
+  /// ]);
+  ///
+  /// print(A.distance(B, distanceType: DistanceType.manhattan));
+  /// // Output: 10.5
+  /// ```
+  ///
+  /// Note: The output may vary due to numerical precision.
+  ///
+  /// Throws [Exception] if the matrices have different dimensions.
+
+  num distance(Matrix other,
+      {DistanceType distanceType = DistanceType.frobenius}) {
+    return Matrix.distance(this, other, distanceType: distanceType);
   }
 
   /// Normalizes the matrix by dividing each element by the maximum element value.

@@ -604,19 +604,18 @@ class LinearSystemSolvers {
     Matrix Q = Matrix.zeros(m, n);
 
     for (int j = 0; j < n; j++) {
-      List<double> v = _Utils.toSDList(A.column(j).asList);
+      Vector v = Vector.fromList(_Utils.toSDList(A.column(j).asList));
 
       for (int i = 0; i < j; i++) {
-        List<double> qi = _Utils.toSDList(Q.column(i).asList);
-        double projCoeff =
-            _Utils.vectorDotProduct(v, qi) / _Utils.vectorDotProduct(qi, qi);
-        v = _Utils.vectorSubtract(v, _Utils.vectorScale(qi, projCoeff));
+        Vector qi = Vector.fromList(_Utils.toSDList(Q.column(i).asList));
+        double projCoeff = v.dot(qi) / qi.dot(qi);
+        v = v - qi.scale(projCoeff);
       }
 
-      double normV = _Utils.vectorNorm(v);
+      double normV = v.norm();
       if (normV > 1e-10) {
-        v = _Utils.vectorScale(v, 1 / normV);
-        Q.setColumn(j, v);
+        v = v.scale(1 / normV);
+        Q.setColumn(j, v.toList());
       } else {
         Q.setColumn(j, List.filled(m, 0.0));
       }

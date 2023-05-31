@@ -14,6 +14,17 @@ void main() {
 
   var eMat = Matrix("1 2 3 4; 2 5 6 7; 3 6 8 9; 4 7 9 10");
 
+  printLine('Test Vectors');
+  final vector1 = Vector.fromList([1.0, 2.0, 3.0, 4.0, 5.0]);
+  final vector2 = Vector.fromList([2.0, 3.0, 4.0, 5.0, 6.0]);
+  final result = vector1.distance(vector2, distanceType: DistanceType.cosine);
+  print(result); // 0.00506
+
+  final vector = Vector.fromList([4.0, 5.0, 6.0, 7.0, 8.0]);
+  final result1 = vector - [2.0, 3.0, 2.0, 3.0, 2.0];
+
+  print(result1.toList()); // [2.0, 2.0, 4.0, 4.0, 6.0]
+
   printLine('Test Complex Numbers');
   var z1 = Complex(3, 2);
   var z2 = Complex(1, -1);

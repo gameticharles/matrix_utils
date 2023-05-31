@@ -1,15 +1,23 @@
 part of matrix_utils;
 
+//extends ListBase<num>
 class Vector {
   /// Internal data of the vector.
-  final List<num> _data;
+  List<num> _data = const [];
 
   /// Constructs a [Vector] of given length with all elements initialized to 0.
   ///
   /// If [isDouble] is true, the elements are initialized with 0.0,
   /// otherwise they are initialized with 0.
-  Vector(int length, {bool isDouble = true})
-      : _data = List<num>.filled(length, isDouble ? 0.0 : 0);
+  Vector(dynamic input, {bool isDouble = true}) {
+    if (input is int) {
+      _data = List<num>.filled(input, isDouble ? 0.0 : 0);
+    } else if (input is List<num>) {
+      _data = input;
+    } else {
+      throw Exception('Invalid input type');
+    }
+  }
 
   /// Constructs a [Vector] from a list of numerical values.
   Vector.fromList(List<num> data) : _data = data;
@@ -159,10 +167,16 @@ class Vector {
   /// Returns the length (number of elements) of the vector.
   int get length => _data.length;
 
-  Vector operator +(Vector other) {
+  Vector operator +(dynamic other) {
     if (length != other.length) {
       throw ArgumentError("Vectors must have the same length for addition.");
     }
+
+    if (other is! Vector && other is! List<num>) {
+      throw ArgumentError(
+          "Invalid right-hand value type (Vector or List<num>).");
+    }
+
     Vector result = Vector(length);
     for (int i = 0; i < length; i++) {
       result[i] = this[i] + other[i];
@@ -170,10 +184,16 @@ class Vector {
     return result;
   }
 
-  Vector operator -(Vector other) {
+  Vector operator -(dynamic other) {
     if (length != other.length) {
       throw ArgumentError("Vectors must have the same length for subtraction.");
     }
+
+    if (other is! Vector && other is! List<num>) {
+      throw ArgumentError(
+          "Invalid right-hand value type (Vector or List<num>).");
+    }
+
     Vector result = Vector(length);
     for (int i = 0; i < length; i++) {
       result[i] = this[i] - other[i];
@@ -181,10 +201,39 @@ class Vector {
     return result;
   }
 
-  Vector operator *(double scalar) {
+  Vector operator *(dynamic other) {
     Vector result = Vector(length);
-    for (int i = 0; i < length; i++) {
-      result[i] = this[i] * scalar;
+    if (other is num) {
+      for (int i = 0; i < length; i++) {
+        result[i] = this[i] * other;
+      }
+    } else if (other is Vector) {
+      if (length != other.length) {
+        throw ArgumentError(
+            "Vectors must have the same length for subtraction.");
+      }
+      for (int i = 0; i < length; i++) {
+        result[i] = this[i] * other[i];
+      }
+    }
+
+    return result;
+  }
+
+  Vector operator /(dynamic other) {
+    Vector result = Vector(length);
+    if (other is num) {
+      for (int i = 0; i < length; i++) {
+        result[i] = this[i] / other;
+      }
+    } else if (other is Vector) {
+      if (length != other.length) {
+        throw ArgumentError(
+            "Vectors must have the same length for subtraction.");
+      }
+      for (int i = 0; i < length; i++) {
+        result[i] = this[i] / other[i];
+      }
     }
     return result;
   }
@@ -199,14 +248,6 @@ class Vector {
       if (this[i] != vector[i]) return false;
     }
     return true;
-  }
-
-  Vector operator /(double scalar) {
-    Vector result = Vector(length);
-    for (int i = 0; i < length; i++) {
-      result[i] = this[i] / scalar;
-    }
-    return result;
   }
 
   /// Calculates the dot product of the vector with another vector.
@@ -237,6 +278,32 @@ class Vector {
       this[2] * other[0] - this[0] * other[2],
       this[0] * other[1] - this[1] * other[0]
     ]);
+  }
+
+  /// Scales a vector by a given scalar.
+  ///
+  /// The scalar is multiplied to each element of the vector, resulting in a new vector.
+  ///
+  /// This operation can be used for various purposes, like resizing, reflection, or changing the direction of the vector.
+  ///
+  /// [scalar]: The scalar number to multiply with each component of the vector.
+  ///
+  /// Returns a new [Vector] that is the scaled version of the original vector.
+  ///
+  /// Example:
+  /// ```dart
+  /// var v = Vector.fromList([1.0, 2.0, 3.0]);
+  /// var scaled = v.scale(2);
+  /// print(scaled); // "Vector(2.0, 4.0, 6.0)"
+  /// ```
+  ///
+  /// In the example, the original vector `v` is scaled by a factor of 2,
+  /// resulting in a new vector `scaled` where each component is twice its original value.
+  ///
+  /// @param b The scalar value to multiply the vector by.
+  /// @return A new Vector that is the original Vector scaled by `b`.
+  Vector scale(num scalar) {
+    return Vector.fromList(_data.map((e) => e * scalar).toList());
   }
 
   /// Returns the magnitude (or norm) of the vector.
@@ -357,11 +424,12 @@ class Vector {
   /// ```
   /// [0, 0, 0]
   /// ```
-  void setAll(num value) {
-    for (var i = 0; i < length; i++) {
-      this[i] = value;
-    }
-  }
+
+  // void setAll(num value) {
+  //   for (var i = 0; i < length; i++) {
+  //     this[i] = value;
+  //   }
+  // }
 
   /// Returns the Euclidean distance between this vector and [other].
   ///
@@ -380,16 +448,60 @@ class Vector {
   /// ```
   /// 5.196152422706632
   /// ```
-  double distance(Vector other) {
+
+  num distance(Vector other,
+      {DistanceType distanceType = DistanceType.frobenius}) {
     if (length != other.length) {
       throw ArgumentError(
           "Vectors must have the same length for distance calculation.");
     }
-    double sum = 0;
-    for (int i = 0; i < length; i++) {
-      sum += math.pow(this[i] - other[i], 2);
+
+    double sumSquare = 0;
+    double sumAbs = 0;
+    num maxAbs = 0;
+    double dotProduct = 0;
+    double sumSquare1 = 0;
+    double sumSquare2 = 0;
+    int hammingDistance = 0;
+
+    for (int i = 0; i < _data.length; i++) {
+      final diff = _data[i] - other[i];
+      final absDiff = diff.abs();
+
+      sumSquare += diff * diff;
+      sumAbs += absDiff;
+      maxAbs = math.max(maxAbs, absDiff);
+      dotProduct += _data[i] * other[i];
+      sumSquare1 += _data[i] * _data[i];
+      sumSquare2 += other[i] * other[i];
+      hammingDistance += _data[i] != other[i] ? 1 : 0;
     }
-    return math.sqrt(sum);
+
+    switch (distanceType) {
+      case DistanceType.frobenius:
+        return math.sqrt(sumSquare);
+      case DistanceType.manhattan:
+        return sumAbs;
+      case DistanceType.chebyshev:
+        return maxAbs;
+      case DistanceType.mahalanobis:
+        // We need a covariance matrix and its inverse to compute Mahalanobis distance
+        return double.nan; // placeholder value indicating unimplemented
+      case DistanceType.cosine:
+        final magnitude1 = math.sqrt(sumSquare1);
+        final magnitude2 = math.sqrt(sumSquare2);
+        return 1 - (dotProduct / (magnitude1 * magnitude2));
+      case DistanceType.hamming:
+        return hammingDistance;
+      case DistanceType.spectral:
+      // For vectors, we consider spectral norm as its magnitude
+      //return math.sqrt(sumSquare);
+      case DistanceType.trace:
+      // For vectors, we consider trace norm as the sum of its elements
+      //return sumAbs;
+      default:
+        throw Exception('Invalid distance type');
+    }
   }
 
   /// Returns the projection of this vector onto [other].
