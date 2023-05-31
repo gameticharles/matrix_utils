@@ -26,14 +26,14 @@ void main() {
 
   printLine('Properties of the Matrix');
   print('\n$mat\n');
-  print('l1Norm: ${mat.l1Norm()}');
-  print('l2Norm: ${mat.l2Norm()}');
+  print('l1Norm: ${mat.norm(Norm.manhattan)}');
+  print('l2Norm: ${mat.norm()}');
   print('Condition number: ${mat.conditionNumber()}');
   mat.matrixProperties().forEach((element) => print(' - $element'));
 
   print('\n\n$A\n');
-  print('l1Norm: ${A.l1Norm()}');
-  print('l2Norm: ${A.l2Norm()}');
+  print('l1Norm: ${A.norm(Norm.manhattan)}');
+  print('l2Norm: ${A.norm()}');
   print('Rank: ${A.rank()}');
   print('Condition number: ${A.conditionNumber()}');
   print('Decomposition Condition number: ${A.decomposition.conditionNumber()}');

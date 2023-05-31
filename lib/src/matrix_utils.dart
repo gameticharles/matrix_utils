@@ -630,24 +630,24 @@ class Matrix extends IterableMixin<List<dynamic>> {
   ///
   /// Returns the computed distance between `m1` and `m2` according to `distanceType`.
   static num distance(Matrix m1, Matrix m2,
-      {DistanceType distanceType = DistanceType.frobenius}) {
-    switch (distanceType) {
-      case DistanceType.frobenius:
-        return (m1 - m2).l2Norm();
-      case DistanceType.manhattan:
-        return (m1 - m2).l1Norm();
-      case DistanceType.chebyshev:
-        return (m1 - m2).infinityNorm();
-      case DistanceType.spectral:
-        return (m1 - m2).spectralNorm();
-      case DistanceType.trace:
-        return (m1 - m2).traceNorm();
-      case DistanceType.cosine:
+      {Distance distance = Distance.frobenius}) {
+    switch (distance) {
+      case Distance.frobenius:
+        return (m1 - m2).norm();
+      case Distance.manhattan:
+        return (m1 - m2).norm(Norm.manhattan);
+      case Distance.chebyshev:
+        return (m1 - m2).norm(Norm.chebyshev);
+      case Distance.spectral:
+        return (m1 - m2).norm(Norm.spectral);
+      case Distance.trace:
+        return (m1 - m2).norm(Norm.trace);
+      case Distance.cosine:
       // // Flatten the matrices and compute cosine distance
       // return Vector.fromList(_Utils.toSDList(m1.flatten())).distance(
       //     Vector.fromList(_Utils.toSDList(m2.flatten())),
       //     distanceType: DistanceType.cosine);
-      case DistanceType.hamming:
+      case Distance.hamming:
       // // Flatten the matrices and compute hamming distance
       // return Vector.fromList(_Utils.toSDList(m1.flatten())).distance(
       //     Vector.fromList(_Utils.toSDList(m2.flatten())),

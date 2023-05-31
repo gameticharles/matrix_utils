@@ -408,7 +408,8 @@ class LinearSystemSolvers {
         xNew[i][0] = (b[i][0] - sum) / a[i][i];
       }
 
-      if ((xNew - x).norm() / xNew.norm() < tolerance) {
+      if ((xNew - x).norm(Norm.manhattan) / xNew.norm(Norm.manhattan) <
+          tolerance) {
         return xNew;
       }
 
@@ -468,7 +469,8 @@ class LinearSystemSolvers {
         x[i][0] = (b[i][0] - sum1 - sum2) / a[i][i];
       }
 
-      if ((x - xOld).norm() / x.norm() < tolerance) {
+      if ((x - xOld).norm(Norm.manhattan) / x.norm(Norm.manhattan) <
+          tolerance) {
         return x;
       }
     }
@@ -529,7 +531,8 @@ class LinearSystemSolvers {
             (1 - omega) * x[i][0] + (omega / a[i][i]) * (b[i][0] - sum1 - sum2);
       }
 
-      if ((x - xOld).norm() / x.norm() < tolerance) {
+      if ((x - xOld).norm(Norm.manhattan) / x.norm(Norm.manhattan) <
+          tolerance) {
         return x;
       }
     }
@@ -612,7 +615,7 @@ class LinearSystemSolvers {
         v = v - qi.scale(projCoeff);
       }
 
-      double normV = v.norm();
+      num normV = v.norm();
       if (normV > 1e-10) {
         v = v.scale(1 / normV);
         Q.setColumn(j, v.toList());

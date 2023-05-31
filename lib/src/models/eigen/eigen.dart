@@ -39,7 +39,7 @@ class Eigen {
       Matrix lambdaX = eigenvector * values[i];
       Matrix residual = ax - lambdaX;
 
-      if (residual.infinityNorm() > tolerance) {
+      if (residual.norm(Norm.chebyshev) > tolerance) {
         return false;
       }
     }

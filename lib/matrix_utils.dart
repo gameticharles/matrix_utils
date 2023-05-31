@@ -16,6 +16,8 @@ export 'matrix_utils.dart';
 part 'src/matrix_utils.dart';
 part 'src/utils/utils.dart';
 part 'src/enum/matrix_align.dart';
+part 'src/enum/norm.dart';
+part 'src/enum/rescale.dart';
 part 'src/enum/matrix_types.dart';
 part 'src/enum/distance_types.dart';
 part 'src/enum/linear_methods.dart';
@@ -37,6 +39,7 @@ part 'src/models/vector/vector_special.dart';
 part 'src/models/vector/complex_vectors.dart';
 part 'src/models/vector/matrix_vector.dart';
 part 'src/models/vector/vector_matrix.dart';
+part 'src/models/vector/operations.dart';
 part 'src/models/matrix_special.dart';
 
 part 'src/extension/list_extension.dart';

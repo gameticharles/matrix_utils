@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:matrix_utils/matrix_utils.dart';
 
 void printLine(String s) {
@@ -15,15 +17,37 @@ void main() {
   var eMat = Matrix("1 2 3 4; 2 5 6 7; 3 6 8 9; 4 7 9 10");
 
   printLine('Test Vectors');
-  final vector1 = Vector.fromList([1.0, 2.0, 3.0, 4.0, 5.0]);
+
+  //It's possible to use vector instances as keys for HashMap and
+  //similar data structures and to look up a value by the vector-key,
+  //since the hash code for equal vectors is the same
+  final map = HashMap<Vector, bool>();
+
+  map[Vector.fromList([1, 2, 3, 4, 5])] = true;
+
+  print(map[Vector.fromList([1, 2, 3, 4, 5])]); // true
+  print(Vector.fromList([1, 2, 3, 4, 5]).hashCode ==
+      Vector.fromList([1, 2, 3, 4, 5]).hashCode); // true
+
+  //Vector operations
+  final vector1 = Vector([1.0, 2.0, 3.0, 4.0, 5.0]);
   final vector2 = Vector.fromList([2.0, 3.0, 4.0, 5.0, 6.0]);
-  final result = vector1.distance(vector2, distanceType: DistanceType.cosine);
-  print(result); // 0.00506
+  final result1 = vector1.distance(vector2, distance: Distance.cosine);
+  print(result1); // 0.00506
 
-  final vector = Vector.fromList([4.0, 5.0, 6.0, 7.0, 8.0]);
-  final result1 = vector - [2.0, 3.0, 2.0, 3.0, 2.0];
+  var result = vector1.normalize();
+  print(result.round(3)); // [0.135, 0.270, 0.405, 0.539, 0.674]
 
-  print(result1.toList()); // [2.0, 2.0, 4.0, 4.0, 6.0]
+  final vector = Vector.fromList([1.0, -2.0, 3.0, -4.0, 5.0]);
+  result = vector.normalize(Norm.manhattan);
+  print(result.round(3)); // [0.067, -0.133, 0.200, -0.267, 0.333]
+
+  var result2 = vector1.rescale();
+  print(result2); // [0.0, 0.25, 0.5, 0.75, 1.0]
+
+  var vector3 = Vector.fromList([4.0, 5.0, 6.0, 7.0, 8.0]);
+  result = vector3 - [2.0, 3.0, 2.0, 3.0, 2.0];
+  print(result); // [2.0, 2.0, 4.0, 4.0, 6.0]
 
   printLine('Test Complex Numbers');
   var z1 = Complex(3, 2);
@@ -37,6 +61,39 @@ void main() {
   print(difference);
   print(product);
   print(quotient);
+
+  printLine('Matrix Statistics');
+
+  var A = Matrix("1 2 3 4; 2 5 6 7; 3 6 8 9; 4 7 9 10");
+  print(A);
+
+  print('Shape: ${A.shape}');
+  print('Max: ${A.max()}');
+  print('Min: ${A.min()}');
+  print('Sum: ${A.sum()}');
+  print('Mean: ${A.mean()}');
+  print('Median: ${A.median()}');
+  print('Product: ${A.product()}');
+  print('Variance: ${A.variance()}');
+  print('Standard Deviation: ${A.standardDeviation()}');
+  print('Absolute Sum: ${A.sum(absolute: true)}');
+  print('Determinant: ${A.determinant()}');
+  print('Rank: ${A.rank()}');
+  print('Trace: ${A.trace()}');
+  print('Skewness: ${A.skewness()}');
+  print('Kurtosis: ${A.kurtosis()}');
+  print('Manhattan Norm(l1Norm): ${A.norm(Norm.manhattan)}');
+  print('Frobenius/Euclidean Norm(l2Norm): ${A.norm(Norm.frobenius)}');
+  print('Chebyshev/Infinity Norm: ${A.norm(Norm.chebyshev)}');
+  print('Spectral Norm: ${A.norm(Norm.spectral)}');
+  print('Trace/Nuclear Norm: ${A.norm(Norm.trace)}');
+  print('Nullity: ${A.nullity()}');
+
+  print('\nRow Echelon Form:\n${A.rowEchelonForm()}\n');
+  print('Reduced Row Echelon Form:\n${A.reducedRowEchelonForm()}\n');
+  print('Null Space:\n${A.nullSpace()}\n');
+  print('Row Space:\n${A.rowSpace()}\n');
+  print('Column Space:\n${A.columnSpace()}\n');
 
   printLine('Broadcast and Replicate Matrix');
   var newMats = mat.broadcast(Matrix("1;2;3"));
@@ -171,34 +228,6 @@ void main() {
   for (dynamic element in mat.elements) {
     print(element);
   }
-
-  printLine('Matrix Statistics');
-
-  var A = Matrix("1 2 3 4; 2 5 6 7; 3 6 8 9; 4 7 9 10");
-  print(A);
-
-  print('Shape: ${A.shape}');
-  print('Sum: ${A.sum()}');
-  print('Absolute Sum: ${A.sum(absolute: true)}');
-  print('Determinant: ${A.determinant()}');
-  print('Rank: ${A.rank()}');
-  print('Trace: ${A.trace()}');
-  print('Skewness: ${A.skewness()}');
-  print('Kurtosis: ${A.kurtosis()}');
-  print('Norm(l1Norm): ${A.l1Norm()}'); // Output: 7.0
-  print('l2Norm: ${A.l2Norm()}'); // Output: 5.477225575051661
-  print('Infinity Norm: ${A.infinityNorm()}'); // Output: 5.0
-
-  print(A.rowEchelonForm());
-  print(A.reducedRowEchelonForm());
-
-  // var yy = Matrix([
-  //   [1, 2, 3],
-  //   [0, 1, 1],
-  //   [0, 0, 0]
-  // ]);
-  // print(yy.reducedRowEchelonForm());
-  // print(yy.rowSpace());
 
   printLine('Access Row and Column');
 

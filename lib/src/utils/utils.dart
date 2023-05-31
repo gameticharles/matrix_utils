@@ -166,15 +166,15 @@ class _Utils {
     e1[0][0] = 1;
 
     // Check if the matrix is filled with zeros and return the identity matrix if true
-    if (columnVector.infinityNorm() == 0.0) {
+    if (columnVector.norm(Norm.chebyshev) == 0.0) {
       return Matrix.eye(n);
     }
 
     Matrix u =
-        (columnVector + e1) * columnVector.norm2() * columnVector[0][0].sign;
+        (columnVector + e1) * columnVector.norm() * columnVector[0][0].sign;
 
     Matrix P =
-        Matrix.eye(n) - ((u * u.transpose()) * (2 / math.pow(u.norm2(), 2)));
+        Matrix.eye(n) - ((u * u.transpose()) * (2 / math.pow(u.norm(), 2)));
 
     return P;
   }
@@ -221,6 +221,12 @@ class _Utils {
     }
 
     String matToString = '';
+
+    //Return empty matrix string
+    if (m._data.isEmpty) {
+      matToString = '[ ]';
+      return 'Matrix: ${m.rowCount}x${m.columnCount}\n$matToString';
+    }
 
     if (isPrettyMatrix) {
       String top = '┌ ${rows[0]} ┐';

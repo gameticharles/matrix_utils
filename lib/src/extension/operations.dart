@@ -301,6 +301,71 @@ extension MatrixOperationExtension on Matrix {
     return Matrix(newData);
   }
 
+  /// Rescales each column of the matrix to the range 0-1.
+  ///
+  /// It applies the Min-Max normalization technique on each column of the matrix.
+  ///
+  /// Example:
+  /// ```dart
+  /// var mat = Matrix.fromList([
+  ///    [2, 3, 3, 3],
+  ///    [9, 9, 8, 6],
+  ///    [1, 1, 2, 9]
+  /// ]);
+  /// print(m.rescale());
+  /// // Output:
+  /// // Matrix: 3x4
+  /// // ┌ 0.125 0.25 0.167 0.0 ┐
+  /// // │   1.0  1.0   1.0 0.5 │
+  /// // └   0.0  0.0   0.0 1.0 ┘
+  /// ```
+  Matrix rescale({Rescale rescaleBy = Rescale.column}) {
+    var rescaledMatrix = Matrix.zeros(rowCount, columnCount, isDouble: true);
+
+    switch (rescaleBy) {
+      case Rescale.row:
+        for (int i = 0; i < rowCount; i++) {
+          var row = _Utils.toSDList(_data[i]);
+          var maxElement = row.reduce(math.max);
+          var minElement = row.reduce(math.min);
+
+          for (int j = 0; j < columnCount; j++) {
+            rescaledMatrix[i][j] =
+                (this[i][j] - minElement) / (maxElement - minElement);
+          }
+        }
+
+        return rescaledMatrix;
+      case Rescale.column:
+        for (int j = 0; j < columnCount; j++) {
+          var col = _Utils.toSDList(column(j).asList);
+          var maxElement = col.reduce(math.max);
+          var minElement = col.reduce(math.min);
+
+          for (int i = 0; i < rowCount; i++) {
+            rescaledMatrix[i][j] =
+                (this[i][j] - minElement) / (maxElement - minElement);
+          }
+        }
+
+        return rescaledMatrix;
+      case Rescale.all:
+        var maxElement = max();
+        var minElement = min();
+
+        for (int i = 0; i < rowCount; i++) {
+          for (int j = 0; j < columnCount; j++) {
+            rescaledMatrix[i][j] =
+                (this[i][j] - minElement) / (maxElement - minElement);
+          }
+        }
+
+        return rescaledMatrix;
+      default:
+        throw Exception('Invalid RescaleType');
+    }
+  }
+
   /// Divides this matrix by a scalar value.
   ///
   /// [divisor]: The scalar value to divide this matrix by.
@@ -390,20 +455,31 @@ extension MatrixOperationExtension on Matrix {
     return Matrix(newData);
   }
 
+  /// Returns a new matrix with each element raised to the power of [exponent].
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// var matrix = Matrix([[1.0, 2.0], [3.0, 4.0]]);
+  /// print(matrix.pow(2)); // Output: [[1.0, 4.0], [9.0, 16.0]]
+  /// ```
   Matrix pow(num exponent) {
     return Matrix(_data
         .map((row) => row.map((cell) => math.pow(cell, exponent)).toList())
         .toList());
-    // Matrix result = Matrix.zeros(rowCount, columnCount);
-
-    // for (int i = 0; i < rowCount; i++) {
-    //   for (int j = 0; j < columnCount; j++) {
-    //     result[i][j] = pow(_data[i][j], exponent);
-    //   }
-    // }
-
-    // return result;
   }
+
+  /// Returns a new matrix with the exponential of each element of the matrix.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// var matrix = Matrix([[1.0, 2.0], [3.0, 4.0]]);
+  /// print(matrix.exp()); // Output: [[2.718281828459045, 7.38905609893065], [20.085536923187668, 54.598150033144236]]
+  /// ```
+  // Matrix exp() {
+  //   return Matrix(_data.map((row) => row.map(math.exp).toList()).toList());
+  // }
 
   /// Multiplies the corresponding elements of this matrix and the given matrix.
   ///
@@ -485,15 +561,33 @@ extension MatrixOperationExtension on Matrix {
   /// var result = matrix.sum();
   /// print(result); // Output: 10
   /// ```
-  double sum({bool absolute = false}) {
+  num sum({bool absolute = false}) {
     if (toList().isEmpty) {
       throw Exception("Matrix is empty");
     }
-    double sum = 0;
+    num sum = 0;
     for (dynamic element in elements) {
       sum += absolute ? (element as num).abs() : (element as num);
     }
     return sum;
+  }
+
+  /// Returns the product of all elements in the matrix.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// final matrix = Matrix.fromList([
+  ///   [1, 2, 3],
+  ///   [4, 5, 6],
+  ///   [7, 8, 9],
+  /// ]);
+  ///
+  /// print(matrix.product());
+  /// // Output: 362880
+  /// ```
+  num product() {
+    return _data.expand((element) => element).reduce((a, b) => a * b);
   }
 
   /// Calculates the trace of a square matrix.
@@ -506,7 +600,7 @@ extension MatrixOperationExtension on Matrix {
   /// var result = matrix.trace();
   /// print(result); // Output: 5
   /// ```
-  double trace() {
+  num trace() {
     if (_data.isEmpty) {
       throw Exception("Matrix is empty");
     }
@@ -517,6 +611,28 @@ extension MatrixOperationExtension on Matrix {
     var diag = Matrix.fromDiagonal(diagonal());
 
     return diag.sum();
+  }
+
+  num norm([Norm normType = Norm.frobenius]) {
+    switch (normType) {
+      case Norm.manhattan:
+        return _l1Norm();
+      case Norm.frobenius:
+        return _l2Norm();
+      case Norm.chebyshev:
+        return _infinityNorm();
+      case Norm.spectral:
+        return _spectralNorm();
+      case Norm.trace:
+        return _traceNorm();
+      // The below norms need more context to implement.
+      case Norm.mahalanobis:
+        throw UnimplementedError('Mahalanobis norm is not implemented');
+      case Norm.hamming:
+      case Norm.cosine:
+      default:
+        throw Exception('Invalid norm type');
+    }
   }
 
   /// Calculates the L1 norm (Manhattan) of the matrix.
@@ -536,11 +652,11 @@ extension MatrixOperationExtension on Matrix {
   ///
   /// Returns:
   /// A double representing the L1 norm of the matrix.
-  double l1Norm() {
-    double maxSum = 0.0;
+  num _l1Norm() {
+    num maxSum = 0.0;
 
     for (int j = 0; j < columnCount; j++) {
-      double colSum = 0.0;
+      num colSum = 0.0;
       for (int i = 0; i < rowCount; i++) {
         colSum += this[i][j].abs();
       }
@@ -567,8 +683,8 @@ extension MatrixOperationExtension on Matrix {
   ///
   /// Returns:
   /// A double representing the L2 norm of the matrix.
-  double l2Norm() {
-    double sum = 0.0;
+  num _l2Norm() {
+    num sum = 0.0;
 
     for (int i = 0; i < rowCount; i++) {
       for (int j = 0; j < columnCount; j++) {
@@ -577,22 +693,6 @@ extension MatrixOperationExtension on Matrix {
     }
 
     return math.sqrt(sum);
-  }
-
-  /// Calculates the L1 norm of the matrix.
-  ///
-  /// Returns the Frobenius norm of the matrix.
-  ///
-  double norm() {
-    return l1Norm();
-  }
-
-  /// Calculates the L1 norm or Frobenius norm of the matrix.
-  ///
-  /// Returns the Frobenius norm of the matrix.
-  ///
-  double norm2() {
-    return l2Norm();
   }
 
   /// Calculates the Infinity norm (Chebyshev) of the matrix.
@@ -612,11 +712,11 @@ extension MatrixOperationExtension on Matrix {
   ///
   /// Returns:
   /// A double representing the Infinity norm of the matrix.
-  double infinityNorm() {
-    double maxSum = 0.0;
+  num _infinityNorm() {
+    num maxSum = 0.0;
 
     for (int i = 0; i < rowCount; i++) {
-      double rowSum = 0.0;
+      num rowSum = 0.0;
       for (int j = 0; j < columnCount; j++) {
         rowSum += this[i][j].abs();
       }
@@ -647,7 +747,7 @@ extension MatrixOperationExtension on Matrix {
   /// Note: The output may vary due to numerical precision.
   ///
   /// Throws [Exception] if the matrix is empty.
-  double spectralNorm() {
+  num _spectralNorm() {
     var singularValues = decomposition.singularValueDecomposition();
 
     return _Utils.toSDList(singularValues.S.diagonal()).reduce(math.max);
@@ -676,7 +776,7 @@ extension MatrixOperationExtension on Matrix {
   /// Note: The output may vary due to numerical precision.
   ///
   /// Throws [Exception] if the matrix is empty.
-  double traceNorm() {
+  num _traceNorm() {
     var singularValues = decomposition.singularValueDecomposition();
     return singularValues.S.diagonal().reduce((a, b) => a + b);
   }
@@ -708,10 +808,8 @@ extension MatrixOperationExtension on Matrix {
   /// Note: The output may vary due to numerical precision.
   ///
   /// Throws [Exception] if the matrices have different dimensions.
-
-  num distance(Matrix other,
-      {DistanceType distanceType = DistanceType.frobenius}) {
-    return Matrix.distance(this, other, distanceType: distanceType);
+  num distance(Matrix other, {Distance distance = Distance.frobenius}) {
+    return Matrix.distance(this, other, distance: distance);
   }
 
   /// Normalizes the matrix by dividing each element by the maximum element value.
@@ -966,7 +1064,7 @@ extension MatrixOperationExtension on Matrix {
   ///   [0, 1, 1],
   ///   [0, 0, 0]
   /// ]);
-  /// print(A.getRowSpace());
+  /// print(A.rowSpace());
   /// // Output:
   /// // 1  2  3
   /// // 0  1  1
@@ -1006,18 +1104,18 @@ extension MatrixOperationExtension on Matrix {
   ///   [2, 1, 0],
   ///   [3, 1, 0]
   /// ]);
-  /// print(A.getColumnSpace());
+  /// print(A.columnSpace());
   /// // Output:
   /// // 1  0
   /// // 2  1
   /// // 3  1
   /// ```
-  Matrix getColumnSpace() {
+  Matrix columnSpace() {
     Matrix transpose = this.transpose();
     return transpose.rowSpace().transpose();
   }
 
-  /// Returns the null space of the matrix.
+  /// Returns the null space (also known as kernel) of the matrix.
   ///
   /// The null space is the linear space formed by all vectors that, when
   /// multiplied by the matrix, result in the zero vector.
@@ -1030,31 +1128,39 @@ extension MatrixOperationExtension on Matrix {
   ///   [0, 1, 1],
   ///   [0, 0, 0]
   /// ]);
-  /// print(A.getNullSpace());
+  /// print(A.nullSpace());
   /// // Output:
   /// // -2
   /// //  3
   /// //  0
   /// ```
-  Matrix getNullSpace() {
+  Matrix nullSpace() {
     Matrix rref = reducedRowEchelonForm();
     List<List<double>> nullSpace = [];
 
     int freeVarCount = rref.columnCount - rref.rank();
 
-    for (int i = 0; i < freeVarCount; i++) {
-      List<double> nullSpaceVector = List.filled(columnCount, 0.0);
-      int freeVarIndex = rref.columnCount - freeVarCount + i;
+    if (freeVarCount > 0) {
+      for (int i = 0; i < freeVarCount; i++) {
+        List<double> nullSpaceVector = List.filled(columnCount, 0.0);
+        int freeVarIndex = rref.columnCount - freeVarCount + i;
 
-      for (int j = 0; j < rref.rowCount; j++) {
-        nullSpaceVector[j] = -rref[j][freeVarIndex];
+        for (int j = 0; j < rref.rowCount; j++) {
+          if (rref[j][freeVarIndex] != 0 &&
+              rref[j].indexOf(rref[j][freeVarIndex]) == freeVarIndex) {
+            nullSpaceVector[j] = -rref[j][freeVarIndex];
+          }
+        }
+
+        nullSpaceVector[freeVarIndex] = 1;
+        nullSpace.add(nullSpaceVector);
       }
 
-      nullSpaceVector[freeVarIndex] = 1;
-      nullSpace.add(nullSpaceVector);
+      return Matrix(nullSpace);
+    } else {
+      //throw Exception('The matrix has no null space.');
+      return Matrix();
     }
-
-    return Matrix(nullSpace);
   }
 
   /// Returns the nullity of the matrix.
@@ -1069,7 +1175,7 @@ extension MatrixOperationExtension on Matrix {
   ///   [0, 1, 1],
   ///   [0, 0, 0]
   /// ]);
-  int getNullity() {
+  int nullity() {
     return columnCount - rank();
   }
 
@@ -1270,10 +1376,8 @@ extension MatrixOperationExtension on Matrix {
   /// // 3 4
   /// ```
   Matrix abs() {
-    List<List<dynamic>> newData = List.generate(
-        rowCount, (i) => List.generate(columnCount, (j) => _data[i][j].abs()));
-
-    return Matrix(newData);
+    return Matrix(List.generate(
+        rowCount, (i) => List.generate(columnCount, (j) => _data[i][j].abs())));
   }
 
   /// Rounds each element in the matrix to the specified number of decimal places.
@@ -1410,7 +1514,7 @@ extension MatrixOperationExtension on Matrix {
       V = V * Q;
 
       Matrix diff = A - aPrev;
-      if (diff.infinityNorm() < tolerance) {
+      if (diff.norm(Norm.chebyshev) < tolerance) {
         break;
       }
 
@@ -1606,9 +1710,7 @@ extension MatrixOperationExtension on Matrix {
   /// double condNumber = A.conditionNumber();
   /// print(condNumber);
   /// ```
-  double conditionNumber() {
-    double normA = l2Norm();
-    double normAinv = inverse().l2Norm();
-    return normA * normAinv;
+  num conditionNumber() {
+    return norm() * inverse().norm();
   }
 }

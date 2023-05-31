@@ -181,51 +181,36 @@ extension MatrixStatsExtension on Matrix {
     return rank;
   }
 
-  /// Returns the mean (average) value of the elements in the matrix.
+  /// Returns the mean of all elements in the matrix.
   ///
   /// Example:
+  ///
   /// ```dart
-  /// var matrix = Matrix([[2, 3], [1, 4]]);
+  /// var matrix = Matrix([[1.0, 2.0], [3.0, 4.0]]);
   /// print(matrix.mean()); // Output: 2.5
   /// ```
-  double mean() {
-    double sum = 0;
-    int count = 0;
-
-    for (int i = 0; i < rowCount; i++) {
-      for (int j = 0; j < columnCount; j++) {
-        sum += _data[i][j];
-        count++;
-      }
-    }
-
-    return sum / count;
+  num mean() {
+    return sum() / (rowCount * columnCount);
   }
 
-  /// Returns the median value of the elements in the matrix.
+  /// Returns the median of all elements in the matrix.
+  ///
+  /// If the number of elements in the matrix is even, it will return the average of the two middle elements.
+  /// If the number is odd, it will return the middle element.
   ///
   /// Example:
+  ///
   /// ```dart
-  /// var matrix = Matrix([[2, 3], [1, 4]]);
+  /// var matrix = Matrix([[1.0, 2.0], [3.0, 4.0]]);
   /// print(matrix.median()); // Output: 2.5
   /// ```
-  double median() {
-    List<double> elements = [];
-
-    for (int i = 0; i < rowCount; i++) {
-      for (int j = 0; j < columnCount; j++) {
-        elements.add(_data[i][j]);
-      }
-    }
-
-    elements.sort();
-
-    if (elements.length % 2 == 1) {
-      return elements[elements.length ~/ 2];
+  num median() {
+    var sortedData = _data.expand((element) => element).toList()..sort();
+    int midIndex = sortedData.length ~/ 2;
+    if (sortedData.length.isEven) {
+      return (sortedData[midIndex - 1] + sortedData[midIndex]) / 2;
     } else {
-      return (elements[elements.length ~/ 2 - 1] +
-              elements[elements.length ~/ 2]) /
-          2.0;
+      return sortedData[midIndex];
     }
   }
 
@@ -236,8 +221,8 @@ extension MatrixStatsExtension on Matrix {
   /// var matrix = Matrix([[2, 3], [1, 4]]);
   /// print(matrix.variance()); // Output: 1.25
   /// ```
-  double variance() {
-    double meanValue = mean();
+  num variance() {
+    num meanValue = mean();
     double sum = 0;
     int count = 0;
 
@@ -259,7 +244,7 @@ extension MatrixStatsExtension on Matrix {
   /// var matrix = Matrix([[2, 3], [1, 4]]);
   /// print(matrix.standardDeviation()); // Output: 1.118033988749895
   /// ```
-  double standardDeviation() {
+  num standardDeviation() {
     return math.sqrt(variance());
   }
 
@@ -354,9 +339,9 @@ extension MatrixStatsExtension on Matrix {
   /// var matrix = Matrix([[1, 2], [3, 4], [5, 6]]);
   /// print(matrix.skewness()); // Output: 0.0
   /// ```
-  double skewness() {
-    double meanValue = mean();
-    double sum = 0;
+  num skewness() {
+    num meanValue = mean();
+    num sum = 0;
     int count = 0;
 
     for (int i = 0; i < rowCount; i++) {
@@ -367,8 +352,8 @@ extension MatrixStatsExtension on Matrix {
       }
     }
 
-    double skewness = sum / count;
-    double standardDeviationCubed = math.pow(standardDeviation(), 3) as double;
+    num skewness = sum / count;
+    num standardDeviationCubed = math.pow(standardDeviation(), 3) as double;
     return skewness / standardDeviationCubed;
   }
 
@@ -379,9 +364,9 @@ extension MatrixStatsExtension on Matrix {
   /// var matrix = Matrix([[1, 2], [3, 4], [5, 6]]);
   /// print(matrix.kurtosis()); // Output: -1.2
   /// ```
-  double kurtosis() {
-    double meanValue = mean();
-    double sum = 0;
+  num kurtosis() {
+    num meanValue = mean();
+    num sum = 0;
     int count = 0;
 
     for (int i = 0; i < rowCount; i++) {
@@ -392,8 +377,8 @@ extension MatrixStatsExtension on Matrix {
       }
     }
 
-    double kurtosis = sum / count;
-    double standardDeviationFourth = math.pow(standardDeviation(), 4) as double;
+    num kurtosis = sum / count;
+    num standardDeviationFourth = math.pow(standardDeviation(), 4) as double;
     return kurtosis / standardDeviationFourth - 3;
   }
 
@@ -439,7 +424,7 @@ extension MatrixStatsExtension on Matrix {
           i = r;
           lead++;
           if (lead == columnCount) {
-            break;
+            return result;
           }
         }
       }

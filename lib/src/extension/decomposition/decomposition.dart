@@ -266,7 +266,7 @@ class MatrixDecomposition {
         u = u - qI.scale(projectionScale);
       }
 
-      double normU = u.norm();
+      num normU = u.norm();
       R[k][k] = normU;
       Q.setColumn(k, u._data.map((x) => x / normU).toList());
     }
@@ -802,7 +802,7 @@ class MatrixDecomposition {
       {DecompositionMethod method = DecompositionMethod.auto,
       double ridgeAlpha = 0.0}) {
     Decomposition decomposition;
-    double conditionNumber = _matrix.conditionNumber();
+    num conditionNumber = _matrix.conditionNumber();
     if (conditionNumber > 1e12) {
       print(
           "Warning: The matrix is ill-conditioned (condition number = $conditionNumber). Results may not be accurate.");

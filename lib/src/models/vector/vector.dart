@@ -13,7 +13,7 @@ class Vector {
     if (input is int) {
       _data = List<num>.filled(input, isDouble ? 0.0 : 0);
     } else if (input is List<num>) {
-      _data = input;
+      _data = input.cast<num>();
     } else {
       throw Exception('Invalid input type');
     }
@@ -167,77 +167,6 @@ class Vector {
   /// Returns the length (number of elements) of the vector.
   int get length => _data.length;
 
-  Vector operator +(dynamic other) {
-    if (length != other.length) {
-      throw ArgumentError("Vectors must have the same length for addition.");
-    }
-
-    if (other is! Vector && other is! List<num>) {
-      throw ArgumentError(
-          "Invalid right-hand value type (Vector or List<num>).");
-    }
-
-    Vector result = Vector(length);
-    for (int i = 0; i < length; i++) {
-      result[i] = this[i] + other[i];
-    }
-    return result;
-  }
-
-  Vector operator -(dynamic other) {
-    if (length != other.length) {
-      throw ArgumentError("Vectors must have the same length for subtraction.");
-    }
-
-    if (other is! Vector && other is! List<num>) {
-      throw ArgumentError(
-          "Invalid right-hand value type (Vector or List<num>).");
-    }
-
-    Vector result = Vector(length);
-    for (int i = 0; i < length; i++) {
-      result[i] = this[i] - other[i];
-    }
-    return result;
-  }
-
-  Vector operator *(dynamic other) {
-    Vector result = Vector(length);
-    if (other is num) {
-      for (int i = 0; i < length; i++) {
-        result[i] = this[i] * other;
-      }
-    } else if (other is Vector) {
-      if (length != other.length) {
-        throw ArgumentError(
-            "Vectors must have the same length for subtraction.");
-      }
-      for (int i = 0; i < length; i++) {
-        result[i] = this[i] * other[i];
-      }
-    }
-
-    return result;
-  }
-
-  Vector operator /(dynamic other) {
-    Vector result = Vector(length);
-    if (other is num) {
-      for (int i = 0; i < length; i++) {
-        result[i] = this[i] / other;
-      }
-    } else if (other is Vector) {
-      if (length != other.length) {
-        throw ArgumentError(
-            "Vectors must have the same length for subtraction.");
-      }
-      for (int i = 0; i < length; i++) {
-        result[i] = this[i] / other[i];
-      }
-    }
-    return result;
-  }
-
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -248,128 +177,6 @@ class Vector {
       if (this[i] != vector[i]) return false;
     }
     return true;
-  }
-
-  /// Calculates the dot product of the vector with another vector.
-  ///
-  /// The two vectors must have the same length. If they don't, an
-  /// ArgumentError is thrown.
-  double dot(Vector other) {
-    if (length != other.length) {
-      throw ArgumentError("Vectors must have the same length for dot product.");
-    }
-    double result = 0;
-    for (int i = 0; i < length; i++) {
-      result += this[i] * other[i];
-    }
-    return result;
-  }
-
-  /// Calculates the cross product of the vector with another vector.
-  ///
-  /// Both vectors must be three-dimensional. If they are not, an
-  /// ArgumentError is thrown.
-  Vector cross(Vector other) {
-    if (length != 3 || other.length != 3) {
-      throw ArgumentError("Both vectors must be three-dimensional.");
-    }
-    return Vector.fromList([
-      this[1] * other[2] - this[2] * other[1],
-      this[2] * other[0] - this[0] * other[2],
-      this[0] * other[1] - this[1] * other[0]
-    ]);
-  }
-
-  /// Scales a vector by a given scalar.
-  ///
-  /// The scalar is multiplied to each element of the vector, resulting in a new vector.
-  ///
-  /// This operation can be used for various purposes, like resizing, reflection, or changing the direction of the vector.
-  ///
-  /// [scalar]: The scalar number to multiply with each component of the vector.
-  ///
-  /// Returns a new [Vector] that is the scaled version of the original vector.
-  ///
-  /// Example:
-  /// ```dart
-  /// var v = Vector.fromList([1.0, 2.0, 3.0]);
-  /// var scaled = v.scale(2);
-  /// print(scaled); // "Vector(2.0, 4.0, 6.0)"
-  /// ```
-  ///
-  /// In the example, the original vector `v` is scaled by a factor of 2,
-  /// resulting in a new vector `scaled` where each component is twice its original value.
-  ///
-  /// @param b The scalar value to multiply the vector by.
-  /// @return A new Vector that is the original Vector scaled by `b`.
-  Vector scale(num scalar) {
-    return Vector.fromList(_data.map((e) => e * scalar).toList());
-  }
-
-  /// Returns the magnitude (or norm) of the vector.
-  ///
-  /// This is equivalent to the Euclidean length of the vector.
-  double get magnitude => norm();
-
-  /// Returns the direction (or angle) of the vector, in radians.
-  ///
-  /// This is only valid for 2D vectors. For vectors of other dimensions, an
-  /// AssertionError is thrown.
-  double get direction {
-    assert(length == 2, 'Direction can only be calculated for 2D vectors');
-    return math.atan2(_data[1], _data[0]);
-  }
-
-  /// Returns the norm (or length) of this vector.
-  ///
-  /// The norm of a vector is the square root of the sum of the squares of its elements.
-  /// It gives a measure of the magnitude (or length) of the vector.
-  ///
-  /// Example:
-  /// ```dart
-  /// var v = Vector.fromList([3, 4]);
-  /// print(v.norm());
-  /// ```
-  ///
-  /// Output:
-  /// ```
-  /// 5.0
-  /// ```
-  /// Explanation:
-  /// The vector [3, 4] has a norm of 5 because sqrt(3*3 + 4*4) = sqrt(9 + 16) = sqrt(25) = 5.
-  double norm() {
-    double sum = 0;
-    for (int i = 0; i < length; i++) {
-      sum += this[i] * this[i];
-    }
-    return math.sqrt(sum);
-  }
-
-  /// Returns this vector normalized.
-  ///
-  /// Normalizing a vector scales it so that its norm becomes 1. The resulting vector
-  /// points in the same direction as the original vector.
-  /// This method throws an `ArgumentError` if this is a zero vector, as zero vectors cannot be normalized.
-  ///
-  /// Example:
-  /// ```dart
-  /// var v = Vector.fromList([3, 4]);
-  /// print(v.normalize());
-  /// ```
-  ///
-  /// Output:
-  /// ```
-  /// [0.6, 0.8]
-  /// ```
-  /// Explanation:
-  /// The vector [3, 4] gets normalized to [0.6, 0.8] because 3/5 = 0.6 and 4/5 = 0.8,
-  /// where 5 is the norm of the original vector.
-  Vector normalize() {
-    double normValue = norm();
-    if (normValue == 0) {
-      throw ArgumentError("Cannot normalize a zero vector.");
-    }
-    return this / normValue;
   }
 
   /// Returns `true` if this is a zero vector, i.e., all its elements are zero.
@@ -449,8 +256,7 @@ class Vector {
   /// 5.196152422706632
   /// ```
 
-  num distance(Vector other,
-      {DistanceType distanceType = DistanceType.frobenius}) {
+  num distance(Vector other, {Distance distance = Distance.frobenius}) {
     if (length != other.length) {
       throw ArgumentError(
           "Vectors must have the same length for distance calculation.");
@@ -477,26 +283,26 @@ class Vector {
       hammingDistance += _data[i] != other[i] ? 1 : 0;
     }
 
-    switch (distanceType) {
-      case DistanceType.frobenius:
+    switch (distance) {
+      case Distance.frobenius:
         return math.sqrt(sumSquare);
-      case DistanceType.manhattan:
+      case Distance.manhattan:
         return sumAbs;
-      case DistanceType.chebyshev:
+      case Distance.chebyshev:
         return maxAbs;
-      case DistanceType.mahalanobis:
+      case Distance.mahalanobis:
         // We need a covariance matrix and its inverse to compute Mahalanobis distance
         return double.nan; // placeholder value indicating unimplemented
-      case DistanceType.cosine:
+      case Distance.cosine:
         final magnitude1 = math.sqrt(sumSquare1);
         final magnitude2 = math.sqrt(sumSquare2);
         return 1 - (dotProduct / (magnitude1 * magnitude2));
-      case DistanceType.hamming:
+      case Distance.hamming:
         return hammingDistance;
-      case DistanceType.spectral:
+      case Distance.spectral:
       // For vectors, we consider spectral norm as its magnitude
       //return math.sqrt(sumSquare);
-      case DistanceType.trace:
+      case Distance.trace:
       // For vectors, we consider trace norm as the sum of its elements
       //return sumAbs;
       default:

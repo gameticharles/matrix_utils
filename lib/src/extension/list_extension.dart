@@ -14,7 +14,7 @@ extension MatrixListExtension on List<List<dynamic>> {
   Matrix toMatrix() => Matrix(this);
 
   /// Function returns the sum of array elements
-  double get sum => Matrix(this).sum();
+  num get sum => Matrix(this).sum();
 
   /// To find a diagonal element from a given matrix and gives output as one dimensional matrix
   List<dynamic> get diagonal => Matrix(this).diagonal();

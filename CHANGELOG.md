@@ -1,3 +1,11 @@
+## 0.1.7
+* Added rescale for both vectors and matrix
+* Improved vector compatibility with lists
+* Added operations on vectors such as expo, sum, prod, etc.
+* Fixed normalize function with options on the norm to use
+* Fixed Norm with options
+* Fixed bugs
+
 ## 0.1.5
 * Added support for distance calculation for vectors and matrices
 * Improved consistency in linear algebra
