@@ -46,23 +46,3 @@ class MatrixElementIterator implements Iterator<dynamic> {
     return false;
   }
 }
-
-class VectorElementIterator implements Iterator<dynamic> {
-  final Vector _vector;
-  int _currentCol;
-
-  VectorElementIterator(this._vector) : _currentCol = -1;
-
-  @override
-  dynamic get current =>
-      _currentCol < _vector.length ? _vector[_currentCol] : null;
-
-  @override
-  bool moveNext() {
-    if (_currentCol < _vector.length - 1) {
-      _currentCol++;
-      return true;
-    }
-    return false;
-  }
-}

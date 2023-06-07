@@ -205,39 +205,31 @@ class Matrix extends IterableMixin<List<dynamic>> {
   /// fills the first row from left to right, then moves on to the next row,
   /// and so on.
   ///
-  /// Throws an `ArgumentError` if the provided list does not contain enough elements
-  /// to fill the Matrix and `fillWithZeros` is `false`, or if `rows * cols` exceeds
-  /// the size of the list.
+  /// Throws an `ArgumentError` if the provided list does not contain exactly
+  /// `rows * cols` elements.
   ///
   /// - [source]: A single-dimensional list containing the elements to populate
   ///             the new Matrix.
   /// - [rows]: The number of rows the new Matrix should have.
   /// - [cols]: The number of columns the new Matrix should have.
-  /// - [fillWithZeros]: Whether the function should fill the remaining elements
-  ///                    with zeros if the source list does not contain enough elements.
-  ///                    Default is `true`.
   ///
   /// Example:
   /// ```dart
   /// final source = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
-  /// final matrix = Matrix.fromFlattenedList(source, 3, 5, fillWithZeros: true);
+  /// final matrix = Matrix.fromFlattenedList(source, 3, 5);
   /// print(matrix);
   /// // Output:
   /// // 1 2 3 4 5
   /// // 6 7 8 9 0
   /// // 0 0 0 0 0
   /// ```
-  factory Matrix.fromFlattenedList(List<dynamic> source, int rows, int cols,
-      {bool fillWithZeros = true}) {
+  factory Matrix.fromFlattenedList(List<dynamic> source, int rows, int cols) {
     int sourceIndex = 0;
-    if (!fillWithZeros && source.length < rows * cols) {
-      throw ArgumentError(
-          'List length is less than the matrix size and fillWithZeros is set to false');
-    }
     List<List<dynamic>> data = List.generate(
         rows,
         (_) => List.generate(cols,
             (_) => sourceIndex < source.length ? source[sourceIndex++] : 0));
+
     return Matrix(data);
   }
 

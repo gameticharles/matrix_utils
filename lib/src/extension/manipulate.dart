@@ -479,28 +479,6 @@ extension MatrixManipulationExtension on Matrix {
     return Matrix(newData);
   }
 
-  /// Augments the matrix with the given column vector or matrix.
-  /// This method is an alias of `appendColumns`.
-  ///
-  /// [augmentee]: A Matrix or a list of columns to append to the matrix
-  ///
-  /// Returns a new matrix with the appended columns
-  ///
-  /// Example:
-  /// ```dart
-  /// var matrix = Matrix.fromList([[1, 2], [3, 4]]);
-  /// var column = Matrix.column([5, 6]);
-  /// matrix = matrix.augment(column);
-  /// print(matrix);
-  /// // Output:
-  /// // Matrix: 2x3
-  /// // ┌ 1 2 5 ┐
-  /// // └ 3 4 6 ┘
-  /// ```
-  Matrix augment(dynamic augmentee) {
-    return appendColumns(augmentee);
-  }
-
   /// Retrieves the element of the matrix at the specified row and column indices.
   ///
   /// [row]: The row index of the element.
@@ -524,8 +502,8 @@ extension MatrixManipulationExtension on Matrix {
 
   /// Replaces the elements in the specified rows and columns with the given value.
   ///
-  /// [rowIndices]: A list of row indices to replace.
-  /// [colIndices]: A list of column indices to replace.
+  /// [rows]: A list of row indices to replace.
+  /// [cols]: A list of column indices to replace.
   /// [value]: The value to replace the elements with.
   ///
   /// Returns a new matrix with the specified elements replaced.
@@ -540,13 +518,13 @@ extension MatrixManipulationExtension on Matrix {
   /// // 3  4
   /// // 5  0
   /// ```
-  Matrix replace(List<int> rowIndices, List<int> colIndices, dynamic value) {
+  Matrix replace(List<int> rows, List<int> cols, dynamic value) {
     List<List<dynamic>> newData = List.from(toList());
-    for (int row in rowIndices) {
+    for (int row in rows) {
       if (row >= rowCount || row < 0) {
         throw Exception('Invalid row index');
       }
-      for (int col in colIndices) {
+      for (int col in cols) {
         if (col >= columnCount || col < 0) {
           throw Exception('Invalid column index');
         }
@@ -686,8 +664,8 @@ extension MatrixManipulationExtension on Matrix {
     }
 
     if (!resize && retainSize) {
-      num copyRowCount = math.min(rowCount, other.rowCount);
-      num copyColumnCount = math.min(columnCount, other.columnCount);
+      int copyRowCount = math.min(rowCount, other.rowCount);
+      int copyColumnCount = math.min(columnCount, other.columnCount);
 
       for (int i = 0; i < copyRowCount; i++) {
         for (int j = 0; j < copyColumnCount; j++) {
@@ -1092,8 +1070,8 @@ extension MatrixManipulationExtension on Matrix {
     }
 
     // Determine the dimensions of the output matrices
-    int numRows = math.max(rowCount, b.rowCount).toInt();
-    int numCols = math.max(columnCount, b.columnCount).toInt();
+    int numRows = math.max(rowCount, b.rowCount);
+    int numCols = math.max(columnCount, b.columnCount);
 
     // Broadcast and replicate the input matrices
     Matrix aBroadcasted = replicateMatrix(numRows, numCols);

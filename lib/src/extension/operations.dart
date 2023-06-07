@@ -1,13 +1,5 @@
 part of matrix_utils;
 
-extension NumOperationExtension on num {
-  dynamic operator +(dynamic other) {
-    if (other is Matrix || other is Vector) {
-      return -other + this;
-    }
-  }
-}
-
 extension MatrixOperationExtension on Matrix {
   /// Adds the given matrix to this matrix element-wise.
   ///
@@ -33,16 +25,6 @@ extension MatrixOperationExtension on Matrix {
 
       List<List<dynamic>> newData = List.generate(rowCount,
           (i) => List.generate(columnCount, (j) => _data[i][j] + other[i][j]));
-
-      return Matrix(newData);
-    } else if (other is Vector) {
-      if (rowCount != other.length) {
-        throw ArgumentError(
-            'Matrix and vector dimensions must match for addition.');
-      }
-
-      List<List<dynamic>> newData = List.generate(rowCount,
-          (i) => List.generate(columnCount, (j) => _data[i][j] + other[i]));
 
       return Matrix(newData);
     } else if (other is num) {
@@ -79,16 +61,6 @@ extension MatrixOperationExtension on Matrix {
 
       List<List<dynamic>> newData = List.generate(rowCount,
           (i) => List.generate(columnCount, (j) => _data[i][j] - other[i][j]));
-
-      return Matrix(newData);
-    } else if (other is Vector) {
-      if (rowCount != other.length) {
-        throw ArgumentError(
-            "Matrix and vector dimensions must match for addition.");
-      }
-
-      List<List<dynamic>> newData = List.generate(rowCount,
-          (i) => List.generate(columnCount, (j) => _data[i][j] - other[i]));
 
       return Matrix(newData);
     } else if (other is num) {
@@ -158,20 +130,6 @@ extension MatrixOperationExtension on Matrix {
 
       // Otherwise, use Strassen's algorithm
       return _strassenMultiply(other);
-    } else if (other is Vector) {
-      if (columnCount != other.length) {
-        throw ArgumentError(
-            'The number of columns in the matrix must be equal to the length of the vector for multiplication.');
-      }
-
-      Vector result = Vector(rowCount);
-      for (int i = 0; i < rowCount; i++) {
-        for (int j = 0; j < columnCount; j++) {
-          result[i] += this[i][j] * other[j];
-        }
-      }
-
-      return Column(result._data);
     } else if (other is num) {
       return scale(other);
     } else {
@@ -948,7 +906,7 @@ extension MatrixOperationExtension on Matrix {
   }
 
   /// Computes the matrix of cofactors for a square matrix.
-  /// Each element in the cofactor matrix is the determinant of the subMatrix
+  /// Each element in the cofactor matrix is the determinant of the submatrix
   /// formed by removing the corresponding row and column from the original matrix,
   /// multiplied by the alternating sign pattern.
   ///
@@ -976,7 +934,7 @@ extension MatrixOperationExtension on Matrix {
   }
 
   /// Computes the matrix of cofactors for a square matrix.
-  /// Each element in the cofactor matrix is the determinant of the subMatrix
+  /// Each element in the cofactor matrix is the determinant of the submatrix
   /// formed by removing the corresponding row and column from the original matrix,
   /// multiplied by the alternating sign pattern.
   ///
@@ -1694,11 +1652,11 @@ extension MatrixOperationExtension on Matrix {
     return Bidiagonalization(U, B, V);
   }
 
-  /// Checks if the current matrix is contained in or is a subMatrix of any matrix in [matrices].
+  /// Checks if the current matrix is contained in or is a submatrix of any matrix in [matrices].
   ///
   /// [matrices]: A list of matrices to check against.
   ///
-  /// Returns `true` if the current matrix is contained in or is a subMatrix of any matrix in [matrices], otherwise `false`.
+  /// Returns `true` if the current matrix is contained in or is a submatrix of any matrix in [matrices], otherwise `false`.
   ///
   /// Example:
   /// ```dart
@@ -1714,11 +1672,11 @@ extension MatrixOperationExtension on Matrix {
     return matrices.any((matrix) => this == matrix || isSubMatrix(matrix));
   }
 
-  /// Checks if the current matrix is not contained in and is not a subMatrix of any matrix in [matrices].
+  /// Checks if the current matrix is not contained in and is not a submatrix of any matrix in [matrices].
   ///
   /// [matrices]: A list of matrices to check against.
   ///
-  /// Returns `true` if the current matrix is not contained in and is not a subMatrix of any matrix in [matrices], otherwise `false`.
+  /// Returns `true` if the current matrix is not contained in and is not a submatrix of any matrix in [matrices], otherwise `false`.
   ///
   /// Example:
   /// ```dart
@@ -1752,8 +1710,8 @@ extension MatrixOperationExtension on Matrix {
   ///   [3, 6, 7]
   /// ]);
   ///
-  /// double conNumber = A.conditionNumber();
-  /// print(conNumber);
+  /// double condNumber = A.conditionNumber();
+  /// print(condNumber);
   /// ```
   num conditionNumber() {
     return norm() * inverse().norm();

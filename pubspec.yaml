@@ -6,10 +6,8 @@ repository: https://github.com/gameticharles/matrix_utils
 environment:
   sdk: '>=2.19.6 <4.0.0'
 
-dependencies:
-  #   path:
-  buffer: ^1.2.0
-  intl: ^0.18.1
+# dependencies:
+#   path:
 
 dev_dependencies:
   benchmark_harness: ^2.2.2
