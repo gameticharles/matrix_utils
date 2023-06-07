@@ -1,7 +1,24 @@
 part of matrix_utils;
 
+// extension DynamicVector on dynamic {
+//   Matrix operator +(dynamic other) {
+//     if (this is Matrix && other is Matrix) {
+//       return (this as Matrix) * (Matrix);
+//     }
+//     return Matrix(1);
+//   }
+// }
+
 extension VectorOperations on Vector {
-  Vector operator +(dynamic other) {
+  dynamic operator +(dynamic other) {
+    if (other is Matrix) {
+      return other + this;
+    } else if (other is num) {
+      Vector result = Vector(length);
+      for (int i = 0; i < length; i++) {
+        result[i] = this[i] + other;
+      }
+    }
     if (length != other.length) {
       throw ArgumentError("Vectors must have the same length for addition.");
     }
@@ -18,7 +35,15 @@ extension VectorOperations on Vector {
     return result;
   }
 
-  Vector operator -(dynamic other) {
+  dynamic operator -(dynamic other) {
+    if (other is Matrix) {
+      return other - this;
+    } else if (other is num) {
+      Vector result = Vector(length);
+      for (int i = 0; i < length; i++) {
+        result[i] = this[i] - other;
+      }
+    }
     if (length != other.length) {
       throw ArgumentError("Vectors must have the same length for subtraction.");
     }
@@ -41,6 +66,8 @@ extension VectorOperations on Vector {
       for (int i = 0; i < length; i++) {
         result[i] = this[i] * other;
       }
+    } else if (other is Matrix) {
+      result = Vector((other * this).flatten().cast<num>());
     } else if (other is Vector) {
       if (length != other.length) {
         throw ArgumentError(
@@ -70,6 +97,23 @@ extension VectorOperations on Vector {
       }
     }
     return result;
+  }
+
+  /// Negates this vector element-wise.
+  ///
+  /// Returns a new vector containing the result of the element-wise negation.
+  ///
+  /// Example:
+  /// ``` dart
+  /// var vector = Vector([1, 2, 3]);
+  /// var result = -vector;
+  /// print(result);
+  /// // Output:   /// // -1 -2 -3
+  /// ```
+  Vector operator -() {
+    List<num> newData = List.generate(length, (i) => -_data[i]);
+
+    return Vector(newData);
   }
 
   /// Calculates the dot product of the vector with another vector.
@@ -317,6 +361,62 @@ extension VectorOperations on Vector {
   /// ```
   num product() {
     return _data.fold<num>(1, (a, b) => a * b);
+  }
+
+  /// Computes the inner product of two vectors.
+  ///
+  /// This is the operation of multiplying two vectors of the same size
+  /// element-wise and summing up the results, resulting in a scalar.
+  ///
+  /// The vectors must have the same length, otherwise an [ArgumentError] is thrown.
+  ///
+  /// Example:
+  /// ```dart
+  /// var x = Vector([1, 2, 3]);
+  /// var y = Vector([4, 5, 6]);
+  /// double z = x.innerProduct(y);
+  /// print(z); // 32
+  /// ```
+  num innerProduct(Vector other) {
+    // Check that the vectors have the same length
+    if (length != other.length) {
+      throw ArgumentError('Vectors must have the same length');
+    }
+    // Initialize the result to zero
+    num result = 0;
+    // Loop over the elements and add their products
+    for (int i = 0; i < length; i++) {
+      result += this[i] * other[i];
+    }
+    // Return the result
+    return result;
+  }
+
+  /// Computes the outer product of two vectors.
+  ///
+  /// This is the operation of multiplying two vectors of different sizes
+  /// element-wise and forming a matrix, resulting in a matrix.
+  ///
+  /// The outer product of two vectors x and y is a matrix whose element at row i
+  /// and column j is the product of x[i] and y[j].
+  /// The matrix has the same number of rows as x and the same number of columns as y.
+  ///
+  /// Example:
+  /// ```dart
+  /// var x = [1, 2, 3];
+  /// var y = [4, 5];
+  /// var z = x.outerProduct(y);
+  /// print(z);
+  ///
+  /// // Output:
+  /// // Matrix: 3x2
+  /// // ┌  4  5 ┐
+  /// // │  8 10 │
+  /// // └ 12 15 ┘
+  /// ```
+  Matrix outerProduct(Vector other) {
+    return Matrix(
+        _data.map((xi) => other._data.map((yj) => xi * yj).toList()).toList());
   }
 
   /// Returns a new vector with each element being the exponential function of the corresponding element in the original vector.

@@ -14,7 +14,28 @@ void main() {
     [1, 1, 2, 9]
   ]);
 
-  var eMat = Matrix("1 2 3 4; 2 5 6 7; 3 6 8 9; 4 7 9 10");
+  var eMat = Matrix('1 2 3 4; 2 5 6 7; 3 6 8 9; 4 7 9 10');
+
+  // Define a spherical triangle with one angle-side pair
+  //var triangle = SphericalTriangle(a: pi / 2, b: pi / 2, c: pi / 2);
+  var triangle = SphericalTriangle.fromAllSides(pi / 2, pi / 3, pi / 4);
+
+  // Angles
+  print('AngleA: ${triangle.angleA} ≈ ${degrees(triangle.angleA)}');
+  print('AngleB: ${triangle.angleB} ≈ ${degrees(triangle.angleB)}');
+  print('AngleC: ${triangle.angleC} ≈ ${degrees(triangle.angleC)}');
+
+  // Sides
+  print('SideA: ${triangle.sideA} ≈ ${degrees(triangle.sideA)}');
+  print('SideB: ${triangle.sideB} ≈ ${degrees(triangle.sideB)}');
+  print('SideC: ${triangle.sideC} ≈ ${degrees(triangle.sideC)}');
+
+  print(
+      'Area: ${triangle.area} ≈ ${triangle.areaPercentage} % of unit sphere surface area');
+  print(
+      'Perimeter: ${triangle.perimeter} ≈ ${triangle.perimeterPercentage} % of unit sphere circumference');
+
+  return;
 
   printLine('Test Vectors');
 
@@ -28,6 +49,15 @@ void main() {
   print(map[Vector.fromList([1, 2, 3, 4, 5])]); // true
   print(Vector.fromList([1, 2, 3, 4, 5]).hashCode ==
       Vector.fromList([1, 2, 3, 4, 5]).hashCode); // true
+
+  var xx = Vector([1, 2, 3, 4]);
+  var yy = Vector([4, 5]);
+  print('');
+  print(xx.outerProduct(yy));
+
+  print(-Vector([1, 2, 3]) + mat);
+
+  print(xx * mat + xx.subVector(end: xx.length - 2));
 
   //Vector operations
   final vector1 = Vector([1.0, 2.0, 3.0, 4.0, 5.0]);
@@ -345,8 +375,8 @@ void main() {
   printLine('Creating Matrices');
 
   print('Arrange 1 to 10');
-  var arange = Matrix.range(10);
-  print(arange);
+  var arrange = Matrix.range(10);
+  print(arrange);
 
   print('Create Zero 2x2 Matrix');
   var zeros = Matrix.zeros(2, 2);

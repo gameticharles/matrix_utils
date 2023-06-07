@@ -6,12 +6,17 @@ import 'dart:collection';
 /// The library was developed, documented, and published by
 /// [Charles Gameti]
 
-import 'dart:math' as math;
 import 'dart:io';
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:math' as math;
+
+import 'package:matrix_utils/src/math/math.dart' as maths;
 
 export 'matrix_utils.dart';
+export 'src/math/math.dart';
+
+//part 'src/math/math.dart';
 
 part 'src/matrix_utils.dart';
 part 'src/utils/utils.dart';
@@ -32,6 +37,7 @@ part 'src/models/complex.dart';
 part 'src/models/sparse_matrix.dart';
 part 'src/models/eigen/divide_conqour.dart';
 part 'src/models/iterators/matrix_iterator.dart';
+part 'src/models/iterators/vector_iterator.dart';
 part 'src/models/iterators/element_iterator.dart';
 
 part 'src/models/vector/vector.dart';
@@ -48,13 +54,15 @@ part 'src/extension/stats.dart';
 part 'src/extension/operations.dart';
 part 'src/extension/advance_operations.dart';
 part 'src/extension/structure.dart';
-part 'src/extension/hyperbolic_functions.dart';
 
-part 'src/extension/interoperability.dart';
+part 'src/extension/interoperability/interoperability.dart';
 part 'src/extension/matrix_factory.dart';
 part 'src/extension/decomposition/decomposition.dart';
 part 'src/extension/decomposition/svd.dart';
 part 'src/extension/decomposition/lu.dart';
 part 'src/extension/decomposition/models.dart';
-part 'src/extension/linear_algebra_utils.dart';
+part 'src/extension/algebra/linear/linear.dart';
+part 'src/extension/algebra/nonlinear/nonlinear.dart';
+part 'src/extension/algebra/least_squares/base_least_square.dart';
+part 'src/extension/algebra/least_squares/special_least_square.dart';
 part 'src/extension/matrix_functions.dart';

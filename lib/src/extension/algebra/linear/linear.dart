@@ -94,7 +94,7 @@ class LinearSystemSolvers {
     int n = A.columnCount;
     Matrix I = Matrix.eye(n, isDouble: true);
     Matrix aTrans = A.transpose();
-    Matrix atAplusAlphai = aTrans * A + I.scale(alpha);
+    Matrix atAplusAlphai = (aTrans * A) + I.scale(alpha);
     Matrix atAplusAlphaIInv = atAplusAlphai.inverse();
     Matrix x = atAplusAlphaIInv * aTrans * b;
     return x;

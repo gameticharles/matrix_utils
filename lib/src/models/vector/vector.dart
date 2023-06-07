@@ -1,9 +1,24 @@
 part of matrix_utils;
 
 //extends ListBase<num>
-class Vector {
+class Vector extends IterableMixin<num> {
   /// Internal data of the vector.
   List<num> _data = const [];
+
+  /// Getter to retrieve an iterable over all elements in the matrix,
+  /// regardless of their row or column.
+  ///
+  /// Example usage:
+  /// ```
+  /// final matrix = Matrix([[1, 2], [3, 4]]);
+  /// matrix.elements.forEach(print); // Prints 1, 2, 3, 4
+  /// ```
+  Iterable<dynamic> get elements => _VectorElementIterable(this);
+
+  /// Overrides the iterator getter to provide a VectorIterator.
+  /// This iterator iterates over the elements of the vector.
+  @override
+  Iterator<num> get iterator => VectorIterator(this);
 
   /// Constructs a [Vector] of given length with all elements initialized to 0.
   ///
@@ -161,10 +176,12 @@ class Vector {
     _data[index] = value;
   }
 
-  /// Converts the vector to a list of numerical values.
-  List<num> toList() => _data;
+  // /// Converts the vector to a list of numerical values.
+  // @override
+  // List<num> toList() => _data;
 
   /// Returns the length (number of elements) of the vector.
+  @override
   int get length => _data.length;
 
   @override
@@ -587,16 +604,98 @@ class Vector {
     }
   }
 
-  // void rotate(double angle) {
-  //   // Default implementation or throw unsupported operation error
-  // }
+  /// Adds a new value at the end of the row.
+  void push(num value) {
+    _data.add(value);
+  }
 
-  // void transform(Matrix matrix) {
-  //   // Default implementation or throw unsupported operation error
-  // }
+  /// Removes the last value in the row.
+  num pop() {
+    return _data.removeLast();
+  }
+
+  /// Adds a new value at the beginning of the row.
+  void unShift(num value) {
+    _data.insert(0, value);
+  }
+
+  /// Removes the first value in the row.
+  dynamic shift() {
+    return _data.removeAt(0);
+  }
+
+  /// Adds/removes elements at an arbitrary position in the row.
+  void splice(int start, int deleteCount, [List<num> newItems = const []]) {
+    _data.removeRange(start, start + deleteCount);
+    _data.insertAll(start, newItems);
+  }
+
+  /// Swaps two elements in the row.
+  void swap(int index1, int index2) {
+    var temp = _data[index1];
+    _data[index1] = _data[index2];
+    _data[index2] = temp;
+  }
+
+  /// Returns the leading diagonal matrix from a vector.
+  ///
+  /// Example:
+  /// ```dart
+  /// var vector = Vector([1, 2, 3]);
+  /// print(vector.toDiagonal);
+  /// // 1 0 0
+  /// // 0 2 0
+  /// // 0 0 3
+  /// ```
+  Matrix toDiagonal() {
+    return Diagonal(_data);
+  }
+
+  /// Constructs a new Matrix from a vector.
+  ///
+  /// This function takes a current vector and the desired number of
+  /// `rows` and `columns` and returns a new Matrix with those dimensions, populated
+  /// with the elements from the source list.
+  ///
+  /// The function fills the Matrix in row-major order, which means that it
+  /// fills the first row from left to right, then moves on to the next row,
+  /// and so on. If the
+  ///
+  /// Throws an `ArgumentError` if the provided list does not contain enough elements
+  /// to fill the Matrix and `fillWithZeros` is `false`, or if `rows * cols` exceeds
+  /// the size of the list.
+  ///
+  /// - [rows]: The number of rows the new Matrix should have.
+  /// - [cols]: The number of columns the new Matrix should have.
+  /// - [fillWithZeros]: Whether the function should fill the remaining elements
+  ///                    with zeros if the source list does not contain enough elements.
+  ///                    Default is `true`.
+  ///
+  /// Example:
+  /// ```dart
+  /// final source = Vector([1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
+  /// final matrix = source.toMatrix(3, 5, fillWithZeros: true);
+  /// print(matrix);
+  /// // Output:
+  /// // 1 2 3 4 5
+  /// // 6 7 8 9 0
+  /// // 0 0 0 0 0
+  /// ```
+  Matrix toMatrix(int rows, int cols, {bool fillWithZeros = true}) {
+    return Matrix.fromFlattenedList(_data, rows, cols);
+  }
 
   @override
   String toString() {
     return _data.toString();
   }
+}
+
+class _VectorElementIterable extends IterableBase<dynamic> {
+  final Vector _vector;
+
+  _VectorElementIterable(this._vector);
+
+  @override
+  Iterator<dynamic> get iterator => VectorElementIterator(_vector);
 }

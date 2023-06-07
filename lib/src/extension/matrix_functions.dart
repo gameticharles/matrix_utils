@@ -87,7 +87,7 @@ extension MatrixFunctions on Matrix {
     Matrix result = Matrix.zeros(rowCount, columnCount, isDouble: true);
     for (int i = 0; i < rowCount; i++) {
       for (int j = 0; j < columnCount; j++) {
-        result[i][j] = (this[i][j] as num).sinh();
+        result[i][j] = maths.sinh(this[i][j]);
       }
     }
     return result;
@@ -98,7 +98,7 @@ extension MatrixFunctions on Matrix {
     Matrix result = Matrix.zeros(rowCount, columnCount, isDouble: true);
     for (int i = 0; i < rowCount; i++) {
       for (int j = 0; j < columnCount; j++) {
-        result[i][j] = (this[i][j] as num).cosh();
+        result[i][j] = maths.cosh(this[i][j]);
       }
     }
     return result;
@@ -109,7 +109,7 @@ extension MatrixFunctions on Matrix {
     Matrix result = Matrix.zeros(rowCount, columnCount, isDouble: true);
     for (int i = 0; i < rowCount; i++) {
       for (int j = 0; j < columnCount; j++) {
-        result[i][j] = (this[i][j] as num).tanh();
+        result[i][j] = maths.tanh(this[i][j]);
       }
     }
     return result;
@@ -120,7 +120,7 @@ extension MatrixFunctions on Matrix {
     Matrix result = Matrix.zeros(rowCount, columnCount, isDouble: true);
     for (int i = 0; i < rowCount; i++) {
       for (int j = 0; j < columnCount; j++) {
-        result[i][j] = (this[i][j] as num).asinh();
+        result[i][j] = maths.asinh(this[i][j]);
       }
     }
     return result;
@@ -131,7 +131,7 @@ extension MatrixFunctions on Matrix {
     Matrix result = Matrix.zeros(rowCount, columnCount, isDouble: true);
     for (int i = 0; i < rowCount; i++) {
       for (int j = 0; j < columnCount; j++) {
-        result[i][j] = (this[i][j] as num).acosh();
+        result[i][j] = maths.acosh(this[i][j]);
       }
     }
     return result;
@@ -142,7 +142,7 @@ extension MatrixFunctions on Matrix {
     Matrix result = Matrix.zeros(rowCount, columnCount, isDouble: true);
     for (int i = 0; i < rowCount; i++) {
       for (int j = 0; j < columnCount; j++) {
-        result[i][j] = (this[i][j] as num).atanh();
+        result[i][j] = maths.atanh(this[i][j]);
       }
     }
     return result;
