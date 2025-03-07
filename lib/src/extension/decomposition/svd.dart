@@ -456,7 +456,7 @@ class SVD {
                 break;
               }
               var t = _s[0][k];
-              _s[0][k] = _s[k + 1];
+              _s[0][k] = _s[0][k + 1];
               _s[0][k + 1] = t;
               if (wantv && (k < _n - 1)) {
                 for (var i = 0; i < _n; i++) {

@@ -18,6 +18,12 @@
 
 A Dart library that provides an easy-to-use Matrix class for performing various matrix operations and linear algebra.
 
+## Note ⚠
+
+
+A more robust version this library is found in [advance_math](https://pub.dev/packages/advance_math). This package will be updated with the stable version from [advance_math](https://pub.dev/packages/advance_math).
+
+
 ## Features
 
 - Matrix creation, filling and generation: Methods for filling the matrix with specific values or generating matrices with certain properties, such as zero, ones, identity, diagonal, list, or random matrices.

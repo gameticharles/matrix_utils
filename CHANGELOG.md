@@ -1,3 +1,6 @@
+## 0.1.9
+* Fixed svd error based on [issue 2](https://github.com/gameticharles/matrix_utils/issues/2)
+
 ## 0.1.8
 * Fixed bugs (in null space)
 
