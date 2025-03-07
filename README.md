@@ -18,10 +18,11 @@
 
 A Dart library that provides an easy-to-use Matrix class for performing various matrix operations and linear algebra.
 
-## Note ⚠
-
-
-A more robust version this library is found in [advance_math](https://pub.dev/packages/advance_math). This package will be updated with the stable version from [advance_math](https://pub.dev/packages/advance_math).
+> ## ⚠️ Note
+> 
+> A more robust version of this library is available in **[advance_math](https://pub.dev/packages/advance_math)**.
+> 
+> *This package will soon be updated to reflect the stable features found in **advance_math***.
 
 
 ## Features
